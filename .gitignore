@@ -1,10 +1,42 @@
+# Entornos virtuales
 venv/
+.venv/
+env/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.pycache
+
+# Bases de datos
 *.db
 *.sqlite
+*.sqlite3
+
+# Secretos — NUNCA al repo
 .env
 .env.*
+!.env.example
+
+# Logs
 *.log
+logs/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Sistemas operativos
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# IDE
+.vscode/
+.idea/
