@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regina Valentina | Experta en Mascotas</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6a1b9a">
+    <meta name="description" content="Regina Valentina: La experta en comportamiento animal que pone orden en el rancho. ¡Tus primeros 3 consejos son GRATIS! 🤠🐾">
+    
+    <meta property="og:title" content="Regina Valentina 🤠🐾 | Experta en Mascotas">
+    <meta property="og:description" content="¿Tu mascota manda en casa? Platica con Regina y soluciona sus problemas hoy mismo.">
+    <meta property="og:image" content="https://reginavalentina.com/ReginaValentinaRostro.png?v=2">
+    <meta property="og:url" content="https://reginavalentina.com">
+    <meta property="og:type" content="website">
+
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/open-dyslexic');
+        @import url('https://fonts.cdnfonts.com/css/gallaudet');
+
+        body.dyslexia-mode * { font-family: 'OpenDyslexic', sans-serif !important; letter-spacing: 0.05em !important; }
+        body.large-text-mode .message { font-size: 1.45rem !important; line-height: 1.6 !important; }
+        body.large-text-mode input { font-size: 1.35rem !important; }
+        body.large-text-mode .chip { font-size: 1.25rem !important; }
+
+        body.high-contrast-mode { --bg-body: #000000 !important; --bg-chat: #000000 !important; --text-main: #ffffff !important; --header-bg: #000000 !important; --bot-bubble: #1a1a1a !important; --bot-text: #ffffff !important; --input-border: #ffff00 !important; }
+        body.high-contrast-mode .header { border-bottom: 3px solid #ffff00; }
+        body.high-contrast-mode button, body.high-contrast-mode .chip { border: 2px solid #ffff00 !important; color: #ffff00 !important; background: #000 !important; }
+        body.high-contrast-mode .user-message { background-color: #ffff00 !important; color: #000000 !important; font-weight: bold; }
+        body.high-contrast-mode a { color: #ffff00 !important; text-decoration: underline; }
+
+        body.lsm-mode .message { font-family: 'Gallaudet', sans-serif !important; font-size: 2.2rem !important; line-height: 1.6 !important; }
+
+        :root { --bg-body: #f4f4f9; --bg-chat: #ffffff; --text-main: #333333; --header-bg: #6a1b9a; --bot-bubble: #f1f0f0; --bot-text: #333333; --input-border: #ddd; }
+        [data-theme="dark"] { --bg-body: #121212; --bg-chat: #1e1e1e; --text-main: #e0e0e0; --header-bg: #4a148c; --bot-bubble: #2d2d2d; --bot-text: #e0e0e0; --input-border: #444; }
+        [data-theme="sepia"] { --bg-body: #f4ecd8; --bg-chat: #fdf6e3; --text-main: #5b4636; --header-bg: #8b6b61; --bot-bubble: #ede0c8; --bot-text: #4a3b32; --input-border: #d3c4a9; }
+
+        .support-btn { position: fixed; bottom: 20px; right: 20px; background-color: #6a1b9a; border-radius: 50%; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: 0.3s; cursor:pointer; }
+        .support-btn:hover { transform: scale(1.1); background-color: #ffca28; }
+
+        .share-bubble { position: fixed; bottom: 85px; right: 20px; background: linear-gradient(145deg, #ff9800, #f57c00); border-radius: 50%; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: 0.3s; cursor:pointer; font-size:1.6rem; border:none; color:white; }
+        .share-bubble:hover { transform: scale(1.1); background: #e65100; }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; flex-direction: column; transition: background-color 0.3s ease; font-size: 1.15rem; }
+        
+        .chat-container { width: 95%; max-width: 750px; background: var(--bg-chat); border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; height: 85vh; margin-bottom: 20px; margin-top: 15px; transition: background-color 0.3s ease; }
+        
+        .header { background-color: var(--header-bg); color: white; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px; position: relative; }
+        .regina-avatar { width: 105px !important; height: 105px !important; min-width: 105px !important; min-height: 105px !important; border-radius: 50%; border: 3px solid white; object-fit: cover;}
+        .header div { text-align: left; }
+        .header h1 { margin: 0; font-size: 1.6em; }
+        .header p { margin: 5px 0 0 0; font-size: 1.05em; opacity: 0.9; }
+
+        #chat-box { flex: 1; padding: 20px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .message { max-width: 88%; padding: 16px 20px; border-radius: 20px; font-size: 1.25rem; line-height: 1.65; position: relative; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+        .user-message { align-self: flex-end; background-color: #6a1b9a; color: white; border-bottom-right-radius: 2px; }
+        .bot-message { align-self: flex-start; background-color: var(--bot-bubble); color: var(--bot-text); border-bottom-left-radius: 2px; }
+        
+        .input-area { padding: 15px 20px; border-top: 1px solid var(--input-border); display: flex; flex-direction: column; gap: 12px; background: var(--bg-chat); }
+        .input-area input { font-size: 1.2rem; width: 100%; box-sizing: border-box; padding: 14px 16px; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--input-border); border-radius: 20px; outline: none; }
+        .input-controls { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .input-icons { display: flex; gap: 15px; }
+        .input-controls button.btn-enviar { font-size: 1.15rem; padding: 10px 25px; background-color: #6a1b9a; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        
+        .pdf-btn { display: block; margin-top: 10px; background: #e91e63; color: white; text-align: center; padding: 8px 12px; border-radius: 5px; font-size: 1rem; text-decoration: none; cursor: pointer; width: fit-content; }
+        .loading { font-style: italic; color: #888; font-size: 1rem; margin-left: 20px; margin-bottom: 10px; display: none; }
+        .footer { text-align: center; font-size: 0.9rem; color: #777; padding: 20px; width: 100%; max-width: 700px; }
+        
+        .chips-container { display: flex; gap: 10px; padding: 12px 15px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; background: var(--bg-chat); }
+        .chip { background-color: var(--bg-body); border: 2px solid #6a1b9a; color: var(--text-main); padding: 10px 18px; border-radius: 20px; font-size: 1.05rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        
+        .modal-card { background: var(--bg-chat); color: var(--text-main); border: 1px solid var(--input-border); }
+        .modal-title { color: var(--header-bg); margin-top: 0; }
+        [data-theme="dark"] .modal-title { color: #ce93d8; }
+        [data-theme="sepia"] .modal-title { color: #8b6b61; }
+        body.high-contrast-mode .modal-title { color: #ffff00 !important; }
+        
+        .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; background: var(--bg-body); color: var(--text-main); }
+        .config-btn { background: var(--bg-body); color: var(--text-main); border: 2px solid var(--input-border); padding: 14px; border-radius: 10px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 15px; font-weight: bold; transition: 0.3s; font-size: 1.1rem; width: 100%; text-align: left; }
+        .config-btn:hover { background: var(--bot-bubble); }
+        
+        .vitrina-item { background: var(--bg-body); border: 1px solid var(--input-border); color: var(--text-main); }
+        .vitrina-subtext { color: var(--text-main); opacity: 0.8; }
+
+        @keyframes latidoVictoria { 0% { transform: scale(1); } 50% { transform: scale(1.8); filter: drop-shadow(0 0 25px #ffca28); } 100% { transform: scale(1); } }
+        .animar-victoria { animation: latidoVictoria 0.8s ease-in-out 3; }
+
+        #membrete-pdf, #reporte-cientifico-pdf { display: none; }
+        
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .header, .input-area, .chips-container, button, .pdf-btn, footer, .footer, #caja-aviso-legal, .support-btn, .share-bubble, #trofeo-badge, #vitrina-modal { display: none !important; }
+            body > p, body > div > p { display: none !important; }
+            body, html { background: white !important; width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+            .printable-guide { display: block !important; background: transparent !important; box-shadow: none !important; margin-bottom: 20px !important; font-family: 'Georgia', 'Times New Roman', serif !important; font-size: 13pt !important; line-height: 1.8 !important; text-align: justify !important; }
+            #membrete-pdf { display: block !important; text-align: center; margin-bottom: 30px; page-break-after: avoid; }
+            #reporte-cientifico-pdf { display: block !important; text-align: center; font-family: 'Segoe UI', sans-serif !important; padding: 40px !important; border: 10px solid #6a1b9a !important; border-radius: 20px !important; background: #fffaf0 !important; }
+            #reporte-cientifico-pdf h1 { color: #6a1b9a !important; font-size: 35px !important; margin-bottom: 5px !important; text-transform: uppercase !important; }
+            #reporte-cientifico-pdf h2 { color: #ff9800 !important; font-size: 24px !important; border-bottom: 2px solid #ff9800 !important; padding-bottom: 10px !important; }
+            #reporte-cientifico-pdf .insignia-print { display: inline-block; padding: 15px; margin: 10px; border: 2px solid #6a1b9a; border-radius: 15px; background: white; width: 40%; vertical-align: top; }
+            #reporte-cientifico-pdf .insignia-print h3 { margin: 5px 0; color: #333; }
+            #reporte-cientifico-pdf .insignia-print p { font-size: 12px; color: #555; text-align: justify; }
+            #chat-box { display: none !important; } 
+        }
+    </style>
+</head>
+<body>
+
+<div id="auth-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center; display:none;">
+    <div class="modal-card" style="padding:40px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative;">
+        <button onclick="document.getElementById('auth-modal').style.display='none'; vibrar(30);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
+        <img src="ReginaValentinaRostro.png?v=2" alt="Regina" style="width:90px; height:90px; border-radius:50%; margin-bottom:15px; border:3px solid var(--header-bg); object-fit: cover;">
+        <h2 id="auth-title" class="modal-title">Acceso VIP 🤠</h2>
+        
+        <div id="auth-inputs">
+            <input type="email" id="auth-email" class="modal-input" placeholder="Correo electrónico">
+            <input type="password" id="auth-password" class="modal-input" placeholder="Contraseña">
+            
+            <div style="text-align: left; margin-bottom: 20px; width: 100%; padding-right: 10px; box-sizing: border-box;">
+                <label style="font-size: 0.95em; color: var(--text-main); display: flex; align-items: flex-start; gap: 8px; cursor: pointer; line-height: 1.4;">
+                    <input type="checkbox" id="auth-terminos" style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer; flex-shrink: 0;">
+                    <span style="flex: 1;">Acepto los <a href="terminos.html" target="_blank" style="color: #ff9800; text-decoration: underline; font-weight:bold;">Términos y Condiciones</a></span>
+                </label>
+            </div>
+
+            <button onclick="vibrar(40); ejecutarLogin();" style="width:100%; padding:14px; background-color:#6a1b9a; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:10px; font-size:1.1rem;">Iniciar Sesión</button>
+            <button onclick="vibrar(40); ejecutarRegistro();" style="width:100%; padding:14px; background-color:var(--bg-body); color:var(--text-main); border:2px solid var(--header-bg); border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.1rem;">Crear Cuenta Nueva</button>
+
+            <div style="margin-top:18px; text-align:center;">
+                <p style="color:var(--text-main); opacity:0.6; font-size:0.9em; margin-bottom:10px;">— o continúa con —</p>
+                <button onclick="vibrar(40); signInWithGoogle();" style="width:100%; padding:14px; background:#ffffff; color:#3c4043; border:1px solid #dadce0; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.05rem; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+                    <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                    Continuar con Google
+                </button>
+            </div>
+        </div>
+
+        <div id="logged-in-view" style="display:none; text-align:center;">
+            <p style="color:var(--text-main); opacity:0.8; font-size:1.1em; margin-bottom:20px;">Usted ya es parte del rancho. ¡Su acceso está asegurado!</p>
+            <button id="btn-centro-mando" onclick="vibrar(40); window.open('https://regina-valentina-556774981559.us-east1.run.app/panel-robles?admin_id=' + getUserId(), '_blank')" style="display:none; width:100%; padding:14px; background-color:#1e1e1e; color:#ffca28; border:2px solid #ffca28; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto 15px auto; font-size:1.1rem;">🦅 Centro de Mando</button>
+            <button onclick="vibrar(40); cerrarSesion();" style="width:100%; padding:14px; background-color:#f44336; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto; font-size:1.1rem;">Cerrar Sesión 🚪</button>
+            
+            <div style="background: rgba(106, 27, 154, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--header-bg); margin-top:20px;">
+                <p style="margin-top:0; font-size:1em; color:var(--text-main); font-weight:bold;">🎟️ ¿Tienes un código promocional?</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <input type="text" id="input-cupon" class="modal-input" placeholder="Ej. ROBLESVIP" style="text-transform:uppercase; margin-bottom:0;">
+                    <button onclick="vibrar(40); canjearCupon();" style="width:100%; background:var(--header-bg); color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:1rem;">Canjear Cupón</button>
+                </div>
+            </div>
+        </div>
+        <p id="auth-error" style="color:#f44336; font-size:1rem; margin-top:15px; min-height:20px;"></p>
+    </div>
+</div>
+
+<div id="vitrina-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
+    <div class="modal-card" style="padding:30px; border-radius:15px; width:90%; max-width:420px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative; border-top: 6px solid #ffca28; max-height:85vh; overflow-y:auto;">
+        
+        <div id="vista-principal-vitrina">
+            <button onclick="document.getElementById('vitrina-modal').style.display='none'; vibrar(30);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
+            <h2 class="modal-title" style="margin-top:0;">🏆 Tu Vitrina de Logros</h2>
+            <button onclick="vibrar(30); abrirGuiaEstrellas()" style="background:var(--bg-body); color:var(--text-main); border:2px solid var(--header-bg); padding:10px 18px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-size:1rem;">📖 Guía Explicativa</button>
+            <div id="lista-trofeos" style="text-align:left;"></div>
+            <div id="contenedor-maximo" style="margin-top: 15px;"></div>
+        </div>
+
+        <div id="vista-detalle-vitrina" style="display:none;"></div>
+        <div id="vista-guia-vitrina" style="display:none;"></div>
+    </div>
+</div>
+
+<div id="feedback-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
+    <div class="modal-card" style="padding:30px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative; border-top: 6px solid #ffca28;">
+        <button onclick="document.getElementById('feedback-modal').style.display='none'; vibrar(60);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
+        <h2 class="modal-title" style="margin-top:0;">💡 Buzón del Rancho</h2>
+        <textarea id="feedback-texto" class="modal-input" rows="4" placeholder="Escriba aquí su mensaje..." style="resize:none; font-family:inherit;"></textarea>
+        <button id="btn-enviar-sug" onclick="vibrar(40); enviarSugerencia();" style="width:100%; padding:14px; background-color:#ffca28; color:#333; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.1rem;">Enviar Mensaje 🚀</button>
+    </div>
+</div>
+
+<div id="membrete-pdf">
+    <h1 style="font-size: 24px; margin-bottom: 5px;">🐾 Robles Bienestar</h1>
+    <h3 style="margin-top: 0; color: #ffca28; letter-spacing: 2px;">REPORTE OFICIAL DE COMPORTAMIENTO</h3>
+    <hr style="border: 1px solid #ffca28; margin-bottom: 20px;">
+</div>
+
+<div id="reporte-cientifico-pdf"></div>
+
+<div id="trofeo-badge" onclick="vibrar(40); abrirVitrina()" title="Ver mis Logros" style="position:fixed; top:20px; right:20px; z-index:1900; background:linear-gradient(145deg, #fff8e1, #ffecb3); border:2px solid #ffca28; padding:0; border-radius:50%; box-shadow:0 4px 12px rgba(0,0,0,0.25); font-size:1.7em; display:none; align-items:center; justify-content:center; cursor:pointer; transition:0.3s; width:56px; height:56px; min-width:56px;">
+    🏆
+</div>
+
+<div class="chat-container">
+   <div class="header">
+        <img src="ReginaValentinaRostro.png?v=2" alt="Regina Valentina" class="regina-avatar">
+        <div>
+            <h1>Regina Valentina 🤠🐾</h1>
+            <p>Experta en Comportamiento</p>
+            <div style="display: flex; gap: 12px; margin-top:10px;">
+                <button id="btn-header-settings" style="background:rgba(255,255,255,0.2); border-radius:50%; width:50px; height:50px; display:flex; justify-content:center; align-items:center; padding:0; transition: 0.3s; border:2px solid rgba(255,255,255,0.4); cursor:pointer; color:white; font-size:1.7rem;" onclick="vibrar(30); document.getElementById('settings-modal').style.display='flex'" title="Ajustes y Perfil">⚙️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="chat-box">
+        <div class="message bot-message">
+            ¡Hola! Soy Regina Valentina. Cuéntame, ¿qué problema traes con tu mascota? Habla claro y <strong>adjunta una foto 📷 de tu peludo o del problema</strong> para entender mejor tu caso.
+        </div>
+    </div>
+    <div class="loading" id="loading">Regina está escribiendo...</div>
+
+    <div class="chips-container">
+        <button class="chip" onclick="sendChip('Quiero jugar con la Miss Regina')">🎮 Juguemos</button>
+        <button class="chip" onclick="sendChip('Miss Regina, ya hice la tarea')" style="background:#e8f5e9; border-color:#4caf50; color:#2e7d32;">✅ Ya hice la tarea</button>
+        <button class="chip" onclick="sendChip('🧐 ¡Analízame Regina!')">🧐 Analízame</button>
+        <button class="chip" onclick="sendChip('🤠 ¿Cómo educar a un perro latoso?')">🤠 Educar perro latoso</button>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Escribe tu consulta aquí...">
+        <div class="input-controls">
+            <div class="input-icons">
+                <button id="mic-toggle" onclick="vibrar(30); toggleMic()" style="background:none; border:none; font-size:1.8em; cursor:pointer; padding: 0; transition: 0.3s;">🎤</button>
+                <input type="file" id="input-foto-chat" accept="image/*" style="display:none;" onchange="previsualizarFotoChat()">
+                <button id="btn-camara" onclick="vibrar(30); document.getElementById('input-foto-chat').click()" style="background:none; border:none; font-size:1.8em; cursor:pointer; padding: 0; transition: 0.3s;">📷</button>
+            </div>
+            <button class="btn-enviar" onclick="vibrar(50); sendMessage()">Enviar</button>
+        </div>
+    </div>
+</div> 
+
+<script>
+    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://127.0.0.1:5000'
+        : 'https://regina-valentina-556774981559.us-east1.run.app';
+
+    let voiceEnabled = false;
+    let premiumVoiceEnabled = true; 
+    let reginaVoice = null;
+    let audioPremiumActual = null;
+    let dyslexiaEnabled = false;
+    let lsmEnabled = false;
+
+    function vibrar(patron) {
+        try { if (navigator && navigator.vibrate) navigator.vibrate(patron); } catch(e) {}
+    }
+
+    function compartirApp() {
+        if (navigator.share) {
+            navigator.share({ title: 'Regina Valentina 🤠🐾', text: '¡Conoce a Regina Valentina, la experta en mascotas con IA!', url: 'https://reginavalentina.com' }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText("https://reginavalentina.com");
+            mostrarNotificacion("🔗 ¡Enlace copiado al portapapeles!", "#4caf50");
+        }
+    }
+
+    const trofeosConfig = [
+        { id: 'lider', color: "🟢", icono:"🐺", hex: "#4caf50", nombre: "Líder de la Manada", max: 100, desc: "Dominas el liderazgo con puro respeto y calma. Tu mascota te ve como el guía." },
+        { id: 'zen', color: "🔵", icono:"🧘", hex: "#2196f3", nombre: "Maestro Zen", max: 100, desc: "Lograste un ambiente de paz. Se acabó el relajo y tu mascota respira tranquilidad pura." },
+        { id: 'autocontrol', color: "🔴", icono:"🛑", hex: "#f44336", nombre: "Autocontrol", max: 100, desc: "Tu mascota domina sus impulsos. Sabe esperar su turno sin volverse loco." },
+        { id: 'atleta', color: "🟠", icono:"🏃", hex: "#ff9800", nombre: "Atleta Perruno", max: 100, desc: "Energía bien canalizada. Actividad física al cien, cuerpo sano y mente equilibrada." },
+        { id: 'socio', color: "🌟", icono:"🤝", hex: "#ffeb3b", nombre: "Socio Supremo", max: 100, desc: "La conexión máxima. Ya ni ocupan palabras, con una mirada se entienden perfectamente." }
+    ];
+
+    function calcularProgreso(puntos, max) {
+        if (puntos <= 0) return 0;
+        if (puntos >= max) return 100;
+        return Math.floor((puntos / max) * 100);
+    }
+
+    function contarInsignias() {
+        let count = 0;
+        trofeosConfig.forEach(t => {
+            let pts = parseInt(localStorage.getItem('regina_pts_' + t.id) || 0);
+            if (calcularProgreso(pts, t.max) === 100) count++;
+        });
+        return count;
+    }
+
+    function abrirVitrina() {
+        document.getElementById('vista-principal-vitrina').style.display = 'block';
+        document.getElementById('vista-detalle-vitrina').style.display = 'none';
+        document.getElementById('vista-guia-vitrina').style.display = 'none';
+        
+        const lista = document.getElementById('lista-trofeos');
+        let html = "";
+        let totalInsignias = contarInsignias();
+
+        trofeosConfig.forEach((t, index) => {
+            let ptsActuales = parseInt(localStorage.getItem('regina_pts_' + t.id) || 0);
+            let progreso = calcularProgreso(ptsActuales, t.max);
+            
+            let bloqueado = progreso === 0 ? "filter: grayscale(100%); opacity: 0.6;" : "box-shadow: 0 4px 6px rgba(0,0,0,0.1);";
+            let colorPorcentaje = progreso === 100 ? t.hex : "var(--text-main)";
+            
+            let badgeInsignia = progreso === 100 ? `<div style="background:#ffca28; color:#333; padding:2px 8px; border-radius:10px; font-size:0.7em; font-weight:bold; display:inline-block; margin-top:5px; border:1px solid #d8a000;">🌟 Insignia Obtenida</div>` : `<p class="vitrina-subtext" style="margin:3px 0 0 0; font-size:0.85em;">Nivel de Progreso:</p>`;
+
+            html += `<div onclick="vibrar(30); verDetalleTrofeo(${index})" class="vitrina-item" style="display:flex; align-items:center; gap:15px; margin-bottom:12px; padding:15px; border-radius:12px; cursor:pointer; transition: 0.3s; ${bloqueado}">
+                <span style="font-size:2.2em;">${t.icono}</span>
+                <div style="text-align:left; flex:1;">
+                    <h4 style="margin:0; font-size:1.1em;">${t.nombre}</h4>
+                    ${badgeInsignia}
+                </div>
+                <div style="font-size:1.2em; color:${colorPorcentaje}; font-weight:bold;">${progreso}%</div>
+            </div>`;
+        });
+        lista.innerHTML = html;
+
+        const contenedorMaximo = document.getElementById('contenedor-maximo');
+        if(totalInsignias === 5) {
+            contenedorMaximo.innerHTML = `<div onclick="vibrar(80); verLeyenda()" style="background: linear-gradient(145deg, #ffd54f, #ff8f00); padding: 20px; border-radius: 15px; margin-top: 20px; color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 143, 0, 0.4); transition:0.3s;">
+                <h3 style="margin:0; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); font-size:1.3em;">👑 LA CIMA DE LA MONTAÑA</h3>
+                <p style="margin:5px 0 0 0; font-weight:bold; font-size:0.95em;">¡Desbloqueado! Toca para abrir tu recompensa.</p>
+            </div>`;
+        } else {
+            contenedorMaximo.innerHTML = `<div class="vitrina-item" style="padding: 20px; border-radius: 15px; margin-top: 20px; border-style: dashed;">
+                <h3 class="vitrina-text" style="margin:0; font-size:1.2em;">⛰️ Cima de la Montaña</h3>
+                <p class="vitrina-subtext" style="margin:5px 0 0 0; font-size:0.9em;">Consigue las 5 Insignias para ver el premio final.</p>
+            </div>`;
+        }
+        document.getElementById('vitrina-modal').style.display = 'flex';
+    }
+
+    function verDetalleTrofeo(index) {
+        let t = trofeosConfig[index];
+        let ptsActuales = parseInt(localStorage.getItem('regina_pts_' + t.id) || 0);
+        let progreso = calcularProgreso(ptsActuales, t.max);
+
+        document.getElementById('vista-principal-vitrina').style.display = 'none';
+        const vistaDetalle = document.getElementById('vista-detalle-vitrina');
+        
+        let mensajeFelicidades = progreso === 100 ? `<div style="background:#fff8e1; border:2px solid #ffca28; padding:10px; border-radius:10px; margin-top:15px; color:#d8a000; font-weight:bold;">¡Felicidades! Has obtenido la Insignia de Buen Pastor 🌟.</div>` : ``;
+
+        vistaDetalle.innerHTML = `
+            <div style="text-align:left; margin-bottom:15px;">
+                <button onclick="vibrar(30); abrirVitrina()" style="background:none; border:none; color:var(--text-main); opacity:0.8; font-weight:bold; font-size:1.1em; cursor:pointer;">⬅ Volver</button>
+            </div>
+            <span style="font-size:4.5em; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2));">${t.icono}</span>
+            <h2 style="color:${t.hex}; margin:10px 0;">${t.nombre}</h2>
+            
+            <div class="vitrina-item" style="padding:20px; border-radius:12px; margin:20px 0; border-left: 5px solid ${t.hex}; text-align:left;">
+                <p class="vitrina-subtext" style="margin:0; font-style:italic; font-size:1.1em;">"${t.desc}"</p>
+                <p class="vitrina-text" style="margin:10px 0 0 0; font-weight:bold; text-align:right;">- Regina Valentina 🤠</p>
+            </div>
+
+            <div style="margin-top:25px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold;">
+                    <span>Tu Nivel:</span>
+                    <span style="color:${t.hex}; font-size:1.3em;">${progreso}%</span>
+                </div>
+                <div style="background:#e0e0e0; border-radius:25px; padding:4px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);">
+                    <div style="background: linear-gradient(90deg, ${t.hex}, #333); width: ${progreso}%; height: 26px; border-radius: 20px; transition: width 1s cubic-bezier(0.25, 1, 0.5, 1);"></div>
+                </div>
+                <p class="vitrina-subtext" style="font-size:0.9em; margin-top:10px;">Tienes ${ptsActuales} pts. Gana <b>${t.max} pts</b> en total para dominar esta habilidad.</p>
+                ${mensajeFelicidades}
+            </div>
+        `;
+        vistaDetalle.style.display = 'block';
+    }
+
+    function verLeyenda() {
+        document.getElementById('vista-principal-vitrina').style.display = 'none';
+        const vistaDetalle = document.getElementById('vista-detalle-vitrina');
+        vistaDetalle.innerHTML = `
+            <div style="text-align:left; margin-bottom:15px;">
+                <button onclick="vibrar(30); abrirVitrina()" style="background:none; border:none; color:var(--text-main); opacity:0.8; font-weight:bold; font-size:1.1em; cursor:pointer;">⬅ Volver</button>
+            </div>
+            <span style="font-size:5.5em; filter:drop-shadow(0 0 25px #ffca28);">👑</span>
+            <h2 style="color:#ff8f00; margin:10px 0; font-size:1.8em;">Leyenda del Rancho</h2>
+            
+            <div class="vitrina-item" style="padding:20px; border-radius:12px; margin:20px 0; border: 2px solid #ffca28; text-align:left;">
+                <p class="vitrina-text" style="margin:0; font-style:italic; font-size:1.15em;">"¡Mis respetos, pariente! Has obtenido las 5 Insignias de Buen Pastor. Tú y tu mascota son la dupla perfecta."</p>
+                <p style="margin:10px 0 0 0; font-weight:bold; color:#d81b60; text-align:right;">- Regina Valentina 🤠</p>
+            </div>
+            <p style="font-weight:bold; color:#4caf50; font-size:1.1em; margin-bottom: 20px;">¡Completado al 100%! 🏔️</p>
+
+            <button onclick="vibrar(60); generarReporteCientifico()" style="width:100%; background:#6a1b9a; color:white; border:none; padding:15px; border-radius:30px; font-weight:bold; font-size:1.1em; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">📄 Descargar Reporte</button>
+            <p class="vitrina-subtext" style="font-size:0.8em; margin-top:10px;">* El reporte avanzado estará en la Fase GCP.</p>
+        `;
+        vistaDetalle.style.display = 'block';
+    }
+
+    function generarReporteCientifico() {
+        let nombreMascota = prompt("¡Felicidades! Ingresa el nombre de tu mascota para el reporte:", "Mi Mascota");
+        if (!nombreMascota) return;
+        let fecha = new Date().toLocaleDateString('es-MX');
+        let divReporte = document.getElementById('reporte-cientifico-pdf');
+        
+        let insigniasHTML = "";
+        trofeosConfig.forEach(t => {
+            insigniasHTML += `<div class="insignia-print"><span style="font-size: 40px;">${t.icono} 🌟</span><h3>${t.nombre}</h3><p>Nivel 100% Alcanzado. ${t.desc}</p></div>`;
+        });
+
+        divReporte.innerHTML = `<p style="color:#777; margin-bottom:20px; font-weight:bold;">FECHA DE EMISIÓN: ${fecha}</p><h1>ACREDITACIÓN DE CONDUCTA ANIMAL</h1><p style="font-size: 18px; color: #333;">Se certifica que el binomio formado por el usuario y su mascota:</p><h2 style="font-size: 30px; color: #d81b60; margin: 10px 0;">🐾 ${nombreMascota.toUpperCase()} 🐾</h2><p style="font-size: 18px; color: #333; margin-bottom: 30px;">Han completado el programa, obteniendo las 5 Insignias de Buen Pastor.</p><div style="text-align: center; margin-bottom: 40px;">${insigniasHTML}</div><p style="font-style: italic; color: #555; margin-top: 50px;">"El verdadero liderazgo no requiere fuerza, sino entendimiento."</p><br><br><p>_____________________________________</p><p style="font-weight: bold; margin-top:5px;">Regina Valentina</p>`;
+        setTimeout(() => { window.print(); }, 500);
+    }
+
+    function abrirGuiaEstrellas() {
+        document.getElementById('vista-principal-vitrina').style.display = 'none';
+        const vistaGuia = document.getElementById('vista-guia-vitrina');
+        vistaGuia.innerHTML = `
+            <div style="text-align:left; margin-bottom:15px;">
+                <button onclick="vibrar(30); abrirVitrina()" style="background:none; border:none; color:var(--text-main); opacity:0.8; font-weight:bold; font-size:1.1em; cursor:pointer;">⬅ Volver</button>
+            </div>
+            <h2 class="modal-title">📖 Guía Explicativa</h2>
+            <div class="vitrina-item" style="text-align:left; font-size:1.1em; line-height:1.6; padding:20px; border-radius:12px;">
+                <p><strong>1. Pide un consejo:</strong> Platica con Regina sobre cualquier problema.</p>
+                <p><strong>2. Gánate los Puntos:</strong> Regina te dejará una 'Tarea' y te dirá cuántos puntos vale.</p>
+                <p><strong>3. Cobra tu premio:</strong> Cuando la termines, presiona <b>"✅ Ya hice la tarea"</b>.</p>
+                <p><strong>4. Las Insignias 🌟:</strong> Al llegar al 100% en una habilidad, te ganas una "Insignia de Buen Pastor".</p>
+                <p><strong>5. La Cima:</strong> ¡Junta las 5 Insignias para ser la Leyenda del Rancho!</p>
+            </div>
+            <button onclick="vibrar(30); abrirVitrina()" style="width:100%; margin-top:20px; padding:14px; background:var(--header-bg); color:white; border:none; border-radius:8px; font-weight:bold; font-size:1.15em; cursor:pointer;">¡Entendido, a darle!</button>
+        `;
+        vistaGuia.style.display = 'block';
+    }
+
+    function celebrarInsigniaNueva() {
+        vibrar([100, 50, 100, 50, 300, 100, 500]);
+        mostrarNotificacion("🎉 ¡NUEVA INSIGNIA DE BUEN PASTOR DESBLOQUEADA! 🎉<br>Revisa tu Vitrina.", "#ffca28", 6000);
+        const badge = document.getElementById('trofeo-badge');
+        badge.classList.remove('animar-victoria');
+        void badge.offsetWidth; 
+        badge.classList.add('animar-victoria');
+    }
+
+    function actualizarInsigniasVisuales(puntos) {
+        if (!puntos) return;
+        localStorage.setItem('regina_pts_lider', puntos.lider);
+        localStorage.setItem('regina_pts_zen', puntos.zen);
+        localStorage.setItem('regina_pts_autocontrol', puntos.autocontrol);
+        localStorage.setItem('regina_pts_atleta', puntos.atleta);
+        localStorage.setItem('regina_pts_socio', puntos.socio);
+
+        let insigniasNuevas = contarInsignias();
+        let insigniasViejas = parseInt(localStorage.getItem('regina_total_insignias') || 0);
+
+        localStorage.setItem('regina_total_insignias', insigniasNuevas);
+
+        const badge = document.getElementById('trofeo-badge');
+        badge.style.display = 'flex';
+        
+        if (insigniasNuevas > insigniasViejas) { celebrarInsigniaNueva(); }
+    }
+
+    function silenciarAviso(texto) {
+        let txt = texto;
+        if(txt.includes("Aviso:")) { txt = txt.split("Aviso:")[0]; }
+        return txt.replace(/[*_#]/g, '');
+    }
+
+    function toggleDyslexia() {
+        dyslexiaEnabled = !dyslexiaEnabled;
+        const body = document.body;
+        const btnModal = document.getElementById('btn-config-dyslexia');
+        if (dyslexiaEnabled) {
+            if (lsmEnabled) toggleLSM();
+            body.classList.add('dyslexia-mode');
+            if(btnModal) { btnModal.style.background = 'rgba(76, 175, 80, 0.2)'; btnModal.style.borderColor = '#4caf50'; } 
+            mostrarNotificacion("👓 Lectura cómoda habilitada", "#4caf50"); 
+        } else {
+            body.classList.remove('dyslexia-mode');
+            if(btnModal) { btnModal.style.background = 'var(--bg-body)'; btnModal.style.borderColor = 'var(--input-border)'; } 
+            mostrarNotificacion("Lectura estándar restaurada", "var(--header-bg)");
+        }
+    }
+
+    function quitarAcentos(texto) { return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+    
+    function copiarConsejo(elementoId) {
+        vibrar(60);
+        let clon = document.getElementById(elementoId).cloneNode(true);
+        let botones = clon.querySelectorAll('button, div');
+        botones.forEach(b => b.remove()); 
+        navigator.clipboard.writeText(clon.innerText.trim());
+        mostrarNotificacion("📋 ¡Consejo copiado al portapapeles!", "var(--header-bg)");
+    }
+
+    function calificarMensaje(msgId, tipo) {
+        vibrar(40);
+        let btnUp = document.getElementById(`btn-up-${msgId}`);
+        let btnDown = document.getElementById(`btn-down-${msgId}`);
+        if(tipo === 'up') {
+            btnUp.style.filter = 'drop-shadow(0 0 5px #4caf50)';
+            btnUp.style.transform = 'scale(1.2)';
+            if(btnDown) { btnDown.style.filter = 'grayscale(100%)'; btnDown.style.transform = 'scale(1)'; }
+            mostrarNotificacion("¡Qué bueno que te sirvió! 👍", "#4caf50", 2500);
+        } else {
+            btnDown.style.filter = 'drop-shadow(0 0 5px #f44336)';
+            btnDown.style.transform = 'scale(1.2)';
+            if(btnUp) { btnUp.style.filter = 'grayscale(100%)'; btnUp.style.transform = 'scale(1)'; }
+            mostrarNotificacion("Tomaremos nota para mejorar 👎", "#f44336", 2500);
+        }
+    }
+    
+    let ultimoMensajeLeido = null;
+    function reproducirMensaje(msgId) {
+        vibrar(60);
+        if (typeof audioPremiumActual !== 'undefined' && audioPremiumActual) { audioPremiumActual.pause(); }
+        if (window.speechSynthesis.speaking && ultimoMensajeLeido === msgId) {
+            window.speechSynthesis.cancel();
+            ultimoMensajeLeido = null;
+            return;
+        }
+        window.speechSynthesis.cancel();
+        ultimoMensajeLeido = msgId;
+
+        const elemento = document.getElementById(msgId);
+        let textoPuro = elemento.getAttribute('data-puretext') || elemento.innerText;
+        let textoLimpio = silenciarAviso(textoPuro);
+        
+        const utterance = new SpeechSynthesisUtterance(textoLimpio);
+        if (reginaVoice) utterance.voice = reginaVoice;
+        utterance.lang = 'es-MX'; utterance.rate = 1.05; 
+        utterance.onend = function() { if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null; };
+        
+        window.speechSynthesis.speak(utterance);
+        mostrarNotificacion("🔊 Leyendo... (Click en el mismo botón para detener)", "#2196f3", 3500);
+    }
+    
+    window.addEventListener('beforeunload', function() {
+        window.speechSynthesis.cancel();
+        if (typeof audioPremiumActual !== 'undefined' && audioPremiumActual) audioPremiumActual.pause();
+    });
+
+    function toggleLSM() {
+        lsmEnabled = !lsmEnabled;
+        const body = document.body;
+        const chatBox = document.getElementById('chat-box');
+        const messages = document.querySelectorAll('.message');
+
+        if (lsmEnabled) {
+            if (dyslexiaEnabled) toggleDyslexia();
+            body.classList.add('lsm-mode');
+            messages.forEach(msg => {
+                if (!msg.hasAttribute('data-original')) { msg.setAttribute('data-original', msg.innerHTML); }
+                msg.innerHTML = quitarAcentos(msg.innerHTML);
+            });
+            mostrarNotificacion("🤟 Modo Dactilología Activado", "#d81b60");
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } else {
+            body.classList.remove('lsm-mode');
+            messages.forEach(msg => {
+                if (msg.hasAttribute('data-original')) { msg.innerHTML = msg.getAttribute('data-original'); }
+            });
+        }
+    }
+    
+    function mostrarNotificacion(texto, colorFondo = "#6a1b9a", tiempo = 4500) {
+        const noti = document.createElement('div');
+        noti.style.cssText = `position:fixed; top:20px; left:50%; transform:translateX(-50%); background:${colorFondo}; color:white; padding:12px 24px; border-radius:30px; z-index:9999; box-shadow:0 4px 15px rgba(0,0,0,0.4); font-weight:bold; font-size:1.05em; transition: opacity 0.5s; text-align:center;`;
+        noti.innerHTML = texto;
+        document.body.appendChild(noti);
+        setTimeout(() => { noti.style.opacity = '0'; setTimeout(() => noti.remove(), 500); }, tiempo);
+    }
+    
+    let micEnabled = false;
+    let recognition;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; 
+        recognition.interimResults = false;
+        recognition.lang = 'es-MX'; 
+
+        recognition.onstart = function() {
+            vibrar(60); micEnabled = true; document.getElementById('mic-toggle').innerText = '🔴'; 
+            mostrarNotificacion("🎤 Te escucho...", "#f44336"); 
+        };
+        recognition.onresult = function(event) {
+            vibrar(80); const transcript = event.results[0][0].transcript;
+            const inputField = document.getElementById('user-input');
+            inputField.value = inputField.value ? inputField.value + ' ' + transcript : transcript;
+        };
+        recognition.onerror = function(event) {
+            vibrar([50, 50, 50]); mostrarNotificacion("⚠️ Error al escuchar. Checa tus permisos.", "#f44336");
+        };
+        recognition.onend = function() {
+            micEnabled = false; document.getElementById('mic-toggle').innerText = '🎤'; 
+        };
+    }
+
+    function toggleMic() {
+        if (!recognition) { alert("Tu navegador no soporta voz. Usa Chrome o Safari."); return; }
+        if (micEnabled) recognition.stop(); else recognition.start();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const savedTheme = localStorage.getItem('regina_theme');
+        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); } 
+        else if (savedTheme === 'sepia') { document.documentElement.setAttribute('data-theme', 'sepia'); }
+
+        let insigniasG = parseInt(localStorage.getItem('regina_total_insignias') || 0);
+        if (insigniasG >= 0) {
+            document.getElementById('trofeo-badge').style.display = 'flex';
+        }
+
+        const storedUserId = localStorage.getItem('regina_user_id');
+        if (!storedUserId) { localStorage.setItem('regina_user_id', 'user_' + Math.floor(Math.random() * 10000000)); }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('status') === 'approved') {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const chatBox = document.getElementById('chat-box');
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "__PAGO_CONFIRMADO__", user_id: getUserId() })
+                });
+                const data = await response.json();
+                loading.style.display = 'none';
+                if (data.response) {
+                    const newMsg = document.createElement("div");
+                    newMsg.className = "message bot-message";
+                    chatBox.appendChild(newMsg);
+                    typeEffect(newMsg, data.response);
+                }
+            } catch (e) { 
+                loading.style.display = 'none'; 
+                chatBox.innerHTML += `<div class="message bot-message" style="background:#f44336; color:white;">⚠️ <b>ALERTA DE SISTEMA:</b> Error de conexión inicial. Verifica GCP GC Run.</div>`;
+            }
+        }
+    });
+
+    function toggleTheme() {
+        const body = document.documentElement;
+        const currentTheme = body.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            body.setAttribute('data-theme', 'sepia');
+            localStorage.setItem('regina_theme', 'sepia');
+        } else if (currentTheme === 'sepia') {
+            body.removeAttribute('data-theme');
+            localStorage.setItem('regina_theme', 'light');
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('regina_theme', 'dark');
+        }
+    }
+
+    function abrirMiCuenta() {
+        const modal = document.getElementById('auth-modal');
+        const titulo = document.getElementById('auth-title');
+        document.getElementById('auth-error').innerText = ""; 
+        if (localStorage.getItem('regina_registrado') === 'true') {
+            titulo.innerText = "Mi Cuenta VIP 💎";
+            document.getElementById('auth-inputs').style.display = 'none';
+            document.getElementById('logged-in-view').style.display = 'block';
+            if (localStorage.getItem('regina_is_admin') === 'true') { document.getElementById('btn-centro-mando').style.display = 'block'; } 
+            else { document.getElementById('btn-centro-mando').style.display = 'none'; }
+        } else {
+            titulo.innerText = "Acceso al Rancho 🤠";
+            document.getElementById('auth-inputs').style.display = 'block';
+            document.getElementById('logged-in-view').style.display = 'none';
+        }
+        modal.style.display = 'flex';
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem('regina_registrado');
+        localStorage.removeItem('regina_user_id');
+        localStorage.removeItem('regina_total_insignias'); 
+        mostrarNotificacion("🚪 Sesión cerrada. ¡Nos vemos pronto!", "#f44336");
+        setTimeout(() => { window.location.reload(); }, 1200);
+    }
+    
+    async function canjearCupon() {
+        const codigo = document.getElementById('input-cupon').value;
+        if(!codigo) { vibrar([50, 50, 50]); return; }
+        try {
+            const response = await fetch(`${API_URL}/canjear_codigo`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: getUserId(), codigo: codigo })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                vibrar([50, 100, 50, 100]);
+                mostrarNotificacion(data.message, "#4caf50", 5000);
+                document.getElementById('input-cupon').value = "";
+            } else { vibrar([50, 50, 50]); mostrarNotificacion(data.error, "#f44336", 4000); }
+        } catch (e) {}
+    }
+    
+    function obtenerDatosAuth() {
+        return {
+            email: document.getElementById('auth-email').value,
+            password: document.getElementById('auth-password').value,
+            user_id: localStorage.getItem('regina_user_id') 
+        };
+    }
+
+    async function ejecutarRegistro() {
+        const terminos = document.getElementById('auth-terminos').checked;
+        const errorMsg = document.getElementById('auth-error');
+        if (!terminos) { vibrar([50,50,50]); errorMsg.innerText = "⚠️ Acepte los Términos."; return; }
+
+        const authDatos = obtenerDatosAuth();
+        errorMsg.innerText = "Registrando...";
+        try {
+            const response = await fetch(`${API_URL}/registro`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authDatos)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                vibrar([50, 100, 50, 100]);
+                localStorage.setItem('regina_registrado', 'true');
+                localStorage.setItem('regina_user_id', data.user_id);
+                localStorage.setItem('regina_is_admin', 'false'); 
+                document.getElementById('auth-modal').style.display = 'none';
+                mostrarNotificacion("✅ ¡Cuenta lista!", "#4caf50");
+            } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
+        } catch (e) { vibrar([50,50,50]); }
+    }
+
+    async function ejecutarLogin() {
+        const authDatos = obtenerDatosAuth();
+        const errorMsg = document.getElementById('auth-error');
+        errorMsg.innerText = "Entrando...";
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authDatos)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                vibrar([50, 100, 50]);
+                localStorage.setItem('regina_registrado', 'true');
+                localStorage.setItem('regina_user_id', data.user_id);
+                localStorage.setItem('regina_is_admin', data.is_admin ? 'true' : 'false');
+                errorMsg.innerText = ""; 
+                document.getElementById('auth-modal').style.display = 'none';
+                mostrarNotificacion("✅ ¡Sesión iniciada!", "#4caf50");
+                if (data.puntos !== undefined) actualizarInsigniasVisuales(data.puntos);
+            } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
+        } catch (e) {}
+    }
+
+    function getUserId() { return localStorage.getItem('regina_user_id'); }
+
+    let isMuted = false;
+    function togglePremiumVoice() {
+        vibrar(60);
+        const iconoVoz = document.getElementById('settings-voice-icon');
+        if (isMuted) {
+            isMuted = false;
+            premiumVoiceEnabled = true;
+            voiceEnabled = false;
+            if (iconoVoz) iconoVoz.textContent = '🗣️';
+            mostrarNotificacion("✨ Voz Premium HD Activada", "#ffca28");
+        } else {
+            isMuted = true;
+            premiumVoiceEnabled = false;
+            voiceEnabled = false;
+            window.speechSynthesis.cancel();
+            if (audioPremiumActual) { audioPremiumActual.pause(); audioPremiumActual.currentTime = 0; }
+            if (iconoVoz) iconoVoz.textContent = '🤫';
+            mostrarNotificacion("🤫 Silencio total activado", "#9e9e9e");
+        }
+    }
+
+    function toggleVoice() {
+        vibrar(60);
+        if (!voiceEnabled) {
+            voiceEnabled = true;
+            isMuted = false;
+            premiumVoiceEnabled = false;
+            cargarVoces();
+            mostrarNotificacion("🤖 Voz robótica activada", "#2196f3");
+            hablar("Voz robótica activada.");
+        } else {
+            voiceEnabled = false;
+            window.speechSynthesis.cancel();
+            mostrarNotificacion("🤫 Silencio activado", "#9e9e9e");
+        }
+    }
+
+    function cargarVoces() {
+        let voces = window.speechSynthesis.getVoices();
+        reginaVoice = voces.find(voz => voz.lang.includes('es-MX') && voz.name.includes('Mujer')) || voces.find(voz => voz.lang.includes('es-MX')) || voces.find(voz => voz.lang.includes('es'));
+    }
+    window.speechSynthesis.onvoiceschanged = cargarVoces;
+
+    function hablar(texto) {
+        if (!voiceEnabled) return;
+        window.speechSynthesis.cancel(); 
+        let textoLimpio = silenciarAviso(texto); 
+        const utterance = new SpeechSynthesisUtterance(textoLimpio);
+        if (reginaVoice) utterance.voice = reginaVoice;
+        utterance.lang = 'es-MX'; utterance.rate = 1.05; 
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function typeEffect(element, text, speed = 18) {
+        let i = 0;
+        element.innerHTML = "";
+        element.setAttribute('data-original', text); 
+        element.setAttribute('data-puretext', text); 
+        const msgId = 'msg_' + Date.now();
+        element.id = msgId;
+
+        let textoAEscribir = lsmEnabled ? quitarAcentos(text) : text;
+        hablar(text); 
+
+        function typing() {
+            if (i < textoAEscribir.length) {
+                element.innerHTML += textoAEscribir.charAt(i);
+                i++;
+                setTimeout(typing, speed);
+                const chatBox = document.getElementById('chat-box');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                vibrar([50, 100, 50]);
+
+                let copyBtn = `<button onclick="copiarConsejo('${msgId}')" style="background:var(--bg-body); border:1px solid var(--header-bg); color:var(--text-main); border-radius:15px; padding:6px 14px; cursor:pointer; font-size:1rem; font-weight:bold;">📋 Copiar</button>`;
+                let readBtn = `<button onclick="reproducirMensaje('${msgId}')" style="background:var(--bg-body); border:1px solid #2196f3; color:var(--text-main); border-radius:15px; padding:6px 14px; margin-left:8px; cursor:pointer; font-size:1rem; font-weight:bold;">🔊 Escuchar</button>`;
+                
+                let califBtns = `
+                    <button id="btn-up-${msgId}" onclick="calificarMensaje('${msgId}', 'up')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:15px; transition:0.2s; filter:grayscale(0%);" title="¡Buen consejo!">👍</button>
+                    <button id="btn-down-${msgId}" onclick="calificarMensaje('${msgId}', 'down')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:5px; transition:0.2s; filter:grayscale(0%);" title="No me sirvió">👎</button>`;
+                
+                let botonesAccion = `<br><div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap;">${copyBtn}${readBtn}<div style="margin-left:auto;">${califBtns}</div></div>`;
+
+                if (textoAEscribir.length > 600 && (textoAEscribir.includes('Guia') || textoAEscribir.includes('paso a paso') || textoAEscribir.includes('1.'))) {
+                    let btnHTML = `<br>
+                    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                        <button class="pdf-btn" onclick="vibrar(60); imprimirGuia('${msgId}')">📄 Guardar PDF Simple</button>
+                        <button class="pdf-btn" style="background:#ffca28; color:black; border:2px solid #ffb300;" id="btn-ilustrar-${msgId}" onclick="vibrar(60); ilustrarManual('${msgId}')">✨ Ilustrar Manual (VIP)</button>
+                    </div>`;
+                    element.innerHTML += btnHTML + botonesAccion;
+                    element.setAttribute('data-original', text + btnHTML + botonesAccion);
+                } else {
+                    element.innerHTML += botonesAccion;
+                    element.setAttribute('data-original', text + botonesAccion);
+                }
+            }
+        }
+        typing();
+    }
+    
+    function sendChip(texto) {
+        vibrar(40);
+        const input = document.getElementById('user-input');
+        input.value = texto;
+        sendMessage();
+    }
+    
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const message = input.value;
+        const chatBox = document.getElementById('chat-box');
+        const loading = document.getElementById('loading');
+        const userId = getUserId(); 
+
+        if (!message) return;
+
+        let displayMessage = lsmEnabled ? quitarAcentos(message) : message;
+        chatBox.innerHTML += `<div class="message user-message" data-original="${message}">${displayMessage}</div>`;
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+        loading.style.display = 'block';
+
+        try {
+            const response = await fetch(`${API_URL}/chat`, { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled, imagen_b64: imagenChatBase64 }) 
+            });
+
+            imagenChatBase64 = null;
+            document.getElementById('input-foto-chat').value = '';
+            
+            const data = await response.json();
+            loading.style.display = 'none';
+
+            if (data.status === 'quota_exceeded') {
+                vibrar([50, 100, 50, 100, 50]); 
+                if (!localStorage.getItem('regina_registrado')) {
+                    document.getElementById('auth-modal').style.display = 'flex';
+                } else {
+                    const modalHtml = `
+                    <div id="modal-premium" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
+                        <div class="modal-card" style="padding:30px; border-radius:20px; max-width:90%; width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid #d81b60;">
+                            <h2 style="color:#d81b60; margin-top:0;">¡Tiempo Fuera, Pariente! 🛑</h2>
+                            <p style="font-size:1.1em; font-weight:bold;">Se nos acabaron los mensajes de prueba.</p>
+                            <a href="${data.payment_link_day}" style="display:block; background:#ffca28; color:#333; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:12px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">🤠 Pase 24 Horas - $39 MXN</a>
+                            <a href="${data.payment_link_month}" style="display:block; background:#d81b60; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:20px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">💎 Mes VIP Ilimitado - $99 MXN</a>
+                            <button onclick="document.getElementById('modal-premium').remove()" style="background:none; border:none; color:var(--text-main); opacity:0.6; text-decoration:underline; cursor:pointer; font-size:1em;">Cerrar por ahora</button>
+                        </div>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                }
+            } else if (data.response) {
+                const newMsg = document.createElement("div");
+                newMsg.className = "message bot-message";
+                chatBox.appendChild(newMsg);
+                typeEffect(newMsg, data.response); 
+                
+                if (data.response.includes("Jefe Supremo detectado")) { 
+                    localStorage.setItem('regina_is_admin', 'true'); 
+                    localStorage.setItem('regina_registrado', 'true');
+                    setTimeout(() => { vibrar([50,100,50,100]); abrirMiCuenta(); }, 2000);
+                }
+                
+                if (data.audio) {
+                    if (audioPremiumActual) audioPremiumActual.pause();
+                    if (!isMuted && premiumVoiceEnabled) { 
+                        audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
+                        audioPremiumActual.play();
+                    }
+                }
+                
+                if (data.puntos !== undefined) { actualizarInsigniasVisuales(data.puntos); }
+            }
+        } catch (error) { 
+            vibrar([100, 100, 100]);
+            loading.style.display = 'none'; 
+            chatBox.innerHTML += `<div class="message bot-message" style="background:#f44336; color:white; font-weight:bold;">⚠️ ALERTA ROJA: El servidor Python se detuvo de golpe. Pariente, avísale al Jefe Supremo que revise su consola. (Error: ${error.message})</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    document.getElementById("user-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") { vibrar(80); sendMessage(); }
+    });
+    
+    let imagenChatBase64 = null;
+    function previsualizarFotoChat() {
+        const file = document.getElementById('input-foto-chat').files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                imagenChatBase64 = reader.result;
+                vibrar([50, 100, 50]);
+                mostrarNotificacion("📸 ¡Foto adjuntada exitosamente!<br>Agrega una descripción y dale a Enviar.", "#4caf50", 4500);
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function toggleLupa() {
+        vibrar(60);
+        document.body.classList.toggle('large-text-mode');
+        mostrarNotificacion(document.body.classList.contains('large-text-mode') ? "🔍 Texto súper grande activado" : "Tamaño restaurado", "#4caf50");
+    }
+
+    function toggleContraste() {
+        vibrar(60);
+        document.body.classList.toggle('high-contrast-mode');
+        mostrarNotificacion(document.body.classList.contains('high-contrast-mode') ? "🌗 Alto contraste activado" : "Colores restaurados", "#4caf50");
+    }
+
+    function dispararEmergencia() {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML += `<div class="message user-message" style="background:#d32f2f; color:white; font-weight:bold;">🧑‍⚕️ Consulta de Urgencia</div>`;
+        const warningHTML = `¡ATENCIÓN! 🧑‍⚕️ No soy un médico veterinario, soy una IA experta en comportamiento.<br><br>Si tu mascota sufrió un accidente grave o presenta una condición crítica, <strong>ESTO REQUIERE ATENCIÓN PROFESIONAL INMEDIATA</strong>.<br><br>📍 <a href="https://www.google.com/maps/search/veterinaria+24+horas" target="_blank" style="color:#d32f2f; font-weight:900; text-decoration:underline;">Haz clic aquí para buscar veterinarias en Maps</a>.`;
+        
+        const newMsg = document.createElement("div");
+        newMsg.className = "message bot-message";
+        newMsg.style.border = "2px solid #d32f2f";
+        newMsg.style.background = "rgba(211, 47, 47, 0.1)"; 
+        newMsg.innerHTML = warningHTML;
+        chatBox.appendChild(newMsg);
+        
+        if (typeof hablar === "function") { hablar("Atención. Lleva a tu mascota a una clínica veterinaria inmediatamente."); }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function descargarHistorial() {
+        vibrar(60);
+        const mensajes = document.querySelectorAll('.message');
+        if(mensajes.length <= 1) { return; }
+        
+        let textoHistorial = "🐾 HISTORIAL DE CONSULTA - REGINA VALENTINA 🐾\nFecha: " + new Date().toLocaleString() + "\n---------------------------------------------------\n\n";
+        
+        mensajes.forEach(msg => {
+            let emisor = msg.classList.contains('user-message') ? "TÚ:" : "REGINA:";
+            let contenido = msg.getAttribute('data-puretext') || msg.innerText.split('📋')[0].trim();
+            textoHistorial += `${emisor}\n${contenido}\n\n`;
+        });
+        
+        const blob = new Blob([textoHistorial], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Consulta_Regina.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        document.getElementById('settings-modal').style.display='none';
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('btn-install-app').style.display = 'block';
+    });
+
+    function instalarApp() {
+        vibrar(60);
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') { document.getElementById('btn-install-app').style.display = 'none'; }
+                deferredPrompt = null;
+            });
+        }
+    }
+</script>
+
+<div style="text-align:center; margin-top:25px; margin-bottom: 15px;">
+    <a href="https://regina-valentina-556774981559.us-east1.run.app/blog" target="_blank" onclick="vibrar(60)" style="background: linear-gradient(145deg, #00bcd4, #0097a7); color: white; padding: 14px 28px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-block; transition: 0.3s;">
+        📝 Leer el Blog de la Experta
+    </a>
+</div>
+    
+<div class="footer">
+    <button onclick="vibrar(60); document.getElementById('feedback-modal').style.display='flex'" style="background:none; border:none; color:var(--header-bg); cursor:pointer; font-size:1.1em; text-decoration:underline; font-weight:bold; margin-bottom:15px;">💡 Dejar una Sugerencia Rápida</button>
+    <p>© 2026 <b>Robles Bienestar</b>. Todos los derechos reservados.</p>
+    <p><a href="terminos.html" target="_blank" style="color:var(--text-main);">Ver Términos y Condiciones Completos</a></p>
+    <div id="caja-aviso-legal">
+        <p>⚠️ <strong>AVISO LEGAL:</strong> Regina Valentina es una IA con fines educativos. Robles Bienestar no se responsabiliza por el uso en seres humanos. <strong>SIN ASESORÍA MÉDICA:</strong> No recetamos medicamentos. El usuario asume la total responsabilidad legal. Ante emergencias, acuda a una clínica inmediatamente.</p>
+    </div>
+</div> 
+
+<button onclick="vibrar(60); compartirApp()" class="share-bubble" title="Compartir App">📤</button>
+
+<a href="mailto:soporte@reginavalentina.com?subject=Ayuda%20con%20Regina%20Valentina" onclick="vibrar(60)" class="support-btn" title="Contactar Soporte">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32" fill="white">
+        <path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/>
+    </svg>
+</a>
+
+<div id="settings-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
+    <div class="modal-card" style="padding:30px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative; border-top: 6px solid #6a1b9a;">
+        <button onclick="document.getElementById('settings-modal').style.display='none'; vibrar(60);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
+        
+        <h3 class="modal-title" style="margin-top:20px; margin-bottom:5px; padding-right:15px; font-size:1.3em;">⚙️ Ajustes</h3>
+        <p style="color:var(--text-main); opacity:0.8; font-size:1em; margin-bottom:15px;">Tu experiencia personalizada.</p>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+            <button onclick="vibrar(40); document.getElementById('settings-modal').style.display='none'; abrirMiCuenta();" class="config-btn" style="font-size:1.15rem; padding:15px;">
+                <span style="font-size:1.8em;">👤</span> Mi Perfil / Cuenta
+            </button>
+            <button id="btn-settings-voice" onclick="vibrar(40); togglePremiumVoice()" class="config-btn" style="font-size:1.15rem; padding:15px;">
+                <span id="settings-voice-icon" style="font-size:1.8em;">🗣️</span> Voz Premium HD
+            </button>
+            <button onclick="vibrar(30); toggleTheme()" class="config-btn" style="font-size:1.15rem; padding:15px;">
+                <span style="font-size:1.8em;">🌙</span> Modo Oscuro / Sepia
+            </button>
+        </div>
+
+        <hr style="border: 1px solid var(--input-border); margin: 0 0 15px 0;">
+
+        <button id="btn-install-app" onclick="instalarApp()" class="btn" style="width:100%; margin-bottom:12px; background: linear-gradient(145deg, #ff9800, #f57c00); color:white; font-weight:bold; display:none; font-size:1.15rem; padding:12px; border-radius:8px; border:none;">📱 Instalar App</button>
+
+        <button onclick="descargarHistorial()" class="btn" style="width:100%; margin-bottom:15px; background:#4caf50; color:white; font-weight:bold; font-size:1.15rem; padding:12px; border-radius:8px; border:none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor:pointer;">💾 Guardar Chat (TXT)</button>
+        
+        <hr style="border: 1px solid var(--input-border); margin: 15px 0;">
+
+        <div style="display:flex; flex-direction:column; gap: 12px; margin-bottom: 25px;">
+            <button id="btn-config-dyslexia" onclick="vibrar(60); toggleDyslexia()" class="config-btn">
+                <span id="dyslexia-toggle" style="font-size:1.8em;">👓</span> Letra para Dislexia
+            </button>
+            <button id="btn-config-lsm" onclick="vibrar(60); toggleLSM()" class="config-btn">
+                <span id="lsm-toggle" style="font-size:1.8em;">🤟</span> Dactilología
+            </button>
+            <button id="btn-config-voice" onclick="vibrar(60); toggleVoice()" class="config-btn">
+                <span id="voice-toggle" style="font-size:1.8em;">🤫</span> Voz Robótica (Básica)
+            </button>
+            <button id="btn-config-lupa" onclick="vibrar(60); toggleLupa()" class="config-btn">
+                <span style="font-size:1.8em;">🔍</span> Agrandar Letra
+            </button>
+            <button id="btn-config-contraste" onclick="vibrar(60); toggleContraste()" class="config-btn">
+                <span style="font-size:1.8em;">🌗</span> Alto Contraste
+            </button>
+        </div>
+        
+        <button onclick="document.getElementById('settings-modal').style.display='none'; vibrar(60);" style="width:100%; padding:14px; background-color:#d32f2f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.15rem;">Cerrar Menú</button>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FASE 4: FIREBASE — GOOGLE SIGN-IN Y MEMORIA SINTRÓPICA
+     INSTRUCCIÓN: Copia tus credenciales desde console.firebase.google.com
+     ═══════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+    // ── Reemplaza estos valores con los de tu proyecto Firebase ──
+    const FIREBASE_CONFIG = {
+        apiKey:            "TU_API_KEY_AQUI",
+        authDomain:        "TU_PROYECTO.firebaseapp.com",
+        projectId:         "TU_PROYECTO_ID",
+        storageBucket:     "TU_PROYECTO.appspot.com",
+        messagingSenderId: "TU_SENDER_ID",
+        appId:             "TU_APP_ID"
+    };
+
+    let firebaseActivo = false;
+    let firebaseAuth = null;
+    let firestore = null;
+
+    try {
+        if (FIREBASE_CONFIG.apiKey !== "TU_API_KEY_AQUI") {
+            firebase.initializeApp(FIREBASE_CONFIG);
+            firebaseAuth = firebase.auth();
+            firestore = firebase.firestore();
+            firebaseActivo = true;
+        }
+    } catch(e) {
+        console.warn('Firebase: modo local sin credenciales.', e.message);
+    }
+
+    async function signInWithGoogle() {
+        if (!firebaseActivo) {
+            mostrarNotificacion("⚙️ Firebase no configurado. Pide al Jefe Supremo las credenciales.", "#ff9800", 5000);
+            return;
+        }
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const result = await firebaseAuth.signInWithPopup(provider);
+            const u = result.user;
+            localStorage.setItem('regina_user_id', u.uid);
+            localStorage.setItem('regina_registrado', 'true');
+            localStorage.setItem('regina_nombre', u.displayName || 'Pariente');
+            document.getElementById('auth-modal').style.display = 'none';
+            mostrarNotificacion(`✅ ¡Bienvenido/a, ${u.displayName}! 🤠`, "#4caf50");
+            await cargarResumenFirestore(u.uid);
+        } catch(e) {
+            mostrarNotificacion("❌ Error Google Sign-In: " + e.message, "#f44336", 5000);
+        }
+    }
+
+    async function guardarResumenFirestore(userId, resumen) {
+        if (!firebaseActivo || !firestore || !userId) return;
+        try {
+            await firestore.collection('sesiones_regina').doc(userId).set({
+                nombre:                 resumen.nombre || 'Pariente',
+                mascota_nombre:         resumen.mascota_nombre || '',
+                mascota_especie:        resumen.mascota_especie || '',
+                ultimas_recomendaciones: resumen.ultimas_recomendaciones || '',
+                timestamp:              firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch(e) { console.warn('Firestore write error:', e.message); }
+    }
+
+    async function cargarResumenFirestore(userId) {
+        if (!firebaseActivo || !firestore || !userId) return null;
+        try {
+            const doc = await firestore.collection('sesiones_regina').doc(userId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                localStorage.setItem('regina_session_summary', JSON.stringify(data));
+                return data;
+            }
+        } catch(e) { console.warn('Firestore read error:', e.message); }
+        return null;
+    }
+
+    // Guarda resumen sintrópico al cerrar/salir
+    async function guardarResumenAlCerrar() {
+        const userId = getUserId();
+        if (!userId) return;
+        const mensajes = document.querySelectorAll('.message');
+        if (mensajes.length <= 2) return;
+        try {
+            const res = await fetch(`${API_URL}/guardar_resumen`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.resumen && firebaseActivo) {
+                    // Sincroniza también con Firestore si está activo
+                    const partes = data.resumen.match(/Usuario: (.+?) \| Mascota: (.+?) llamado\/a (.+?) \| Recomendaciones anteriores: (.+)/);
+                    if (partes) {
+                        await guardarResumenFirestore(userId, {
+                            nombre: partes[1], mascota_especie: partes[2],
+                            mascota_nombre: partes[3], ultimas_recomendaciones: partes[4]
+                        });
+                    }
+                }
+            }
+        } catch(e) { /* silencioso al cerrar */ }
+    }
+
+    window.addEventListener('beforeunload', guardarResumenAlCerrar);
+</script>
+
+</body>
+</html>
