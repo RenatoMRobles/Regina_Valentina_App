@@ -30,13 +30,21 @@ URL_POLL = PROTO + "image.pollinations.ai/prompt/"
 URL_UNSPLASH = PROTO + "images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop"
 
 app = Flask(__name__)
-CORS(app)
+
+ALLOWED_ORIGINS = [
+    "https://reginavalentina.com",
+    "http://localhost",
+    "http://localhost:5000",
+    "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:5000",
+]
+CORS(app, origins=ALLOWED_ORIGINS)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Detectar entorno Cloud Run
 if os.environ.get('K_SERVICE'):
-    # Por ahora a la carpeta temporal (después le conectaremos su bóveda FUSE)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/vault/base_robles_v3.sqlite'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/base_robles_v3.sqlite'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'base_robles_v3.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -157,7 +165,7 @@ def reinicio_fenix():
     except Exception as e:
         return f"<h1>Error Crítico Fénix: {str(e)}</h1>"
 
-sdk = mercadopago.SDK("APP_USR-6488780506143145-021319-67364a89c2e71276dd5369878dfbd22d-1759115213")
+sdk = mercadopago.SDK(os.environ.get('MERCADOPAGO_ACCESS_TOKEN', 'APP_USR-6488780506143145-021319-67364a89c2e71276dd5369878dfbd22d-1759115213'))
 
 def get_user_points(user):
     return {
