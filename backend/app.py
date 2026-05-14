@@ -910,13 +910,12 @@ def chat():
                     texto_a_leer = re.sub(r'[*_#`~>|\\]', '', texto_a_leer)
                     texto_a_leer = re.sub(r'\[.*?\]\(.*?\)', '', texto_a_leer)
                     texto_a_leer = re.sub(r'[\U00010000-\U0010ffff]', '', texto_a_leer, flags=re.UNICODE)
-                    texto_a_leer = re.sub(r'[☀-➿ἰ0-ᾯF]', '', texto_a_leer)
                     texto_a_leer = re.sub(r'\s{2,}', ' ', texto_a_leer).strip()
                     texto_a_leer = texto_a_leer[:4500]
                     if texto_a_leer:
                         if motor_voz == 'journey':
                             voice_cfg = {"languageCode": "es-US", "name": "es-US-Journey-F"}
-                            audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.0, "pitch": 0.0}
+                            audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.0}
                         else:
                             voice_cfg = {"languageCode": "es-US", "name": "es-US-Neural2-A"}
                             audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}

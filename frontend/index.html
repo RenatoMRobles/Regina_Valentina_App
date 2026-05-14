@@ -6,6 +6,7 @@
     <title>Regina Valentina | Experta en Mascotas</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6a1b9a">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
     <meta name="description" content="Regina Valentina: La experta en comportamiento animal que pone orden en el rancho. ¡Tus primeros 3 consejos son GRATIS! 🤠🐾">
 
     <meta property="og:title" content="Regina Valentina 🤠🐾 | Experta en Mascotas">
@@ -31,6 +32,23 @@
         body.high-contrast-mode a { color: #ffff00 !important; text-decoration: underline; }
 
         body.lsm-mode .message { font-family: 'Gallaudet', sans-serif !important; font-size: 2.2rem !important; line-height: 1.6 !important; }
+
+        /* ── Toggle switches de Ergonomía ── */
+        .ergo-details { border:1px solid var(--input-border); border-radius:10px; overflow:hidden; }
+        .ergo-details summary { padding:12px 14px; background:var(--input-bg,var(--bg-body)); color:var(--text-main); font-size:1em; cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px; font-weight:bold; user-select:none; }
+        .ergo-details summary::-webkit-details-marker { display:none; }
+        .ergo-details summary::after { content:'▾'; margin-left:auto; transition:transform .2s; }
+        .ergo-details[open] summary::after { transform:rotate(-180deg); }
+        .ergo-panel { padding:4px 14px 10px; background:var(--input-bg,var(--bg-body)); }
+        .ergo-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--input-border); }
+        .ergo-row:last-child { border-bottom:none; }
+        .ergo-lbl { font-size:0.97em; color:var(--text-main); }
+        .ergo-switch { position:relative; display:inline-block; width:46px; height:26px; flex-shrink:0; }
+        .ergo-switch input { opacity:0; width:0; height:0; position:absolute; }
+        .ergo-thumb { position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:26px; transition:.25s; }
+        .ergo-thumb::before { content:""; position:absolute; width:20px; height:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.25s; }
+        .ergo-switch input:checked + .ergo-thumb { background:#6a1b9a; }
+        .ergo-switch input:checked + .ergo-thumb::before { transform:translateX(20px); }
 
         :root { --bg-body: #f4f4f9; --bg-chat: #ffffff; --text-main: #333333; --header-bg: #6a1b9a; --bot-bubble: #f1f0f0; --bot-text: #333333; --input-border: #ddd; }
         [data-theme="dark"] { --bg-body: #121212; --bg-chat: #1e1e1e; --text-main: #e0e0e0; --header-bg: #4a148c; --bot-bubble: #2d2d2d; --bot-text: #e0e0e0; --input-border: #444; }
@@ -198,6 +216,9 @@
         }
         .user-message { align-self: flex-end; background-color: #6a1b9a; color: white; border-bottom-right-radius: 2px; }
         .bot-message { align-self: flex-start; background-color: var(--bot-bubble); color: var(--bot-text); border-bottom-left-radius: 2px; }
+        .msg-audio-controls { position: absolute; top: 6px; right: 8px; display: flex; gap: 3px; z-index: 2; }
+        .msg-audio-btn { background: transparent; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 0.7rem; color: var(--text-main); opacity: 0.45; display: flex; align-items: center; justify-content: center; padding: 0; transition: opacity 0.2s; }
+        .msg-audio-btn:hover { opacity: 1; }
 
         .input-area {
             padding: 15px 20px; border-top: 1px solid var(--input-border);
@@ -796,18 +817,29 @@
     }
 
     let ultimoMensajeLeido = null;
+
+    function pararMensaje() {
+        vibrar(30);
+        window.speechSynthesis.cancel();
+        ultimoMensajeLeido = null;
+        if (audioPremiumActual) { audioPremiumActual.pause(); audioPremiumActual.currentTime = 0; }
+    }
+
     function reproducirMensaje(msgId) {
         vibrar(60);
-        if (typeof audioPremiumActual !== 'undefined' && audioPremiumActual) { audioPremiumActual.pause(); }
-        if (window.speechSynthesis.speaking && ultimoMensajeLeido === msgId) {
-            window.speechSynthesis.cancel();
-            ultimoMensajeLeido = null;
-            return;
-        }
-        window.speechSynthesis.cancel();
-        ultimoMensajeLeido = msgId;
+        pararMensaje();
 
         const elemento = document.getElementById(msgId);
+        const audioData = elemento ? elemento.getAttribute('data-audio') : null;
+
+        if (audioData) {
+            audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
+            audioPremiumActual.play();
+            mostrarNotificacion('🔊 Reproduciendo voz premium...', '#ffca28', 3000);
+            return;
+        }
+
+        ultimoMensajeLeido = msgId;
         let textoPuro = elemento.getAttribute('data-puretext') || elemento.innerText;
         let textoLimpio = silenciarAviso(textoPuro);
 
@@ -815,9 +847,8 @@
         if (reginaVoice) utterance.voice = reginaVoice;
         utterance.lang = 'es-MX'; utterance.rate = 1.05;
         utterance.onend = function() { if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null; };
-
         window.speechSynthesis.speak(utterance);
-        mostrarNotificacion("🔊 Leyendo... (Click en el mismo botón para detener)", "#2196f3", 3500);
+        mostrarNotificacion('🔊 Leyendo... (Click en ⏹ para detener)', '#2196f3', 3500);
     }
 
     window.addEventListener('beforeunload', function() {
@@ -889,17 +920,16 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-        const savedErgonomia = localStorage.getItem('regina_ergonomia');
-        const savedTheme = localStorage.getItem('regina_theme');
-        if (savedErgonomia && savedErgonomia !== 'ninguna') {
-            var selErgonomia = document.getElementById('sel-ergonomia');
-            if (selErgonomia) selErgonomia.value = savedErgonomia;
-            aplicarErgonomia(savedErgonomia, false);
-        } else if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else if (savedTheme === 'sepia') {
-            document.documentElement.setAttribute('data-theme', 'sepia');
-        }
+        // Restaurar toggles de Ergonomía independientes
+        ['dark', 'sepia', 'dyslexia', 'lsm', 'lupa', 'contraste'].forEach(function(modo) {
+            var val = localStorage.getItem('regina_ergo_' + modo);
+            if (val === '1') {
+                ergoState[modo] = true;
+                var cb = document.getElementById('toggle-' + modo);
+                if (cb) cb.checked = true;
+            }
+        });
+        applyErgonomias();
 
         inicializarRacha();
         inicializarIntentos();
@@ -968,55 +998,66 @@
         }
     }
 
-    function aplicarErgonomia(valor, notificar = true) {
-        document.documentElement.removeAttribute('data-theme');
-        document.body.classList.remove('dyslexia-mode', 'lsm-mode', 'large-text-mode', 'high-contrast-mode');
-        dyslexiaEnabled = false;
-        lsmEnabled = false;
-        document.querySelectorAll('.message[data-original]').forEach(function(msg) {
-            msg.innerHTML = msg.getAttribute('data-original');
-            msg.removeAttribute('data-original');
-        });
-        localStorage.setItem('regina_ergonomia', valor);
-        switch (valor) {
-            case 'dark':
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('regina_theme', 'dark');
-                if (notificar) mostrarNotificacion("🌙 Modo Oscuro activado", "#3f51b5");
-                break;
-            case 'sepia':
-                document.documentElement.setAttribute('data-theme', 'sepia');
-                localStorage.setItem('regina_theme', 'sepia');
-                if (notificar) mostrarNotificacion("☕ Modo Sepia activado", "#795548");
-                break;
-            case 'dyslexia':
-                dyslexiaEnabled = true;
-                document.body.classList.add('dyslexia-mode');
-                if (notificar) mostrarNotificacion("👓 Lectura cómoda habilitada", "#4caf50");
-                break;
-            case 'lsm':
-                lsmEnabled = true;
-                document.body.classList.add('lsm-mode');
-                document.querySelectorAll('.message').forEach(function(msg) {
-                    if (!msg.hasAttribute('data-original')) msg.setAttribute('data-original', msg.innerHTML);
-                    msg.innerHTML = quitarAcentos(msg.innerHTML);
-                });
-                if (notificar) mostrarNotificacion("🤟 Modo Dactilología Activado", "#d81b60");
-                var cb = document.getElementById('chat-box');
-                if (cb) cb.scrollTop = cb.scrollHeight;
-                break;
-            case 'lupa':
-                document.body.classList.add('large-text-mode');
-                if (notificar) mostrarNotificacion("🔍 Texto súper grande activado", "#4caf50");
-                break;
-            case 'contraste':
-                document.body.classList.add('high-contrast-mode');
-                if (notificar) mostrarNotificacion("🌗 Alto contraste activado", "#4caf50");
-                break;
-            default:
-                localStorage.setItem('regina_theme', 'light');
-                if (notificar) mostrarNotificacion("Vista estándar restaurada", "var(--header-bg)");
+    var ergoState = { dark: false, sepia: false, dyslexia: false, lsm: false, lupa: false, contraste: false };
+
+    function applyErgonomias() {
+        // Tema: dark tiene prioridad sobre sepia
+        if (ergoState.dark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (ergoState.sepia) {
+            document.documentElement.setAttribute('data-theme', 'sepia');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
         }
+        // Clases de cuerpo
+        document.body.classList.toggle('dyslexia-mode', ergoState.dyslexia);
+        document.body.classList.toggle('large-text-mode', ergoState.lupa);
+        document.body.classList.toggle('high-contrast-mode', ergoState.contraste);
+        document.body.classList.toggle('lsm-mode', ergoState.lsm);
+        dyslexiaEnabled = ergoState.dyslexia;
+        lsmEnabled = ergoState.lsm;
+        // Dactilología: transformar/restaurar mensajes
+        if (ergoState.lsm) {
+            document.querySelectorAll('.message').forEach(function(msg) {
+                if (!msg.hasAttribute('data-original')) msg.setAttribute('data-original', msg.innerHTML);
+                msg.innerHTML = quitarAcentos(msg.innerHTML);
+            });
+            var cb = document.getElementById('chat-box');
+            if (cb) cb.scrollTop = cb.scrollHeight;
+        } else {
+            document.querySelectorAll('.message[data-original]').forEach(function(msg) {
+                msg.innerHTML = msg.getAttribute('data-original');
+                msg.removeAttribute('data-original');
+            });
+        }
+    }
+
+    function toggleErgonomia(modo) {
+        ergoState[modo] = !ergoState[modo];
+        localStorage.setItem('regina_ergo_' + modo, ergoState[modo] ? '1' : '0');
+        // Dark/sepia son mutuamente excluyentes visualmente: apagar el otro
+        if (modo === 'dark' && ergoState.dark && ergoState.sepia) {
+            ergoState.sepia = false;
+            localStorage.setItem('regina_ergo_sepia', '0');
+            var ts = document.getElementById('toggle-sepia');
+            if (ts) ts.checked = false;
+        } else if (modo === 'sepia' && ergoState.sepia && ergoState.dark) {
+            ergoState.dark = false;
+            localStorage.setItem('regina_ergo_dark', '0');
+            var td = document.getElementById('toggle-dark');
+            if (td) td.checked = false;
+        }
+        applyErgonomias();
+        var notifs = {
+            dark:     [ergoState.dark,     "🌙 Modo Oscuro activado",         "🌙 Modo Oscuro desactivado",         "#3f51b5", "#555"],
+            sepia:    [ergoState.sepia,    "☕ Modo Sepia activado",           "☕ Modo Sepia desactivado",           "#795548", "#555"],
+            dyslexia: [ergoState.dyslexia, "👓 Lectura cómoda habilitada",     "👓 Lectura estándar restaurada",     "#4caf50", "#555"],
+            lsm:      [ergoState.lsm,      "🤟 Dactilología Activada",         "🤟 Dactilología Desactivada",        "#d81b60", "#555"],
+            lupa:     [ergoState.lupa,     "🔍 Texto súper grande activado",   "🔍 Tamaño restaurado",               "#4caf50", "#555"],
+            contraste:[ergoState.contraste,"🌗 Alto contraste activado",       "🌗 Colores restaurados",             "#4caf50", "#555"]
+        };
+        var n = notifs[modo];
+        mostrarNotificacion(n[0] ? n[1] : n[2], n[0] ? n[3] : n[4]);
     }
 
     function abrirMiCuenta() {
@@ -1296,13 +1337,12 @@
                 vibrar([50, 100, 50]);
 
                 let copyBtn = `<button onclick="copiarConsejo('${msgId}')" style="background:var(--bg-body); border:1px solid var(--header-bg); color:var(--text-main); border-radius:15px; padding:6px 14px; cursor:pointer; font-size:1rem; font-weight:bold;">📋 Copiar</button>`;
-                let readBtn = `<button onclick="reproducirMensaje('${msgId}')" style="background:var(--bg-body); border:1px solid #2196f3; color:var(--text-main); border-radius:15px; padding:6px 14px; margin-left:8px; cursor:pointer; font-size:1rem; font-weight:bold;">🔊 Escuchar</button>`;
 
                 let califBtns = `
                     <button id="btn-up-${msgId}" onclick="calificarMensaje('${msgId}', 'up')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:15px; transition:0.2s; filter:grayscale(0%);" title="¡Buen consejo!">👍</button>
                     <button id="btn-down-${msgId}" onclick="calificarMensaje('${msgId}', 'down')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:5px; transition:0.2s; filter:grayscale(0%);" title="No me sirvió">👎</button>`;
 
-                let botonesAccion = `<br><div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap;">${copyBtn}${readBtn}<div style="margin-left:auto;">${califBtns}</div></div>`;
+                let botonesAccion = `<br><div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap;">${copyBtn}<div style="margin-left:auto;">${califBtns}</div></div>`;
 
                 if (textoAEscribir.length > 600 && (textoAEscribir.includes('Guia') || textoAEscribir.includes('paso a paso') || textoAEscribir.includes('1.'))) {
                     let btnHTML = `<br>
@@ -1316,6 +1356,12 @@
                     element.innerHTML += botonesAccion;
                     element.setAttribute('data-original', text + botonesAccion);
                 }
+
+                // Inyectar iconos de audio DESPUÉS de todos los innerHTML+= para que no sean destruidos
+                const audioCtrl = document.createElement('div');
+                audioCtrl.className = 'msg-audio-controls';
+                audioCtrl.innerHTML = `<button class="msg-audio-btn" onclick="reproducirMensaje('${msgId}')" title="Escuchar"><i class="fa-solid fa-volume-high"></i></button><button class="msg-audio-btn" onclick="pararMensaje()" title="Detener"><i class="fa-solid fa-stop"></i></button>`;
+                element.appendChild(audioCtrl);
             }
         }
         typing();
@@ -1435,6 +1481,7 @@
 
                 if (data.audio) {
                     if (audioPremiumActual) audioPremiumActual.pause();
+                    newMsg.setAttribute('data-audio', data.audio);
                     if (!isMuted && premiumVoiceEnabled) {
                         audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
                         audioPremiumActual.play();
@@ -1583,19 +1630,36 @@
             <button onclick="vibrar(40); document.getElementById('settings-modal').style.display='none'; abrirMiCuenta();" class="config-btn" style="font-size:1.15rem; padding:15px;">
                 <span style="font-size:1.8em;">👤</span> Mi Perfil / Cuenta
             </button>
-            <!-- ── Dropdown 1: Ergonomía Visual ── -->
-            <div style="text-align:left;">
-                <label for="sel-ergonomia" style="font-size:0.85em; font-weight:bold; color:var(--text-main); opacity:0.75; display:block; margin-bottom:4px; padding-left:4px;">🎨 Ergonomía Visual</label>
-                <select id="sel-ergonomia" onchange="vibrar(20); aplicarErgonomia(this.value)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
-                    <option value="ninguna">👁️ Vista Estándar</option>
-                    <option value="dark">🌙 Modo Oscuro</option>
-                    <option value="sepia">☕ Modo Sepia</option>
-                    <option value="dyslexia">👓 Letra para Dislexia</option>
-                    <option value="lsm">🤟 Dactilología</option>
-                    <option value="lupa">🔍 Agrandar Letra</option>
-                    <option value="contraste">🌗 Alto Contraste</option>
-                </select>
-            </div>
+            <!-- ── Collapsible: Ergonomía Visual ── -->
+            <details class="ergo-details">
+                <summary>🎨 Ergonomía Visual</summary>
+                <div class="ergo-panel">
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">🌙 Modo Oscuro</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-dark" onchange="vibrar(20); toggleErgonomia('dark')"><span class="ergo-thumb"></span></label>
+                    </div>
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">☕ Modo Sepia</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-sepia" onchange="vibrar(20); toggleErgonomia('sepia')"><span class="ergo-thumb"></span></label>
+                    </div>
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">👓 Letra para Dislexia</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-dyslexia" onchange="vibrar(20); toggleErgonomia('dyslexia')"><span class="ergo-thumb"></span></label>
+                    </div>
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">🤟 Dactilología</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-lsm" onchange="vibrar(20); toggleErgonomia('lsm')"><span class="ergo-thumb"></span></label>
+                    </div>
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">🔍 Agrandar Letra</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-lupa" onchange="vibrar(20); toggleErgonomia('lupa')"><span class="ergo-thumb"></span></label>
+                    </div>
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">🌗 Alto Contraste</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-contraste" onchange="vibrar(20); toggleErgonomia('contraste')"><span class="ergo-thumb"></span></label>
+                    </div>
+                </div>
+            </details>
 
             <!-- ── Dropdown 2: Motor de Voz ── -->
             <div style="text-align:left;">
