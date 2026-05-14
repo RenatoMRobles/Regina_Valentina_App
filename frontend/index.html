@@ -498,7 +498,7 @@
         if (!ultimaFecha) {
             racha = 1;
         } else if (ultimaFecha === hoy) {
-            // Racha ya actualizada hoy
+            // sin cambio: racha ya contada hoy
         } else if (ultimaFecha === ayer) {
             racha += 1;
         } else {
@@ -638,7 +638,7 @@
         document.getElementById('vista-principal-vitrina').style.display = 'none';
         const vistaDetalle = document.getElementById('vista-detalle-vitrina');
 
-        let mensajeFelicidades = progreso === 100 ? `<div style="background:#fff8e1; border:2px solid #ffca28; padding:10px; border-radius:10px; margin-top:15px; color:#d8a000; font-weight:bold;">¡Felicidades! Has obtenido la Insignia de Buen Pastor 🌟.</div>` : ``;
+        let mensajeFelicidades = progreso === 100 ? `<div style="background:#fff8e1; border:2px solid #ffca28; padding:10px; border-radius:10px; margin-top:15px; color:#d8a000; font-weight:bold;">🌟 ¡Insignia de Habilidad Obtenida! Has dominado esta área al 100%.</div>` : ``;
 
         vistaDetalle.innerHTML = `
             <div style="text-align:left; margin-bottom:15px;">
@@ -678,13 +678,12 @@
             <h2 style="color:#ff8f00; margin:10px 0; font-size:1.8em;">Leyenda del Rancho</h2>
 
             <div class="vitrina-item" style="padding:20px; border-radius:12px; margin:20px 0; border: 2px solid #ffca28; text-align:left;">
-                <p class="vitrina-text" style="margin:0; font-style:italic; font-size:1.15em;">"¡Mis respetos, pariente! Has obtenido las 5 Insignias de Buen Pastor. Tú y tu mascota son la dupla perfecta."</p>
+                <p class="vitrina-text" style="margin:0; font-style:italic; font-size:1.15em;">"¡Mis respetos, pariente! Has obtenido las 5 Insignias de Habilidad. Tú y tu mascota son la dupla perfecta del rancho."</p>
                 <p style="margin:10px 0 0 0; font-weight:bold; color:#d81b60; text-align:right;">- Regina Valentina 🤠</p>
             </div>
             <p style="font-weight:bold; color:#4caf50; font-size:1.1em; margin-bottom: 20px;">¡Completado al 100%! 🏔️</p>
 
             <button onclick="vibrar(60); generarReporteCientifico()" style="width:100%; background:#6a1b9a; color:white; border:none; padding:15px; border-radius:30px; font-weight:bold; font-size:1.1em; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">📄 Descargar Reporte</button>
-            <p class="vitrina-subtext" style="font-size:0.8em; margin-top:10px;">* El reporte avanzado estará en la Fase GCP.</p>
         `;
         vistaDetalle.style.display = 'block';
     }
@@ -700,7 +699,7 @@
             insigniasHTML += `<div class="insignia-print"><span style="font-size: 40px;">${t.icono} 🌟</span><h3>${t.nombre}</h3><p>Nivel 100% Alcanzado. ${t.desc}</p></div>`;
         });
 
-        divReporte.innerHTML = `<p style="color:#777; margin-bottom:20px; font-weight:bold;">FECHA DE EMISIÓN: ${fecha}</p><h1>ACREDITACIÓN DE CONDUCTA ANIMAL</h1><p style="font-size: 18px; color: #333;">Se certifica que el binomio formado por el usuario y su mascota:</p><h2 style="font-size: 30px; color: #d81b60; margin: 10px 0;">🐾 ${nombreMascota.toUpperCase()} 🐾</h2><p style="font-size: 18px; color: #333; margin-bottom: 30px;">Han completado el programa, obteniendo las 5 Insignias de Buen Pastor.</p><div style="text-align: center; margin-bottom: 40px;">${insigniasHTML}</div><p style="font-style: italic; color: #555; margin-top: 50px;">"El verdadero liderazgo no requiere fuerza, sino entendimiento."</p><br><br><p>_____________________________________</p><p style="font-weight: bold; margin-top:5px;">Regina Valentina</p>`;
+        divReporte.innerHTML = `<p style="color:#777; margin-bottom:20px; font-weight:bold;">FECHA DE EMISIÓN: ${fecha}</p><h1>ACREDITACIÓN DE CONDUCTA ANIMAL</h1><p style="font-size: 18px; color: #333;">Se certifica que el binomio formado por el usuario y su mascota:</p><h2 style="font-size: 30px; color: #d81b60; margin: 10px 0;">🐾 ${nombreMascota.toUpperCase()} 🐾</h2><p style="font-size: 18px; color: #333; margin-bottom: 30px;">Han completado el programa, obteniendo las 5 Insignias de Habilidad Cruelty-Free.</p><div style="text-align: center; margin-bottom: 40px;">${insigniasHTML}</div><p style="font-style: italic; color: #555; margin-top: 50px;">"El verdadero liderazgo no requiere fuerza, sino entendimiento."</p><br><br><p>_____________________________________</p><p style="font-weight: bold; margin-top:5px;">Regina Valentina</p>`;
         setTimeout(() => { window.print(); }, 500);
     }
 
@@ -716,7 +715,7 @@
                 <p><strong>1. Pide un consejo:</strong> Platica con Regina sobre cualquier problema.</p>
                 <p><strong>2. Gánate los Puntos:</strong> Regina te dejará una 'Tarea' y te dirá cuántos puntos vale.</p>
                 <p><strong>3. Cobra tu premio:</strong> Cuando la termines, presiona <b>"✅ Ya hice la tarea"</b>.</p>
-                <p><strong>4. Las Insignias 🌟:</strong> Al llegar al 100% en una habilidad, te ganas una "Insignia de Buen Pastor".</p>
+                <p><strong>4. Las Insignias 🌟:</strong> Al llegar al 100% en una habilidad, te ganas una "Insignia de Habilidad".</p>
                 <p><strong>5. La Cima:</strong> ¡Junta las 5 Insignias para ser la Leyenda del Rancho!</p>
             </div>
             <button onclick="vibrar(30); abrirVitrina()" style="width:100%; margin-top:20px; padding:14px; background:var(--header-bg); color:white; border:none; border-radius:8px; font-weight:bold; font-size:1.15em; cursor:pointer;">¡Entendido, a darle!</button>
@@ -726,7 +725,7 @@
 
     function celebrarInsigniaNueva() {
         vibrar([100, 50, 100, 50, 300, 100, 500]);
-        mostrarNotificacion("🎉 ¡NUEVA INSIGNIA DE BUEN PASTOR DESBLOQUEADA! 🎉<br>Revisa tu Vitrina.", "#ffca28", 6000);
+        mostrarNotificacion("🎉 ¡NUEVA INSIGNIA DE HABILIDAD DESBLOQUEADA! 🎉<br>Revisa tu Vitrina.", "#ffca28", 6000);
         const trophy = document.querySelector('.bar-btn.icon-only[title="Vitrina de Logros"]');
         if (trophy) {
             trophy.classList.remove('animar-victoria');
@@ -1197,6 +1196,46 @@
             }
         }
         typing();
+    }
+
+    function imprimirGuia(msgId) {
+        const el = document.getElementById(msgId);
+        const texto = el.getAttribute('data-puretext') || el.innerText.split('📋')[0].trim();
+        const membrete = document.getElementById('membrete-pdf');
+        const guia = document.createElement('div');
+        guia.className = 'printable-guide';
+        guia.style.cssText = 'display:block; font-family:Georgia,serif; font-size:13pt; line-height:1.8; text-align:justify; padding:20px;';
+        guia.innerText = texto;
+        document.body.appendChild(guia);
+        membrete.style.display = 'block';
+        window.print();
+        setTimeout(() => { guia.remove(); membrete.style.display = 'none'; }, 1000);
+    }
+
+    async function ilustrarManual(msgId) {
+        const btn = document.getElementById('btn-ilustrar-' + msgId);
+        if (btn) { btn.innerText = '⏳ Ilustrando...'; btn.disabled = true; }
+        const el = document.getElementById(msgId);
+        const texto = (el.getAttribute('data-puretext') || el.innerText.split('📋')[0].trim()).substring(0, 200);
+        try {
+            const res = await fetch(`${API_URL}/ilustrar`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ texto })
+            });
+            const data = await res.json();
+            if (data.imagen_b64) {
+                const img = document.createElement('img');
+                img.src = 'data:image/jpeg;base64,' + data.imagen_b64;
+                img.style.cssText = 'width:100%; border-radius:10px; margin-top:12px; border:2px solid #6a1b9a;';
+                img.alt = 'Ilustración del manual';
+                el.appendChild(img);
+                if (btn) btn.style.display = 'none';
+                vibrar([50, 100]);
+            }
+        } catch(e) {
+            if (btn) { btn.innerText = '✨ Ilustrar Manual (VIP)'; btn.disabled = false; }
+            mostrarNotificacion("⚠️ Error al ilustrar. Intenta de nuevo.", "#f44336");
+        }
     }
 
     function sendChip(texto) {

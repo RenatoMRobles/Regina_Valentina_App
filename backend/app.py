@@ -1,20 +1,17 @@
-# VERSIÓN 31.0 - Links de Blog Reparados (F-Strings), Robot AJAX y Cupones
 import os
 import urllib.parse
 import random
 import re
-import uuid
 import json
 import base64
 import requests
 import traceback
-import mercadopago 
-from flask import Flask, request, jsonify, render_template
+import mercadopago
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import google.generativeai as genai
-from sqlalchemy import text
 from werkzeug.security import generate_password_hash, check_password_hash
 
 PROTO = "http" + "s://"
@@ -50,8 +47,6 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-import os
-# ... tu otro código ...
 genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 nombre_modelo = "models/gemini-2.5-flash"
 model = genai.GenerativeModel(nombre_modelo)
@@ -179,7 +174,7 @@ def reinicio_fenix():
     except Exception as e:
         return f"<h1>Error Crítico Fénix: {str(e)}</h1>"
 
-sdk = mercadopago.SDK(os.environ.get('MERCADOPAGO_ACCESS_TOKEN', 'APP_USR-6488780506143145-021319-67364a89c2e71276dd5369878dfbd22d-1759115213'))
+sdk = mercadopago.SDK(os.environ.get('MERCADOPAGO_ACCESS_TOKEN', ''))
 
 def get_user_points(user):
     return {
@@ -626,7 +621,6 @@ def panel_robles():
             color_cupon = "#4caf50" if c.activo and c.usos_restantes > 0 else "#999"
             html += f"<tr><td style='color:#ffca28; font-weight:bold;'>{c.codigo}</td><td>{c.dias_regalo}</td><td>{c.usos_restantes}</td><td style='color:{color_cupon};'>{estado_cupon}</td></tr>"
 
-    # 👇 F-STRINGS: INYECCIÓN DE RUTAS ABSOLUTAS INFALIBLES 👇
     html += f"""
                         </table>
                     </div>
