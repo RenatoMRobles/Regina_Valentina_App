@@ -426,8 +426,6 @@
     <div class="loading" id="loading">Regina está escribiendo...</div>
 
     <div class="chips-container">
-        <button class="chip" onclick="sendChip('Quiero jugar con la Miss Regina')">🎮 Juguemos</button>
-        <button class="chip" onclick="sendChip('Miss Regina, ya hice la tarea')" style="background:#e8f5e9; border-color:#4caf50; color:#2e7d32;">✅ Ya hice la tarea</button>
         <button class="chip" onclick="sendChip('🧐 ¡Analízame Regina!')">🧐 Analízame</button>
         <button class="chip" onclick="sendChip('🤠 ¿Cómo educar a un perro latoso?')">🤠 Educar perro latoso</button>
     </div>
@@ -715,7 +713,7 @@
             <div class="vitrina-item" style="text-align:left; font-size:1.1em; line-height:1.6; padding:20px; border-radius:12px;">
                 <p><strong>1. Pide un consejo:</strong> Platica con Regina sobre cualquier problema.</p>
                 <p><strong>2. Gánate los Puntos:</strong> Regina te dejará una 'Tarea' y te dirá cuántos puntos vale.</p>
-                <p><strong>3. Cobra tu premio:</strong> Cuando la termines, presiona <b>"✅ Ya hice la tarea"</b>.</p>
+                <p><strong>3. Cobra tu premio:</strong> Cuando termines la tarea, díselo a Regina directamente en el chat.</p>
                 <p><strong>4. Las Insignias 🌟:</strong> Al llegar al 100% en una habilidad, te ganas una "Insignia de Habilidad".</p>
                 <p><strong>5. La Cima:</strong> ¡Junta las 5 Insignias para ser la Leyenda del Rancho!</p>
             </div>
@@ -1338,7 +1336,7 @@
         try {
             const response = await fetch(`${API_URL}/chat`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true', imagen_b64: imagenChatBase64 })
+                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true', imagen_b64: imagenChatBase64, motor_voz: (document.getElementById('sel-motor-voz') || {value:'nativa'}).value, cerebro_llm: (document.getElementById('sel-cerebro-llm') || {value:'gemini'}).value })
             });
 
             imagenChatBase64 = null;
@@ -1532,6 +1530,26 @@
             <button id="btn-settings-voice" onclick="vibrar(40); togglePremiumVoice()" class="config-btn" style="font-size:1.15rem; padding:15px;">
                 <span id="settings-voice-icon" style="font-size:1.8em;">🗣️</span> Voz Premium HD
             </button>
+
+            <!-- ── Dropdown 2: Motor de Voz ── -->
+            <div style="text-align:left;">
+                <label for="sel-motor-voz" style="font-size:0.85em; font-weight:bold; color:var(--text-main); opacity:0.75; display:block; margin-bottom:4px; padding-left:4px;">🎙️ Motor de Voz</label>
+                <select id="sel-motor-voz" onchange="vibrar(20)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
+                    <option value="nativa">🗣️ Nativa del Navegador</option>
+                    <option value="journey">✨ Emocional Journey</option>
+                    <option value="neural2">🔊 Dinámica Neural2</option>
+                </select>
+            </div>
+
+            <!-- ── Dropdown 3: Cerebro LLM ── -->
+            <div style="text-align:left;">
+                <label for="sel-cerebro-llm" style="font-size:0.85em; font-weight:bold; color:var(--text-main); opacity:0.75; display:block; margin-bottom:4px; padding-left:4px;">🧠 Cerebro LLM</label>
+                <select id="sel-cerebro-llm" onchange="vibrar(20)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
+                    <option value="gemini">⚡ Gemini 2.5 Flash</option>
+                    <option value="claude">🤖 Anthropic Claude 3.5</option>
+                </select>
+            </div>
+
             <button onclick="vibrar(30); toggleTheme()" class="config-btn" style="font-size:1.15rem; padding:15px;">
                 <span style="font-size:1.8em;">🌙</span> Modo Oscuro / Sepia
             </button>

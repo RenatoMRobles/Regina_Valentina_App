@@ -7,6 +7,7 @@ import base64
 import requests
 import traceback
 import mercadopago
+import anthropic
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -47,9 +48,21 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
-nombre_modelo = "models/gemini-2.5-flash"
+_gemini_key = os.environ.get('GEMINI_API_KEY')
+if not _gemini_key:
+    print("[STARTUP CRITICO] GEMINI_API_KEY no está configurada. Todos los chats fallarán.")
+else:
+    print(f"[STARTUP OK] GEMINI_API_KEY cargada ({len(_gemini_key)} chars).")
+genai.configure(api_key=_gemini_key)
+nombre_modelo = "gemini-2.5-flash"
 model = genai.GenerativeModel(nombre_modelo)
+
+_anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+if not _anthropic_key:
+    print("[STARTUP WARN] ANTHROPIC_API_KEY no configurada. Claude no estará disponible.")
+else:
+    print(f"[STARTUP OK] ANTHROPIC_API_KEY cargada ({len(_anthropic_key)} chars).")
+anthropic_client = anthropic.Anthropic(api_key=_anthropic_key) if _anthropic_key else None
 
 class User(db.Model):
     id = db.Column(db.String(50), primary_key=True)
@@ -94,7 +107,11 @@ class BlogPost(db.Model):
     slug = db.Column(db.String(200), unique=True, nullable=False) 
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        print("[DB INIT] Tablas verificadas/creadas exitosamente.")
+    except Exception as _db_err:
+        print(f"[DB INIT] {_db_err} — tablas ya existen, continuando.")
 
 INSTRUCCIONES_REGINA = """
 System Prompt: La Encantadora de Animales (Versión 32.0 - Bienestar Animal, Cruelty-Free y RPG)
@@ -840,14 +857,26 @@ def chat():
                 contenido_gemini.append({"mime_type": mime_type, "data": img_data})
             except: pass
 
+        cerebro_llm = data.get('cerebro_llm', 'gemini')
+
         try:
-            res_gemini = model.generate_content(contenido_gemini)
-            texto_final = res_gemini.text
-        except Exception as gemini_err:
-            print(f"[LLM ERROR] {type(gemini_err).__name__}: {gemini_err}")
+            if cerebro_llm == 'claude' and anthropic_client:
+                claude_res = anthropic_client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=1500,
+                    messages=[{"role": "user", "content": prompt_completo}]
+                )
+                texto_final = claude_res.content[0].text
+            else:
+                res_gemini = model.generate_content(contenido_gemini)
+                texto_final = res_gemini.text
+        except Exception as llm_err:
+            err_str = f"{type(llm_err).__name__}: {llm_err}"
+            print(f"[LLM ERROR] {err_str}")
             return jsonify({'response': (
-                "⚠️ Uy, mi cerebro digital está de descanso un momento, pariente. 🤠 "
-                "Vuelve a intentarlo en unos segundos. Si el problema sigue, avísale al Jefe Supremo. 🐾"
+                f"⚠️ Uy, mi cerebro digital tropezó, pariente. 🤠 "
+                f"Error para Renato: `{err_str}` — "
+                "Avísale al Jefe Supremo con ese texto exacto. 🐾"
             )})
 
         premio_match = re.search(r'\[PREMIO:\s*lider=(\d+),\s*zen=(\d+),\s*autocontrol=(\d+),\s*atleta=(\d+),\s*socio=(\d+)\]', texto_final, re.IGNORECASE)
@@ -869,14 +898,15 @@ def chat():
         user.last_message = datetime.utcnow()
         db.session.commit()
 
+        motor_voz = data.get('motor_voz', 'nativa')
         audio_base64 = None
-        if data.get('premium_voice', False) and user.is_premium:
+        usar_tts_api = data.get('premium_voice', False) and user.is_premium and motor_voz in ('journey', 'neural2')
+        if usar_tts_api:
             tts_key = os.environ.get('TTS_API_KEY')
             if tts_key:
                 try:
                     tts_url = f"{URL_TTS}{tts_key}"
                     texto_a_leer = texto_limpio.split("Aviso:")[0]
-                    # Fix 3: sanitización robusta — eliminar markdown, emojis y caracteres no pronunciables
                     texto_a_leer = re.sub(r'[*_#`~>|\\]', '', texto_a_leer)
                     texto_a_leer = re.sub(r'\[.*?\]\(.*?\)', '', texto_a_leer)
                     texto_a_leer = re.sub(r'[\U00010000-\U0010ffff]', '', texto_a_leer, flags=re.UNICODE)
@@ -884,11 +914,13 @@ def chat():
                     texto_a_leer = re.sub(r'\s{2,}', ' ', texto_a_leer).strip()
                     texto_a_leer = texto_a_leer[:4500]
                     if texto_a_leer:
-                        payload = {
-                            "input": {"text": texto_a_leer},
-                            "voice": {"languageCode": "es-MX", "ssmlGender": "FEMALE"},
-                            "audioConfig": {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}
-                        }
+                        if motor_voz == 'journey':
+                            voice_cfg = {"languageCode": "es-US", "name": "es-US-Journey-F"}
+                            audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.0, "pitch": 0.0}
+                        else:
+                            voice_cfg = {"languageCode": "es-US", "name": "es-US-Neural2-A"}
+                            audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}
+                        payload = {"input": {"text": texto_a_leer}, "voice": voice_cfg, "audioConfig": audio_cfg}
                         tts_res = requests.post(tts_url, json=payload, timeout=10)
                         if tts_res.status_code == 200:
                             audio_base64 = tts_res.json().get("audioContent")
