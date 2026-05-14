@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Regina Valentina | Experta en Mascotas</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6a1b9a">
     <meta name="description" content="Regina Valentina: La experta en comportamiento animal que pone orden en el rancho. ¡Tus primeros 3 consejos son GRATIS! 🤠🐾">
-    
+
     <meta property="og:title" content="Regina Valentina 🤠🐾 | Experta en Mascotas">
     <meta property="og:description" content="¿Tu mascota manda en casa? Platica con Regina y soluciona sus problemas hoy mismo.">
     <meta property="og:image" content="https://reginavalentina.com/ReginaValentinaRostro.png?v=2">
@@ -24,8 +24,9 @@
         body.large-text-mode .chip { font-size: 1.25rem !important; }
 
         body.high-contrast-mode { --bg-body: #000000 !important; --bg-chat: #000000 !important; --text-main: #ffffff !important; --header-bg: #000000 !important; --bot-bubble: #1a1a1a !important; --bot-text: #ffffff !important; --input-border: #ffff00 !important; }
-        body.high-contrast-mode .header { border-bottom: 3px solid #ffff00; }
+        body.high-contrast-mode .app-header, body.high-contrast-mode .header { border-bottom: 3px solid #ffff00; }
         body.high-contrast-mode button, body.high-contrast-mode .chip { border: 2px solid #ffff00 !important; color: #ffff00 !important; background: #000 !important; }
+        body.high-contrast-mode .bar-btn { border: 2px solid #ffff00 !important; color: #ffff00 !important; }
         body.high-contrast-mode .user-message { background-color: #ffff00 !important; color: #000000 !important; font-weight: bold; }
         body.high-contrast-mode a { color: #ffff00 !important; text-decoration: underline; }
 
@@ -35,50 +36,201 @@
         [data-theme="dark"] { --bg-body: #121212; --bg-chat: #1e1e1e; --text-main: #e0e0e0; --header-bg: #4a148c; --bot-bubble: #2d2d2d; --bot-text: #e0e0e0; --input-border: #444; }
         [data-theme="sepia"] { --bg-body: #f4ecd8; --bg-chat: #fdf6e3; --text-main: #5b4636; --header-bg: #8b6b61; --bot-bubble: #ede0c8; --bot-text: #4a3b32; --input-border: #d3c4a9; }
 
-        .support-btn { position: fixed; bottom: 20px; right: 20px; background-color: #6a1b9a; border-radius: 50%; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: 0.3s; cursor:pointer; }
-        .support-btn:hover { transform: scale(1.1); background-color: #ffca28; }
+        /* ══════════════════════════════════════
+           APP SHELL — BARRAS DUALES
+        ══════════════════════════════════════ */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+            font-size: 1.15rem;
+        }
 
-        .share-bubble { position: fixed; bottom: 85px; right: 20px; background: linear-gradient(145deg, #ff9800, #f57c00); border-radius: 50%; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; transition: 0.3s; cursor:pointer; font-size:1.6rem; border:none; color:white; }
-        .share-bubble:hover { transform: scale(1.1); background: #e65100; }
+        /* ── BARRA SUPERIOR (HEADER) ── */
+        .app-header {
+            background: var(--header-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            height: 58px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 600;
+        }
+        .hamburger-btn {
+            background: none; border: none; color: white;
+            font-size: 1.9rem; cursor: pointer; padding: 6px 9px;
+            border-radius: 8px; transition: background 0.2s; line-height: 1;
+            flex-shrink: 0;
+        }
+        .hamburger-btn:hover { background: rgba(255,255,255,0.22); }
+        .app-header-title {
+            font-size: 1.05rem; font-weight: bold; flex: 1;
+            text-align: center; padding: 0 6px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .header-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .bar-btn {
+            background: rgba(255,255,255,0.18);
+            border: 1.5px solid rgba(255,255,255,0.35);
+            color: white; border-radius: 20px; padding: 5px 9px; cursor: pointer;
+            font-size: 0.88rem; display: flex; align-items: center; gap: 4px;
+            transition: background 0.2s; white-space: nowrap; font-weight: bold;
+            font-family: inherit; line-height: 1;
+        }
+        .bar-btn:hover { background: rgba(255,255,255,0.32); }
+        .bar-btn.icon-only {
+            border-radius: 50%; width: 38px; height: 38px;
+            padding: 0; font-size: 1.25rem; justify-content: center; min-width: 38px;
+        }
+        .badge-num {
+            background: #ffca28; color: #333; border-radius: 10px;
+            padding: 1px 5px; font-size: 0.75rem; font-weight: bold;
+            min-width: 16px; text-align: center; line-height: 1.45;
+        }
+        @keyframes streakPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.13) rotate(-3deg);} }
+        .streak-activa { animation: streakPulse 1.8s ease-in-out infinite; }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; flex-direction: column; transition: background-color 0.3s ease; font-size: 1.15rem; }
-        
-        .chat-container { width: 95%; max-width: 750px; background: var(--bg-chat); border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; height: 85vh; margin-bottom: 20px; margin-top: 15px; transition: background-color 0.3s ease; }
-        
-        .header { background-color: var(--header-bg); color: white; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px; position: relative; }
-        .regina-avatar { width: 105px !important; height: 105px !important; min-width: 105px !important; min-height: 105px !important; border-radius: 50%; border: 3px solid white; object-fit: cover;}
+        /* ── AREA PRINCIPAL ── */
+        .app-main {
+            flex: 1; overflow: hidden; display: flex;
+            justify-content: center; padding: 8px 8px 0; min-height: 0;
+        }
+
+        /* ── BARRA INFERIOR (FOOTER) ── */
+        .app-footer {
+            background: var(--bg-chat); color: var(--text-main);
+            border-top: 1px solid var(--input-border);
+            text-align: center; padding: 6px 20px;
+            font-size: 0.8rem; flex-shrink: 0; line-height: 1.5;
+        }
+        .app-footer p { margin: 1px 0; }
+        .app-footer a { color: var(--text-main); }
+
+        /* ══════════════════════════════════════
+           MENU SANDWICH VEGETARIANO
+        ══════════════════════════════════════ */
+        #menu-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55); z-index: 700;
+            backdrop-filter: blur(2px);
+        }
+        #side-menu {
+            position: fixed; top: 0; left: -300px; width: 282px; height: 100%;
+            background: var(--bg-chat); z-index: 800;
+            box-shadow: 4px 0 22px rgba(0,0,0,0.38);
+            display: flex; flex-direction: column;
+            transition: left 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
+        #side-menu.open { left: 0; }
+        .side-menu-hdr {
+            background: var(--header-bg); color: white; padding: 18px 14px;
+            display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+        }
+        .side-menu-avatar {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 2.5px solid white; object-fit: cover; flex-shrink: 0;
+        }
+        .side-menu-title { flex: 1; font-weight: bold; font-size: 1.05rem; line-height: 1.35; }
+        .close-side-menu {
+            background: none; border: none; color: white;
+            font-size: 2rem; cursor: pointer; line-height: 1; padding: 0;
+        }
+        .side-menu-body {
+            flex: 1; overflow-y: auto; padding: 14px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .menu-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; border-radius: 12px; font-size: 1.1rem;
+            font-weight: bold; cursor: pointer; border: 2px solid var(--input-border);
+            width: 100%; text-align: left; text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+            background: var(--bg-body); color: var(--text-main);
+            box-sizing: border-box; font-family: inherit;
+        }
+        .menu-item:hover { background: var(--bot-bubble); border-color: var(--header-bg); }
+        .side-menu-ftr {
+            padding: 12px 16px; font-size: 0.8rem; color: var(--text-main);
+            opacity: 0.55; text-align: center; border-top: 1px solid var(--input-border);
+        }
+
+        /* ══════════════════════════════════════
+           CHAT CONTAINER
+        ══════════════════════════════════════ */
+        .chat-container {
+            width: 95%; max-width: 750px; background: var(--bg-chat);
+            border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            overflow: hidden; display: flex; flex-direction: column;
+            height: 100%; margin: 0; transition: background-color 0.3s ease;
+        }
+
+        .header {
+            background-color: var(--header-bg); color: white; padding: 14px 20px;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+        }
+        .regina-avatar {
+            width: 80px !important; height: 80px !important;
+            min-width: 80px !important; min-height: 80px !important;
+            border-radius: 50%; border: 3px solid white; object-fit: cover;
+        }
         .header div { text-align: left; }
-        .header h1 { margin: 0; font-size: 1.6em; }
-        .header p { margin: 5px 0 0 0; font-size: 1.05em; opacity: 0.9; }
+        .header h1 { margin: 0; font-size: 1.35em; }
+        .header p { margin: 4px 0 0 0; font-size: 1em; opacity: 0.9; }
 
-        #chat-box { flex: 1; padding: 20px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .message { max-width: 88%; padding: 16px 20px; border-radius: 20px; font-size: 1.25rem; line-height: 1.65; position: relative; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+        #chat-box {
+            flex: 1; padding: 20px; overflow-y: auto; overflow-x: hidden;
+            display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth;
+        }
+        .message {
+            max-width: 88%; padding: 16px 20px; border-radius: 20px;
+            font-size: 1.25rem; line-height: 1.65; position: relative;
+            word-wrap: break-word; word-break: break-word;
+            overflow-wrap: break-word; white-space: pre-wrap;
+        }
         .user-message { align-self: flex-end; background-color: #6a1b9a; color: white; border-bottom-right-radius: 2px; }
         .bot-message { align-self: flex-start; background-color: var(--bot-bubble); color: var(--bot-text); border-bottom-left-radius: 2px; }
-        
-        .input-area { padding: 15px 20px; border-top: 1px solid var(--input-border); display: flex; flex-direction: column; gap: 12px; background: var(--bg-chat); }
-        .input-area input { font-size: 1.2rem; width: 100%; box-sizing: border-box; padding: 14px 16px; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--input-border); border-radius: 20px; outline: none; }
+
+        .input-area {
+            padding: 15px 20px; border-top: 1px solid var(--input-border);
+            display: flex; flex-direction: column; gap: 12px; background: var(--bg-chat);
+        }
+        .input-area input {
+            font-size: 1.2rem; width: 100%; box-sizing: border-box;
+            padding: 14px 16px; background: var(--bg-body); color: var(--text-main);
+            border: 1px solid var(--input-border); border-radius: 20px; outline: none;
+        }
         .input-controls { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .input-icons { display: flex; gap: 15px; }
-        .input-controls button.btn-enviar { font-size: 1.15rem; padding: 10px 25px; background-color: #6a1b9a; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        
+        .input-controls button.btn-enviar {
+            font-size: 1.15rem; padding: 10px 25px; background-color: #6a1b9a;
+            color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;
+        }
+
         .pdf-btn { display: block; margin-top: 10px; background: #e91e63; color: white; text-align: center; padding: 8px 12px; border-radius: 5px; font-size: 1rem; text-decoration: none; cursor: pointer; width: fit-content; }
         .loading { font-style: italic; color: #888; font-size: 1rem; margin-left: 20px; margin-bottom: 10px; display: none; }
-        .footer { text-align: center; font-size: 0.9rem; color: #777; padding: 20px; width: 100%; max-width: 700px; }
-        
+
         .chips-container { display: flex; gap: 10px; padding: 12px 15px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; background: var(--bg-chat); }
         .chip { background-color: var(--bg-body); border: 2px solid #6a1b9a; color: var(--text-main); padding: 10px 18px; border-radius: 20px; font-size: 1.05rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
-        
+
         .modal-card { background: var(--bg-chat); color: var(--text-main); border: 1px solid var(--input-border); }
         .modal-title { color: var(--header-bg); margin-top: 0; }
         [data-theme="dark"] .modal-title { color: #ce93d8; }
         [data-theme="sepia"] .modal-title { color: #8b6b61; }
         body.high-contrast-mode .modal-title { color: #ffff00 !important; }
-        
+
         .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; background: var(--bg-body); color: var(--text-main); }
         .config-btn { background: var(--bg-body); color: var(--text-main); border: 2px solid var(--input-border); padding: 14px; border-radius: 10px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 15px; font-weight: bold; transition: 0.3s; font-size: 1.1rem; width: 100%; text-align: left; }
         .config-btn:hover { background: var(--bot-bubble); }
-        
+
         .vitrina-item { background: var(--bg-body); border: 1px solid var(--input-border); color: var(--text-main); }
         .vitrina-subtext { color: var(--text-main); opacity: 0.8; }
 
@@ -86,12 +238,23 @@
         .animar-victoria { animation: latidoVictoria 0.8s ease-in-out 3; }
 
         #membrete-pdf, #reporte-cientifico-pdf { display: none; }
-        
+
+        /* ══════════════════════════════════════
+           RESPONSIVIDAD SENIOR
+        ══════════════════════════════════════ */
+        @media (max-width: 480px) {
+            .app-header-title { font-size: 0.9rem; }
+            .bar-btn { padding: 4px 7px; font-size: 0.8rem; }
+            .bar-btn.icon-only { width: 34px; height: 34px; font-size: 1.05rem; min-width: 34px; }
+            .header h1 { font-size: 1.15em; }
+            .regina-avatar { width: 62px !important; height: 62px !important; min-width: 62px !important; min-height: 62px !important; }
+            .message { font-size: 1.15rem; }
+        }
+
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .header, .input-area, .chips-container, button, .pdf-btn, footer, .footer, #caja-aviso-legal, .support-btn, .share-bubble, #trofeo-badge, #vitrina-modal { display: none !important; }
-            body > p, body > div > p { display: none !important; }
-            body, html { background: white !important; width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+            .app-header, .app-footer, #side-menu, #menu-overlay, .header, .input-area, .chips-container, button, .pdf-btn, .loading, #caja-aviso-legal { display: none !important; }
+            body, html { background: white !important; width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
             .printable-guide { display: block !important; background: transparent !important; box-shadow: none !important; margin-bottom: 20px !important; font-family: 'Georgia', 'Times New Roman', serif !important; font-size: 13pt !important; line-height: 1.8 !important; text-align: justify !important; }
             #membrete-pdf { display: block !important; text-align: center; margin-bottom: 30px; page-break-after: avoid; }
             #reporte-cientifico-pdf { display: block !important; text-align: center; font-family: 'Segoe UI', sans-serif !important; padding: 40px !important; border: 10px solid #6a1b9a !important; border-radius: 20px !important; background: #fffaf0 !important; }
@@ -100,22 +263,78 @@
             #reporte-cientifico-pdf .insignia-print { display: inline-block; padding: 15px; margin: 10px; border: 2px solid #6a1b9a; border-radius: 15px; background: white; width: 40%; vertical-align: top; }
             #reporte-cientifico-pdf .insignia-print h3 { margin: 5px 0; color: #333; }
             #reporte-cientifico-pdf .insignia-print p { font-size: 12px; color: #555; text-align: justify; }
-            #chat-box { display: none !important; } 
+            #chat-box { display: none !important; }
         }
     </style>
 </head>
 <body>
 
+<!-- ══════════════════════════════════════
+     BARRA SUPERIOR — HEADER BAR
+══════════════════════════════════════ -->
+<header class="app-header">
+    <button class="hamburger-btn" onclick="abrirMenuLateral()" title="Menú">☰</button>
+    <span class="app-header-title">Regina Valentina 🤠🐾</span>
+    <div class="header-actions">
+        <button class="bar-btn" id="btn-racha" onclick="vibrar(40); verRacha()" title="Tu racha diaria">
+            🔥 <span class="badge-num" id="streak-count">0</span>
+        </button>
+        <button class="bar-btn" id="btn-intentos" title="Intentos disponibles">
+            💬 <span class="badge-num" id="intentos-count">3</span>
+        </button>
+        <button class="bar-btn icon-only" onclick="vibrar(40); abrirVitrina()" title="Vitrina de Logros">🏆</button>
+        <button class="bar-btn icon-only" onclick="vibrar(30); document.getElementById('settings-modal').style.display='flex'" title="Ajustes">⚙️</button>
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     MENU SANDWICH VEGETARIANO
+══════════════════════════════════════ -->
+<div id="menu-overlay" onclick="cerrarMenuLateral()"></div>
+<nav id="side-menu">
+    <div class="side-menu-hdr">
+        <img src="ReginaValentinaRostro.png?v=2" alt="Regina" class="side-menu-avatar">
+        <div class="side-menu-title">
+            Regina Valentina<br>
+            <small style="opacity:0.8; font-weight:normal; font-size:0.85em;">Experta en Mascotas</small>
+        </div>
+        <button class="close-side-menu" onclick="cerrarMenuLateral()">×</button>
+    </div>
+    <div class="side-menu-body">
+        <a href="https://regina-valentina-556774981559.us-east1.run.app/blog" target="_blank"
+           onclick="vibrar(60); cerrarMenuLateral()" class="menu-item">
+            <span>📝</span> Blog de la Experta
+        </a>
+        <a href="mailto:soporte@reginavalentina.com?subject=Ayuda%20con%20Regina%20Valentina"
+           onclick="vibrar(60); cerrarMenuLateral()" class="menu-item">
+            <span>📧</span> Soporte Técnico
+        </a>
+        <button onclick="vibrar(60); compartirApp(); cerrarMenuLateral()" class="menu-item">
+            <span>📤</span> Compartir App
+        </button>
+        <button onclick="vibrar(60); cerrarMenuLateral(); setTimeout(()=>document.getElementById('feedback-modal').style.display='flex',200)" class="menu-item">
+            <span>💡</span> Buzón del Rancho
+        </button>
+        <a href="terminos.html" target="_blank" onclick="cerrarMenuLateral()" class="menu-item">
+            <span>📋</span> Términos y Condiciones
+        </a>
+    </div>
+    <div class="side-menu-ftr">© 2026 Robles Bienestar. Todos los derechos reservados.</div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     MODALES
+══════════════════════════════════════ -->
 <div id="auth-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center; display:none;">
     <div class="modal-card" style="padding:40px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative;">
         <button onclick="document.getElementById('auth-modal').style.display='none'; vibrar(30);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
         <img src="ReginaValentinaRostro.png?v=2" alt="Regina" style="width:90px; height:90px; border-radius:50%; margin-bottom:15px; border:3px solid var(--header-bg); object-fit: cover;">
         <h2 id="auth-title" class="modal-title">Acceso VIP 🤠</h2>
-        
+
         <div id="auth-inputs">
             <input type="email" id="auth-email" class="modal-input" placeholder="Correo electrónico">
             <input type="password" id="auth-password" class="modal-input" placeholder="Contraseña">
-            
+
             <div style="text-align: left; margin-bottom: 20px; width: 100%; padding-right: 10px; box-sizing: border-box;">
                 <label style="font-size: 0.95em; color: var(--text-main); display: flex; align-items: flex-start; gap: 8px; cursor: pointer; line-height: 1.4;">
                     <input type="checkbox" id="auth-terminos" style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer; flex-shrink: 0;">
@@ -139,7 +358,7 @@
             <p style="color:var(--text-main); opacity:0.8; font-size:1.1em; margin-bottom:20px;">Usted ya es parte del rancho. ¡Su acceso está asegurado!</p>
             <button id="btn-centro-mando" onclick="vibrar(40); window.open('https://regina-valentina-556774981559.us-east1.run.app/panel-robles?admin_id=' + getUserId(), '_blank')" style="display:none; width:100%; padding:14px; background-color:#1e1e1e; color:#ffca28; border:2px solid #ffca28; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto 15px auto; font-size:1.1rem;">🦅 Centro de Mando</button>
             <button onclick="vibrar(40); cerrarSesion();" style="width:100%; padding:14px; background-color:#f44336; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto; font-size:1.1rem;">Cerrar Sesión 🚪</button>
-            
+
             <div style="background: rgba(106, 27, 154, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--header-bg); margin-top:20px;">
                 <p style="margin-top:0; font-size:1em; color:var(--text-main); font-weight:bold;">🎟️ ¿Tienes un código promocional?</p>
                 <div style="display:flex; flex-direction:column; gap:10px;">
@@ -154,7 +373,7 @@
 
 <div id="vitrina-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
     <div class="modal-card" style="padding:30px; border-radius:15px; width:90%; max-width:420px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative; border-top: 6px solid #ffca28; max-height:85vh; overflow-y:auto;">
-        
+
         <div id="vista-principal-vitrina">
             <button onclick="document.getElementById('vitrina-modal').style.display='none'; vibrar(30);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
             <h2 class="modal-title" style="margin-top:0;">🏆 Tu Vitrina de Logros</h2>
@@ -185,22 +404,19 @@
 
 <div id="reporte-cientifico-pdf"></div>
 
-<div id="trofeo-badge" onclick="vibrar(40); abrirVitrina()" title="Ver mis Logros" style="position:fixed; top:20px; right:20px; z-index:1900; background:linear-gradient(145deg, #fff8e1, #ffecb3); border:2px solid #ffca28; padding:0; border-radius:50%; box-shadow:0 4px 12px rgba(0,0,0,0.25); font-size:1.7em; display:none; align-items:center; justify-content:center; cursor:pointer; transition:0.3s; width:56px; height:56px; min-width:56px;">
-    🏆
-</div>
-
+<!-- ══════════════════════════════════════
+     CHAT PRINCIPAL
+══════════════════════════════════════ -->
+<main class="app-main">
 <div class="chat-container">
    <div class="header">
         <img src="ReginaValentinaRostro.png?v=2" alt="Regina Valentina" class="regina-avatar">
         <div>
             <h1>Regina Valentina 🤠🐾</h1>
             <p>Experta en Comportamiento</p>
-            <div style="display: flex; gap: 12px; margin-top:10px;">
-                <button id="btn-header-settings" style="background:rgba(255,255,255,0.2); border-radius:50%; width:50px; height:50px; display:flex; justify-content:center; align-items:center; padding:0; transition: 0.3s; border:2px solid rgba(255,255,255,0.4); cursor:pointer; color:white; font-size:1.7rem;" onclick="vibrar(30); document.getElementById('settings-modal').style.display='flex'" title="Ajustes y Perfil">⚙️</button>
-            </div>
         </div>
     </div>
-    
+
     <div id="chat-box">
         <div class="message bot-message">
             ¡Hola! Soy Regina Valentina. Cuéntame, ¿qué problema traes con tu mascota? Habla claro y <strong>adjunta una foto 📷 de tu peludo o del problema</strong> para entender mejor tu caso.
@@ -226,15 +442,19 @@
             <button class="btn-enviar" onclick="vibrar(50); sendMessage()">Enviar</button>
         </div>
     </div>
-</div> 
+</div>
+</main>
 
+<!-- ══════════════════════════════════════
+     JAVASCRIPT PRINCIPAL
+══════════════════════════════════════ -->
 <script>
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://127.0.0.1:5000'
         : 'https://regina-valentina-556774981559.us-east1.run.app';
 
     let voiceEnabled = false;
-    let premiumVoiceEnabled = true; 
+    let premiumVoiceEnabled = true;
     let reginaVoice = null;
     let audioPremiumActual = null;
     let dyslexiaEnabled = false;
@@ -253,6 +473,96 @@
         }
     }
 
+    // ══════════════════════════════════════
+    // MENU SANDWICH VEGETARIANO — JS HOOKS
+    // ══════════════════════════════════════
+    function abrirMenuLateral() {
+        document.getElementById('side-menu').classList.add('open');
+        document.getElementById('menu-overlay').style.display = 'block';
+    }
+
+    function cerrarMenuLateral() {
+        document.getElementById('side-menu').classList.remove('open');
+        document.getElementById('menu-overlay').style.display = 'none';
+    }
+
+    // ══════════════════════════════════════
+    // RACHA DIARIA — GAMIFICACION HOOK
+    // ══════════════════════════════════════
+    function inicializarRacha() {
+        const hoy = new Date().toDateString();
+        const ayer = new Date(Date.now() - 86400000).toDateString();
+        let racha = parseInt(localStorage.getItem('regina_streak') || 0);
+        const ultimaFecha = localStorage.getItem('regina_last_interaction');
+
+        if (!ultimaFecha) {
+            racha = 1;
+        } else if (ultimaFecha === hoy) {
+            // Racha ya actualizada hoy
+        } else if (ultimaFecha === ayer) {
+            racha += 1;
+        } else {
+            racha = 1;
+        }
+
+        localStorage.setItem('regina_streak', racha);
+        localStorage.setItem('regina_last_interaction', hoy);
+
+        const el = document.getElementById('streak-count');
+        if (el) el.textContent = racha;
+
+        const btn = document.getElementById('btn-racha');
+        if (btn && racha >= 2) btn.classList.add('streak-activa');
+    }
+
+    function verRacha() {
+        const racha = parseInt(localStorage.getItem('regina_streak') || 0);
+        const color = racha >= 7 ? '#ff5722' : racha >= 3 ? '#ff9800' : '#6a1b9a';
+        mostrarNotificacion(`🔥 ¡Llevas <strong>${racha}</strong> día(s) seguidos con Regina! ¡Sigue así!`, color, 4000);
+    }
+
+    // ══════════════════════════════════════
+    // INTENTOS — GAMIFICACION HOOK
+    // ══════════════════════════════════════
+    let intentosRestantes = 3;
+
+    function inicializarIntentos() {
+        const guardado = localStorage.getItem('regina_intentos_restantes');
+        if (guardado !== null) {
+            intentosRestantes = parseInt(guardado);
+        }
+        renderizarIntentos();
+    }
+
+    function renderizarIntentos() {
+        const el = document.getElementById('intentos-count');
+        if (el) el.textContent = intentosRestantes <= 0 ? '0' : intentosRestantes;
+        const btn = document.getElementById('btn-intentos');
+        if (!btn) return;
+        btn.title = intentosRestantes <= 0 ? 'Sin intentos restantes' : `${intentosRestantes} intentos disponibles`;
+        btn.style.borderColor = intentosRestantes <= 0 ? 'rgba(244,67,54,0.8)' : intentosRestantes === 1 ? 'rgba(255,152,0,0.8)' : 'rgba(255,255,255,0.35)';
+    }
+
+    function decrementarIntentos() {
+        if (intentosRestantes > 0 && intentosRestantes < 999) {
+            intentosRestantes--;
+            localStorage.setItem('regina_intentos_restantes', intentosRestantes);
+            renderizarIntentos();
+        }
+    }
+
+    function resetearIntentosVIP() {
+        intentosRestantes = 999;
+        const el = document.getElementById('intentos-count');
+        if (el) el.textContent = '∞';
+        const btn = document.getElementById('btn-intentos');
+        if (btn) { btn.title = 'VIP: mensajes ilimitados'; btn.style.borderColor = 'rgba(255,202,40,0.9)'; }
+        localStorage.setItem('regina_intentos_restantes', 999);
+    }
+
+    // ══════════════════════════════════════
+    // GAMIFICACION — TROFEOS
+    // ══════════════════════════════════════
     const trofeosConfig = [
         { id: 'lider', color: "🟢", icono:"🐺", hex: "#4caf50", nombre: "Líder de la Manada", max: 100, desc: "Dominas el liderazgo con puro respeto y calma. Tu mascota te ve como el guía." },
         { id: 'zen', color: "🔵", icono:"🧘", hex: "#2196f3", nombre: "Maestro Zen", max: 100, desc: "Lograste un ambiente de paz. Se acabó el relajo y tu mascota respira tranquilidad pura." },
@@ -280,7 +590,7 @@
         document.getElementById('vista-principal-vitrina').style.display = 'block';
         document.getElementById('vista-detalle-vitrina').style.display = 'none';
         document.getElementById('vista-guia-vitrina').style.display = 'none';
-        
+
         const lista = document.getElementById('lista-trofeos');
         let html = "";
         let totalInsignias = contarInsignias();
@@ -288,10 +598,10 @@
         trofeosConfig.forEach((t, index) => {
             let ptsActuales = parseInt(localStorage.getItem('regina_pts_' + t.id) || 0);
             let progreso = calcularProgreso(ptsActuales, t.max);
-            
+
             let bloqueado = progreso === 0 ? "filter: grayscale(100%); opacity: 0.6;" : "box-shadow: 0 4px 6px rgba(0,0,0,0.1);";
             let colorPorcentaje = progreso === 100 ? t.hex : "var(--text-main)";
-            
+
             let badgeInsignia = progreso === 100 ? `<div style="background:#ffca28; color:#333; padding:2px 8px; border-radius:10px; font-size:0.7em; font-weight:bold; display:inline-block; margin-top:5px; border:1px solid #d8a000;">🌟 Insignia Obtenida</div>` : `<p class="vitrina-subtext" style="margin:3px 0 0 0; font-size:0.85em;">Nivel de Progreso:</p>`;
 
             html += `<div onclick="vibrar(30); verDetalleTrofeo(${index})" class="vitrina-item" style="display:flex; align-items:center; gap:15px; margin-bottom:12px; padding:15px; border-radius:12px; cursor:pointer; transition: 0.3s; ${bloqueado}">
@@ -327,7 +637,7 @@
 
         document.getElementById('vista-principal-vitrina').style.display = 'none';
         const vistaDetalle = document.getElementById('vista-detalle-vitrina');
-        
+
         let mensajeFelicidades = progreso === 100 ? `<div style="background:#fff8e1; border:2px solid #ffca28; padding:10px; border-radius:10px; margin-top:15px; color:#d8a000; font-weight:bold;">¡Felicidades! Has obtenido la Insignia de Buen Pastor 🌟.</div>` : ``;
 
         vistaDetalle.innerHTML = `
@@ -336,7 +646,7 @@
             </div>
             <span style="font-size:4.5em; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2));">${t.icono}</span>
             <h2 style="color:${t.hex}; margin:10px 0;">${t.nombre}</h2>
-            
+
             <div class="vitrina-item" style="padding:20px; border-radius:12px; margin:20px 0; border-left: 5px solid ${t.hex}; text-align:left;">
                 <p class="vitrina-subtext" style="margin:0; font-style:italic; font-size:1.1em;">"${t.desc}"</p>
                 <p class="vitrina-text" style="margin:10px 0 0 0; font-weight:bold; text-align:right;">- Regina Valentina 🤠</p>
@@ -366,7 +676,7 @@
             </div>
             <span style="font-size:5.5em; filter:drop-shadow(0 0 25px #ffca28);">👑</span>
             <h2 style="color:#ff8f00; margin:10px 0; font-size:1.8em;">Leyenda del Rancho</h2>
-            
+
             <div class="vitrina-item" style="padding:20px; border-radius:12px; margin:20px 0; border: 2px solid #ffca28; text-align:left;">
                 <p class="vitrina-text" style="margin:0; font-style:italic; font-size:1.15em;">"¡Mis respetos, pariente! Has obtenido las 5 Insignias de Buen Pastor. Tú y tu mascota son la dupla perfecta."</p>
                 <p style="margin:10px 0 0 0; font-weight:bold; color:#d81b60; text-align:right;">- Regina Valentina 🤠</p>
@@ -384,7 +694,7 @@
         if (!nombreMascota) return;
         let fecha = new Date().toLocaleDateString('es-MX');
         let divReporte = document.getElementById('reporte-cientifico-pdf');
-        
+
         let insigniasHTML = "";
         trofeosConfig.forEach(t => {
             insigniasHTML += `<div class="insignia-print"><span style="font-size: 40px;">${t.icono} 🌟</span><h3>${t.nombre}</h3><p>Nivel 100% Alcanzado. ${t.desc}</p></div>`;
@@ -417,10 +727,12 @@
     function celebrarInsigniaNueva() {
         vibrar([100, 50, 100, 50, 300, 100, 500]);
         mostrarNotificacion("🎉 ¡NUEVA INSIGNIA DE BUEN PASTOR DESBLOQUEADA! 🎉<br>Revisa tu Vitrina.", "#ffca28", 6000);
-        const badge = document.getElementById('trofeo-badge');
-        badge.classList.remove('animar-victoria');
-        void badge.offsetWidth; 
-        badge.classList.add('animar-victoria');
+        const trophy = document.querySelector('.bar-btn.icon-only[title="Vitrina de Logros"]');
+        if (trophy) {
+            trophy.classList.remove('animar-victoria');
+            void trophy.offsetWidth;
+            trophy.classList.add('animar-victoria');
+        }
     }
 
     function actualizarInsigniasVisuales(puntos) {
@@ -433,12 +745,8 @@
 
         let insigniasNuevas = contarInsignias();
         let insigniasViejas = parseInt(localStorage.getItem('regina_total_insignias') || 0);
-
         localStorage.setItem('regina_total_insignias', insigniasNuevas);
 
-        const badge = document.getElementById('trofeo-badge');
-        badge.style.display = 'flex';
-        
         if (insigniasNuevas > insigniasViejas) { celebrarInsigniaNueva(); }
     }
 
@@ -455,22 +763,22 @@
         if (dyslexiaEnabled) {
             if (lsmEnabled) toggleLSM();
             body.classList.add('dyslexia-mode');
-            if(btnModal) { btnModal.style.background = 'rgba(76, 175, 80, 0.2)'; btnModal.style.borderColor = '#4caf50'; } 
-            mostrarNotificacion("👓 Lectura cómoda habilitada", "#4caf50"); 
+            if(btnModal) { btnModal.style.background = 'rgba(76, 175, 80, 0.2)'; btnModal.style.borderColor = '#4caf50'; }
+            mostrarNotificacion("👓 Lectura cómoda habilitada", "#4caf50");
         } else {
             body.classList.remove('dyslexia-mode');
-            if(btnModal) { btnModal.style.background = 'var(--bg-body)'; btnModal.style.borderColor = 'var(--input-border)'; } 
+            if(btnModal) { btnModal.style.background = 'var(--bg-body)'; btnModal.style.borderColor = 'var(--input-border)'; }
             mostrarNotificacion("Lectura estándar restaurada", "var(--header-bg)");
         }
     }
 
-    function quitarAcentos(texto) { return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
-    
+    function quitarAcentos(texto) { return texto.normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+
     function copiarConsejo(elementoId) {
         vibrar(60);
         let clon = document.getElementById(elementoId).cloneNode(true);
         let botones = clon.querySelectorAll('button, div');
-        botones.forEach(b => b.remove()); 
+        botones.forEach(b => b.remove());
         navigator.clipboard.writeText(clon.innerText.trim());
         mostrarNotificacion("📋 ¡Consejo copiado al portapapeles!", "var(--header-bg)");
     }
@@ -491,7 +799,7 @@
             mostrarNotificacion("Tomaremos nota para mejorar 👎", "#f44336", 2500);
         }
     }
-    
+
     let ultimoMensajeLeido = null;
     function reproducirMensaje(msgId) {
         vibrar(60);
@@ -507,16 +815,16 @@
         const elemento = document.getElementById(msgId);
         let textoPuro = elemento.getAttribute('data-puretext') || elemento.innerText;
         let textoLimpio = silenciarAviso(textoPuro);
-        
+
         const utterance = new SpeechSynthesisUtterance(textoLimpio);
         if (reginaVoice) utterance.voice = reginaVoice;
-        utterance.lang = 'es-MX'; utterance.rate = 1.05; 
+        utterance.lang = 'es-MX'; utterance.rate = 1.05;
         utterance.onend = function() { if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null; };
-        
+
         window.speechSynthesis.speak(utterance);
         mostrarNotificacion("🔊 Leyendo... (Click en el mismo botón para detener)", "#2196f3", 3500);
     }
-    
+
     window.addEventListener('beforeunload', function() {
         window.speechSynthesis.cancel();
         if (typeof audioPremiumActual !== 'undefined' && audioPremiumActual) audioPremiumActual.pause();
@@ -544,28 +852,28 @@
             });
         }
     }
-    
+
     function mostrarNotificacion(texto, colorFondo = "#6a1b9a", tiempo = 4500) {
         const noti = document.createElement('div');
-        noti.style.cssText = `position:fixed; top:20px; left:50%; transform:translateX(-50%); background:${colorFondo}; color:white; padding:12px 24px; border-radius:30px; z-index:9999; box-shadow:0 4px 15px rgba(0,0,0,0.4); font-weight:bold; font-size:1.05em; transition: opacity 0.5s; text-align:center;`;
+        noti.style.cssText = `position:fixed; top:70px; left:50%; transform:translateX(-50%); background:${colorFondo}; color:white; padding:12px 24px; border-radius:30px; z-index:9999; box-shadow:0 4px 15px rgba(0,0,0,0.4); font-weight:bold; font-size:1.05em; transition: opacity 0.5s; text-align:center; max-width:90%;`;
         noti.innerHTML = texto;
         document.body.appendChild(noti);
         setTimeout(() => { noti.style.opacity = '0'; setTimeout(() => noti.remove(), 500); }, tiempo);
     }
-    
+
     let micEnabled = false;
     let recognition;
 
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.continuous = false; 
+        recognition.continuous = false;
         recognition.interimResults = false;
-        recognition.lang = 'es-MX'; 
+        recognition.lang = 'es-MX';
 
         recognition.onstart = function() {
-            vibrar(60); micEnabled = true; document.getElementById('mic-toggle').innerText = '🔴'; 
-            mostrarNotificacion("🎤 Te escucho...", "#f44336"); 
+            vibrar(60); micEnabled = true; document.getElementById('mic-toggle').innerText = '🔴';
+            mostrarNotificacion("🎤 Te escucho...", "#f44336");
         };
         recognition.onresult = function(event) {
             vibrar(80); const transcript = event.results[0][0].transcript;
@@ -576,7 +884,7 @@
             vibrar([50, 50, 50]); mostrarNotificacion("⚠️ Error al escuchar. Checa tus permisos.", "#f44336");
         };
         recognition.onend = function() {
-            micEnabled = false; document.getElementById('mic-toggle').innerText = '🎤'; 
+            micEnabled = false; document.getElementById('mic-toggle').innerText = '🎤';
         };
     }
 
@@ -587,16 +895,19 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
         const savedTheme = localStorage.getItem('regina_theme');
-        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); } 
+        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
         else if (savedTheme === 'sepia') { document.documentElement.setAttribute('data-theme', 'sepia'); }
-
-        let insigniasG = parseInt(localStorage.getItem('regina_total_insignias') || 0);
-        if (insigniasG >= 0) {
-            document.getElementById('trofeo-badge').style.display = 'flex';
-        }
 
         const storedUserId = localStorage.getItem('regina_user_id');
         if (!storedUserId) { localStorage.setItem('regina_user_id', 'user_' + Math.floor(Math.random() * 10000000)); }
+
+        inicializarRacha();
+        inicializarIntentos();
+
+        if (localStorage.getItem('regina_registrado') === 'true') {
+            const esPremium = localStorage.getItem('regina_is_premium') === 'true';
+            if (esPremium) resetearIntentosVIP();
+        }
 
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('status') === 'approved') {
@@ -617,8 +928,8 @@
                     chatBox.appendChild(newMsg);
                     typeEffect(newMsg, data.response);
                 }
-            } catch (e) { 
-                loading.style.display = 'none'; 
+            } catch (e) {
+                loading.style.display = 'none';
                 chatBox.innerHTML += `<div class="message bot-message" style="background:#f44336; color:white;">⚠️ <b>ALERTA DE SISTEMA:</b> Error de conexión inicial. Verifica GCP GC Run.</div>`;
             }
         }
@@ -642,12 +953,12 @@
     function abrirMiCuenta() {
         const modal = document.getElementById('auth-modal');
         const titulo = document.getElementById('auth-title');
-        document.getElementById('auth-error').innerText = ""; 
+        document.getElementById('auth-error').innerText = "";
         if (localStorage.getItem('regina_registrado') === 'true') {
             titulo.innerText = "Mi Cuenta VIP 💎";
             document.getElementById('auth-inputs').style.display = 'none';
             document.getElementById('logged-in-view').style.display = 'block';
-            if (localStorage.getItem('regina_is_admin') === 'true') { document.getElementById('btn-centro-mando').style.display = 'block'; } 
+            if (localStorage.getItem('regina_is_admin') === 'true') { document.getElementById('btn-centro-mando').style.display = 'block'; }
             else { document.getElementById('btn-centro-mando').style.display = 'none'; }
         } else {
             titulo.innerText = "Acceso al Rancho 🤠";
@@ -660,11 +971,12 @@
     function cerrarSesion() {
         localStorage.removeItem('regina_registrado');
         localStorage.removeItem('regina_user_id');
-        localStorage.removeItem('regina_total_insignias'); 
+        localStorage.removeItem('regina_total_insignias');
+        localStorage.removeItem('regina_is_premium');
         mostrarNotificacion("🚪 Sesión cerrada. ¡Nos vemos pronto!", "#f44336");
         setTimeout(() => { window.location.reload(); }, 1200);
     }
-    
+
     async function canjearCupon() {
         const codigo = document.getElementById('input-cupon').value;
         if(!codigo) { vibrar([50, 50, 50]); return; }
@@ -681,12 +993,12 @@
             } else { vibrar([50, 50, 50]); mostrarNotificacion(data.error, "#f44336", 4000); }
         } catch (e) {}
     }
-    
+
     function obtenerDatosAuth() {
         return {
             email: document.getElementById('auth-email').value,
             password: document.getElementById('auth-password').value,
-            user_id: localStorage.getItem('regina_user_id') 
+            user_id: localStorage.getItem('regina_user_id')
         };
     }
 
@@ -706,7 +1018,7 @@
                 vibrar([50, 100, 50, 100]);
                 localStorage.setItem('regina_registrado', 'true');
                 localStorage.setItem('regina_user_id', data.user_id);
-                localStorage.setItem('regina_is_admin', 'false'); 
+                localStorage.setItem('regina_is_admin', 'false');
                 document.getElementById('auth-modal').style.display = 'none';
                 mostrarNotificacion("✅ ¡Cuenta lista!", "#4caf50");
             } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
@@ -727,10 +1039,14 @@
                 localStorage.setItem('regina_registrado', 'true');
                 localStorage.setItem('regina_user_id', data.user_id);
                 localStorage.setItem('regina_is_admin', data.is_admin ? 'true' : 'false');
-                errorMsg.innerText = ""; 
+                errorMsg.innerText = "";
                 document.getElementById('auth-modal').style.display = 'none';
                 mostrarNotificacion("✅ ¡Sesión iniciada!", "#4caf50");
                 if (data.puntos !== undefined) actualizarInsigniasVisuales(data.puntos);
+                if (data.is_premium) {
+                    localStorage.setItem('regina_is_premium', 'true');
+                    resetearIntentosVIP();
+                }
             } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
         } catch (e) {}
     }
@@ -782,24 +1098,24 @@
 
     function hablar(texto) {
         if (!voiceEnabled) return;
-        window.speechSynthesis.cancel(); 
-        let textoLimpio = silenciarAviso(texto); 
+        window.speechSynthesis.cancel();
+        let textoLimpio = silenciarAviso(texto);
         const utterance = new SpeechSynthesisUtterance(textoLimpio);
         if (reginaVoice) utterance.voice = reginaVoice;
-        utterance.lang = 'es-MX'; utterance.rate = 1.05; 
+        utterance.lang = 'es-MX'; utterance.rate = 1.05;
         window.speechSynthesis.speak(utterance);
     }
 
     function typeEffect(element, text, speed = 18) {
         let i = 0;
         element.innerHTML = "";
-        element.setAttribute('data-original', text); 
-        element.setAttribute('data-puretext', text); 
+        element.setAttribute('data-original', text);
+        element.setAttribute('data-puretext', text);
         const msgId = 'msg_' + Date.now();
         element.id = msgId;
 
         let textoAEscribir = lsmEnabled ? quitarAcentos(text) : text;
-        hablar(text); 
+        hablar(text);
 
         function typing() {
             if (i < textoAEscribir.length) {
@@ -813,11 +1129,11 @@
 
                 let copyBtn = `<button onclick="copiarConsejo('${msgId}')" style="background:var(--bg-body); border:1px solid var(--header-bg); color:var(--text-main); border-radius:15px; padding:6px 14px; cursor:pointer; font-size:1rem; font-weight:bold;">📋 Copiar</button>`;
                 let readBtn = `<button onclick="reproducirMensaje('${msgId}')" style="background:var(--bg-body); border:1px solid #2196f3; color:var(--text-main); border-radius:15px; padding:6px 14px; margin-left:8px; cursor:pointer; font-size:1rem; font-weight:bold;">🔊 Escuchar</button>`;
-                
+
                 let califBtns = `
                     <button id="btn-up-${msgId}" onclick="calificarMensaje('${msgId}', 'up')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:15px; transition:0.2s; filter:grayscale(0%);" title="¡Buen consejo!">👍</button>
                     <button id="btn-down-${msgId}" onclick="calificarMensaje('${msgId}', 'down')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:5px; transition:0.2s; filter:grayscale(0%);" title="No me sirvió">👎</button>`;
-                
+
                 let botonesAccion = `<br><div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap;">${copyBtn}${readBtn}<div style="margin-left:auto;">${califBtns}</div></div>`;
 
                 if (textoAEscribir.length > 600 && (textoAEscribir.includes('Guia') || textoAEscribir.includes('paso a paso') || textoAEscribir.includes('1.'))) {
@@ -836,20 +1152,20 @@
         }
         typing();
     }
-    
+
     function sendChip(texto) {
         vibrar(40);
         const input = document.getElementById('user-input');
         input.value = texto;
         sendMessage();
     }
-    
+
     async function sendMessage() {
         const input = document.getElementById('user-input');
         const message = input.value;
         const chatBox = document.getElementById('chat-box');
         const loading = document.getElementById('loading');
-        const userId = getUserId(); 
+        const userId = getUserId();
 
         if (!message) return;
 
@@ -860,19 +1176,21 @@
         loading.style.display = 'block';
 
         try {
-            const response = await fetch(`${API_URL}/chat`, { 
+            const response = await fetch(`${API_URL}/chat`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled, imagen_b64: imagenChatBase64 }) 
+                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled, imagen_b64: imagenChatBase64 })
             });
 
             imagenChatBase64 = null;
             document.getElementById('input-foto-chat').value = '';
-            
+
             const data = await response.json();
             loading.style.display = 'none';
 
             if (data.status === 'quota_exceeded') {
-                vibrar([50, 100, 50, 100, 50]); 
+                vibrar([50, 100, 50, 100, 50]);
+                intentosRestantes = 0;
+                renderizarIntentos();
                 if (!localStorage.getItem('regina_registrado')) {
                     document.getElementById('auth-modal').style.display = 'flex';
                 } else {
@@ -889,30 +1207,31 @@
                     document.body.insertAdjacentHTML('beforeend', modalHtml);
                 }
             } else if (data.response) {
+                decrementarIntentos();
                 const newMsg = document.createElement("div");
                 newMsg.className = "message bot-message";
                 chatBox.appendChild(newMsg);
-                typeEffect(newMsg, data.response); 
-                
-                if (data.response.includes("Jefe Supremo detectado")) { 
-                    localStorage.setItem('regina_is_admin', 'true'); 
+                typeEffect(newMsg, data.response);
+
+                if (data.response.includes("Jefe Supremo detectado")) {
+                    localStorage.setItem('regina_is_admin', 'true');
                     localStorage.setItem('regina_registrado', 'true');
                     setTimeout(() => { vibrar([50,100,50,100]); abrirMiCuenta(); }, 2000);
                 }
-                
+
                 if (data.audio) {
                     if (audioPremiumActual) audioPremiumActual.pause();
-                    if (!isMuted && premiumVoiceEnabled) { 
+                    if (!isMuted && premiumVoiceEnabled) {
                         audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
                         audioPremiumActual.play();
                     }
                 }
-                
+
                 if (data.puntos !== undefined) { actualizarInsigniasVisuales(data.puntos); }
             }
-        } catch (error) { 
+        } catch (error) {
             vibrar([100, 100, 100]);
-            loading.style.display = 'none'; 
+            loading.style.display = 'none';
             chatBox.innerHTML += `<div class="message bot-message" style="background:#f44336; color:white; font-weight:bold;">⚠️ ALERTA ROJA: El servidor Python se detuvo de golpe. Pariente, avísale al Jefe Supremo que revise su consola. (Error: ${error.message})</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -921,7 +1240,7 @@
     document.getElementById("user-input").addEventListener("keypress", function(event) {
         if (event.key === "Enter") { vibrar(80); sendMessage(); }
     });
-    
+
     let imagenChatBase64 = null;
     function previsualizarFotoChat() {
         const file = document.getElementById('input-foto-chat').files[0];
@@ -952,14 +1271,14 @@
         const chatBox = document.getElementById('chat-box');
         chatBox.innerHTML += `<div class="message user-message" style="background:#d32f2f; color:white; font-weight:bold;">🧑‍⚕️ Consulta de Urgencia</div>`;
         const warningHTML = `¡ATENCIÓN! 🧑‍⚕️ No soy un médico veterinario, soy una IA experta en comportamiento.<br><br>Si tu mascota sufrió un accidente grave o presenta una condición crítica, <strong>ESTO REQUIERE ATENCIÓN PROFESIONAL INMEDIATA</strong>.<br><br>📍 <a href="https://www.google.com/maps/search/veterinaria+24+horas" target="_blank" style="color:#d32f2f; font-weight:900; text-decoration:underline;">Haz clic aquí para buscar veterinarias en Maps</a>.`;
-        
+
         const newMsg = document.createElement("div");
         newMsg.className = "message bot-message";
         newMsg.style.border = "2px solid #d32f2f";
-        newMsg.style.background = "rgba(211, 47, 47, 0.1)"; 
+        newMsg.style.background = "rgba(211, 47, 47, 0.1)";
         newMsg.innerHTML = warningHTML;
         chatBox.appendChild(newMsg);
-        
+
         if (typeof hablar === "function") { hablar("Atención. Lleva a tu mascota a una clínica veterinaria inmediatamente."); }
         chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -968,15 +1287,15 @@
         vibrar(60);
         const mensajes = document.querySelectorAll('.message');
         if(mensajes.length <= 1) { return; }
-        
+
         let textoHistorial = "🐾 HISTORIAL DE CONSULTA - REGINA VALENTINA 🐾\nFecha: " + new Date().toLocaleString() + "\n---------------------------------------------------\n\n";
-        
+
         mensajes.forEach(msg => {
             let emisor = msg.classList.contains('user-message') ? "TÚ:" : "REGINA:";
             let contenido = msg.getAttribute('data-puretext') || msg.innerText.split('📋')[0].trim();
             textoHistorial += `${emisor}\n${contenido}\n\n`;
         });
-        
+
         const blob = new Blob([textoHistorial], { type: 'text/plain;charset=utf-8' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1006,35 +1325,43 @@
             });
         }
     }
+
+    async function enviarSugerencia() {
+        const texto = document.getElementById('feedback-texto').value.trim();
+        if (!texto) { vibrar([50,50,50]); return; }
+        const btnEnviar = document.getElementById('btn-enviar-sug');
+        btnEnviar.disabled = true; btnEnviar.innerText = 'Enviando...';
+        try {
+            await fetch(`${API_URL}/feedback`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: getUserId(), mensaje: texto })
+            });
+            vibrar([50, 100, 200]);
+            mostrarNotificacion("✅ ¡Mensaje enviado! Gracias por tu aporte.", "#4caf50", 4000);
+            document.getElementById('feedback-texto').value = '';
+            document.getElementById('feedback-modal').style.display = 'none';
+        } catch(e) {
+            mostrarNotificacion("❌ Error al enviar. Intenta de nuevo.", "#f44336");
+        } finally {
+            btnEnviar.disabled = false; btnEnviar.innerText = 'Enviar Mensaje 🚀';
+        }
+    }
 </script>
 
-<div style="text-align:center; margin-top:25px; margin-bottom: 15px;">
-    <a href="https://regina-valentina-556774981559.us-east1.run.app/blog" target="_blank" onclick="vibrar(60)" style="background: linear-gradient(145deg, #00bcd4, #0097a7); color: white; padding: 14px 28px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-block; transition: 0.3s;">
-        📝 Leer el Blog de la Experta
-    </a>
-</div>
-    
-<div class="footer">
-    <button onclick="vibrar(60); document.getElementById('feedback-modal').style.display='flex'" style="background:none; border:none; color:var(--header-bg); cursor:pointer; font-size:1.1em; text-decoration:underline; font-weight:bold; margin-bottom:15px;">💡 Dejar una Sugerencia Rápida</button>
-    <p>© 2026 <b>Robles Bienestar</b>. Todos los derechos reservados.</p>
-    <p><a href="terminos.html" target="_blank" style="color:var(--text-main);">Ver Términos y Condiciones Completos</a></p>
-    <div id="caja-aviso-legal">
-        <p>⚠️ <strong>AVISO LEGAL:</strong> Regina Valentina es una IA con fines educativos. Robles Bienestar no se responsabiliza por el uso en seres humanos. <strong>SIN ASESORÍA MÉDICA:</strong> No recetamos medicamentos. El usuario asume la total responsabilidad legal. Ante emergencias, acuda a una clínica inmediatamente.</p>
-    </div>
-</div> 
+<!-- ══════════════════════════════════════
+     BARRA INFERIOR — FOOTER BAR
+══════════════════════════════════════ -->
+<footer class="app-footer">
+    <p>⚠️ IA educativa, no sustituye asesoría veterinaria. <a href="terminos.html" target="_blank">Términos</a> · © 2026 <strong>Robles Bienestar</strong>.</p>
+</footer>
 
-<button onclick="vibrar(60); compartirApp()" class="share-bubble" title="Compartir App">📤</button>
-
-<a href="mailto:soporte@reginavalentina.com?subject=Ayuda%20con%20Regina%20Valentina" onclick="vibrar(60)" class="support-btn" title="Contactar Soporte">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32" fill="white">
-        <path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/>
-    </svg>
-</a>
-
+<!-- ══════════════════════════════════════
+     AJUSTES MODAL
+══════════════════════════════════════ -->
 <div id="settings-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
     <div class="modal-card" style="padding:30px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative; border-top: 6px solid #6a1b9a;">
         <button onclick="document.getElementById('settings-modal').style.display='none'; vibrar(60);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
-        
+
         <h3 class="modal-title" style="margin-top:20px; margin-bottom:5px; padding-right:15px; font-size:1.3em;">⚙️ Ajustes</h3>
         <p style="color:var(--text-main); opacity:0.8; font-size:1em; margin-bottom:15px;">Tu experiencia personalizada.</p>
 
@@ -1055,7 +1382,7 @@
         <button id="btn-install-app" onclick="instalarApp()" class="btn" style="width:100%; margin-bottom:12px; background: linear-gradient(145deg, #ff9800, #f57c00); color:white; font-weight:bold; display:none; font-size:1.15rem; padding:12px; border-radius:8px; border:none;">📱 Instalar App</button>
 
         <button onclick="descargarHistorial()" class="btn" style="width:100%; margin-bottom:15px; background:#4caf50; color:white; font-weight:bold; font-size:1.15rem; padding:12px; border-radius:8px; border:none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor:pointer;">💾 Guardar Chat (TXT)</button>
-        
+
         <hr style="border: 1px solid var(--input-border); margin: 15px 0;">
 
         <div style="display:flex; flex-direction:column; gap: 12px; margin-bottom: 25px;">
@@ -1075,7 +1402,7 @@
                 <span style="font-size:1.8em;">🌗</span> Alto Contraste
             </button>
         </div>
-        
+
         <button onclick="document.getElementById('settings-modal').style.display='none'; vibrar(60);" style="width:100%; padding:14px; background-color:#d32f2f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.15rem;">Cerrar Menú</button>
     </div>
 </div>
@@ -1083,13 +1410,11 @@
 
 <!-- ═══════════════════════════════════════════════════════════════
      FASE 4: FIREBASE — GOOGLE SIGN-IN Y MEMORIA SINTRÓPICA
-     INSTRUCCIÓN: Copia tus credenciales desde console.firebase.google.com
      ═══════════════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-    // ── Reemplaza estos valores con los de tu proyecto Firebase ──
     const FIREBASE_CONFIG = {
         apiKey:            "AIzaSyBLFAnODc5lGdRHoCMUyUO_SmuR8Ynen24",
         authDomain:        "regina-valentina-app.firebaseapp.com",
@@ -1160,7 +1485,6 @@
         return null;
     }
 
-    // Guarda resumen sintrópico al cerrar/salir
     async function guardarResumenAlCerrar() {
         const userId = getUserId();
         if (!userId) return;
@@ -1175,7 +1499,6 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data.resumen && firebaseActivo) {
-                    // Sincroniza también con Firestore si está activo
                     const partes = data.resumen.match(/Usuario: (.+?) \| Mascota: (.+?) llamado\/a (.+?) \| Recomendaciones anteriores: (.+)/);
                     if (partes) {
                         await guardarResumenFirestore(userId, {
