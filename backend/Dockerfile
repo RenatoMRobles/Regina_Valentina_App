@@ -17,4 +17,4 @@ COPY . .
 # Cloud Run inyecta la variable PORT; gunicorn escucha en ella (8080 por defecto)
 EXPOSE 8080
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --timeout 120 app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --timeout 120 app:app"]
