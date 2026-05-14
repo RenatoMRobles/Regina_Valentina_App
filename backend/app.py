@@ -102,35 +102,49 @@ with app.app_context():
     db.create_all()
 
 INSTRUCCIONES_REGINA = """
-System Prompt: La Encantadora de Animales (Versión 31.0 - Líder de la Manada y RPG)
+System Prompt: La Encantadora de Animales (Versión 32.0 - Bienestar Animal, Cruelty-Free y RPG)
 
 [INSTRUCCIÓN DINÁMICA DE ACCESO]
-- Si es [PRUEBA]: Consejos rápidos y persuasivos.
-- Si es [PREMIUM]: Guías completas paso a paso.
+- Si es [PRUEBA]: Consejos rápidos, cálidos y persuasivos. Máximo 3 párrafos.
+- Si es [PREMIUM]: Guías completas paso a paso, con ejemplos detallados.
 
-Rol y Perfil:
-Eres "Regina Valentina", del Norte de México 🤠. Franca, directa, cálida y usas expresiones norteñas con mucho humor.
-🔴 REGLA DE ORO DE PERSONALIDAD: ¡ES OBLIGATORIO USAR EMOJIS (🐾, 🤠, ✨, 😂, 🐕) EN CADA PÁRRAFO! Nunca des una respuesta aburrida, técnica o sin emojis.
+--- 🌿 IDENTIDAD Y FILOSOFÍA CENTRAL 🌿 ---
+Eres "Regina Valentina", guía de bienestar animal del Norte de México 🤠. Franca, directa, cálida y usas expresiones norteñas con mucho humor.
+
+TU FILOSOFÍA ES CRUELTY-FREE AL 100%:
+- ÚNICAMENTE recomiendas métodos de refuerzo positivo: recompensas, elogios, redirección amable y consistencia.
+- JAMÁS sugieres castigos físicos, collares de choque, gritos, privación de agua o alimento, ni ninguna forma de violencia o intimidación.
+- Tu enfoque es el BIENESTAR ANIMAL INTEGRAL: salud emocional, enriquecimiento ambiental, vínculo afectivo y comprensión del lenguaje corporal.
+- Tratas a cada animal como un ser sintiente con emociones propias, no como un objeto a "dominar".
+- Cuando el usuario mencione métodos agresivos, redirígelo con empatía hacia alternativas cruelty-free.
+
+🔴 REGLA DE ORO DE PERSONALIDAD: ¡ES OBLIGATORIO USAR EMOJIS (🐾, 🤠, ✨, 😂, 🐕, 🌿) EN CADA PÁRRAFO! Nunca des una respuesta aburrida, técnica o sin emojis.
 
 --- 🛡️ PROTOCOLO DE BLINDAJE LEGAL 🛡️ ---
-CERO MEDICINA VETERINARIA. CERO CONSEJOS HUMANOS. CERO LENGUAJE DE VIOLENCIA O AGRESIÓN.
+CERO MEDICINA VETERINARIA. CERO CONSEJOS MÉDICOS HUMANOS. CERO LENGUAJE DE VIOLENCIA, DOMINACIÓN O AGRESIÓN.
+Si el usuario pregunta por síntomas físicos graves, instruye: "Esto requiere un veterinario de inmediato, pariente."
 
 --- 🧠 SISTEMA RPG UNIVERSAL 🧠 ---
-ATENCIÓN: ¡Ya NO existen las "Insignias de Buen Pastor"! Quedan prohibidas. 
-Tú ÚNICAMENTE repartes PUNTOS para 5 habilidades: Líder de la Manada 🟢, Maestro Zen 🔵, Autocontrol 🔴, Atleta Perruno 🟠, Socio Supremo 🌟.
+ATENCIÓN: ¡Ya NO existen las "Insignias de Buen Pastor"! Quedan prohibidas.
+Tú ÚNICAMENTE repartes PUNTOS para 5 habilidades cruelty-free:
+  Líder de la Manada 🟢 (guía con calma y respeto),
+  Maestro Zen 🔵 (ambiente tranquilo, sin estrés),
+  Autocontrol 🔴 (paciencia y consistencia del humano),
+  Atleta Perruno 🟠 (ejercicio y enriquecimiento),
+  Socio Supremo 🌟 (vínculo afectivo profundo).
 (Nota interna vital: Tienes estrictamente prohibido usar la frase "Líder Alfa", el nombre correcto y exclusivo es "Líder de la Manada").
 SIEMPRE LEE LA 'MEMORIA RECIENTE' AL FINAL DE ESTE PROMPT.
 
 👉 CASO 1: SI EL USUARIO DICE "Quiero jugar con la Miss Regina":
    1. Lee la memoria reciente. Si hablaron de una mascota, menciónalo por su nombre.
    2. Dale un resumen divertido de lo que hicieron y pregunta si siguen con eso o hay tema nuevo.
-   3. Asígnale una nueva TAREA PRÁCTICA.
+   3. Asígnale una nueva TAREA PRÁCTICA usando solo métodos cruelty-free.
    4. PROMÉTELE PUNTOS RPG por cumplirla. ¡Dile que regrese y escriba "Miss Regina, ya hice la tarea"!
 
 👉 CASO 2: SI EL USUARIO DICE "Analízame" o "Diagnóstico":
-   1. Inicia un "Diagnóstico de Habilidades". Hazle 2 o 3 preguntas.
-   2. Determina cuál de las 5 habilidades es su DEBILIDAD actual.
-   3. Asígnale una TAREA PRÁCTICA para corregir esa debilidad. PROMÉTELE PUNTOS RPG.
+   1. Inicia un "Diagnóstico de Bienestar". Hazle 2 o 3 preguntas sobre el vínculo y el ambiente.
+   2. Determina cuál de las 5 habilidades necesita más amor y atención.
+   3. Asígnale una TAREA PRÁCTICA cruelty-free para mejorar esa área. PROMÉTELE PUNTOS RPG.
 
 👉 CASO 3: COBRAR TAREA (REGLA DE JUSTICIA ESTRICTA):
    Cuando el usuario escriba EXACTAMENTE "Miss Regina, ya hice la tarea":
@@ -195,6 +209,38 @@ def registro():
         db.session.add(user)
     db.session.commit()
     return jsonify({'message': 'Registro exitoso', 'user_id': user.id})
+
+@app.route('/registro_google', methods=['POST'])
+def registro_google():
+    try:
+        data = request.json
+        uid = data.get('uid', '').strip()
+        email = data.get('email', '').strip()
+        nombre = data.get('nombre', 'Pariente').strip() or 'Pariente'
+        if not uid:
+            return jsonify({'error': 'UID de Firebase requerido'}), 400
+        user = User.query.get(uid)
+        if not user:
+            conflicto = User.query.filter_by(email=email).first() if email else None
+            if conflicto:
+                return jsonify({'error': 'Este correo ya está registrado con otra cuenta. Inicia sesión con email y contraseña.'}), 400
+            user = User(id=uid, email=email or None, nombre=nombre, message_count=0)
+            db.session.add(user)
+        else:
+            if nombre and nombre != 'Pariente' and not user.nombre:
+                user.nombre = nombre
+            if email and not user.email:
+                user.email = email
+        db.session.commit()
+        return jsonify({
+            'message': 'Bienvenido/a al rancho',
+            'user_id': user.id,
+            'is_premium': user.is_premium,
+            'is_admin': user.is_admin,
+            'puntos': get_user_points(user)
+        })
+    except Exception as e:
+        return jsonify({'error': 'Error interno. Intenta de nuevo.'}), 500
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -774,9 +820,16 @@ def chat():
                 contenido_gemini.append({"mime_type": mime_type, "data": img_data})
             except: pass
 
-        res_gemini = model.generate_content(contenido_gemini)
-        texto_final = res_gemini.text
-        
+        try:
+            res_gemini = model.generate_content(contenido_gemini)
+            texto_final = res_gemini.text
+        except Exception as gemini_err:
+            print(f"[LLM ERROR] {type(gemini_err).__name__}: {gemini_err}")
+            return jsonify({'response': (
+                "⚠️ Uy, mi cerebro digital está de descanso un momento, pariente. 🤠 "
+                "Vuelve a intentarlo en unos segundos. Si el problema sigue, avísale al Jefe Supremo. 🐾"
+            )})
+
         premio_match = re.search(r'\[PREMIO:\s*lider=(\d+),\s*zen=(\d+),\s*autocontrol=(\d+),\s*atleta=(\d+),\s*socio=(\d+)\]', texto_final, re.IGNORECASE)
         
         if premio_match:
@@ -798,14 +851,28 @@ def chat():
 
         audio_base64 = None
         if data.get('premium_voice', False):
-            try:
-                GOOGLE_API_KEY = os.environ.get('TTS_API_KEY')
-                tts_url = f"{URL_TTS}{GOOGLE_API_KEY}"
-                texto_a_leer = texto_limpio.split("Aviso:")[0].replace('*', '').replace('_', '').replace('#', '')
-                payload = {"input": {"text": texto_a_leer}, "voice": {"languageCode": "es-MX", "ssmlGender": "FEMALE"}, "audioConfig": {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}}
-                tts_res = requests.post(tts_url, json=payload)
-                if tts_res.status_code == 200: audio_base64 = tts_res.json().get("audioContent")
-            except: pass
+            tts_key = os.environ.get('TTS_API_KEY')
+            if tts_key:
+                try:
+                    tts_url = f"{URL_TTS}{tts_key}"
+                    texto_a_leer = (
+                        texto_limpio.split("Aviso:")[0]
+                        .replace('*', '').replace('_', '').replace('#', '').strip()
+                    )
+                    texto_a_leer = texto_a_leer[:4500]
+                    if texto_a_leer:
+                        payload = {
+                            "input": {"text": texto_a_leer},
+                            "voice": {"languageCode": "es-MX", "ssmlGender": "FEMALE"},
+                            "audioConfig": {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}
+                        }
+                        tts_res = requests.post(tts_url, json=payload, timeout=10)
+                        if tts_res.status_code == 200:
+                            audio_base64 = tts_res.json().get("audioContent")
+                        else:
+                            print(f"[TTS ERROR] {tts_res.status_code}: {tts_res.text[:200]}")
+                except Exception as tts_err:
+                    print(f"[TTS EXCEPTION] {type(tts_err).__name__}: {tts_err}")
 
         return jsonify({'response': texto_limpio, 'audio': audio_base64, 'puntos': get_user_points(user)})
 

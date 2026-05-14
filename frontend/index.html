@@ -327,7 +327,7 @@
 ══════════════════════════════════════ -->
 <div id="auth-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center; display:none;">
     <div class="modal-card" style="padding:40px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative;">
-        <button onclick="document.getElementById('auth-modal').style.display='none'; vibrar(30);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
+        <button id="auth-modal-close" onclick="document.getElementById('auth-modal').style.display='none'; vibrar(30);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
         <img src="ReginaValentinaRostro.png?v=2" alt="Regina" style="width:90px; height:90px; border-radius:50%; margin-bottom:15px; border:3px solid var(--header-bg); object-fit: cover;">
         <h2 id="auth-title" class="modal-title">Acceso VIP 🤠</h2>
 
@@ -898,15 +898,30 @@
         if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
         else if (savedTheme === 'sepia') { document.documentElement.setAttribute('data-theme', 'sepia'); }
 
-        const storedUserId = localStorage.getItem('regina_user_id');
-        if (!storedUserId) { localStorage.setItem('regina_user_id', 'user_' + Math.floor(Math.random() * 10000000)); }
-
         inicializarRacha();
         inicializarIntentos();
 
-        if (localStorage.getItem('regina_registrado') === 'true') {
+        const estaAutenticado = localStorage.getItem('regina_registrado') === 'true';
+
+        if (!estaAutenticado) {
+            // Bloquear chat hasta que el usuario inicie sesión
+            const inp = document.getElementById('user-input');
+            const btnEnv = document.querySelector('.btn-enviar');
+            if (inp) { inp.disabled = true; inp.style.opacity = '0.5'; inp.placeholder = 'Inicia sesión para chatear con Regina...'; }
+            if (btnEnv) { btnEnv.disabled = true; btnEnv.style.opacity = '0.5'; }
+
+            // Mostrar modal de acceso como puerta de entrada (sin botón de cerrar)
+            const closeBtn = document.getElementById('auth-modal-close');
+            if (closeBtn) closeBtn.style.display = 'none';
+            document.getElementById('auth-title').innerText = 'Acceso al Rancho 🤠';
+            document.getElementById('auth-inputs').style.display = 'block';
+            document.getElementById('logged-in-view').style.display = 'none';
+            document.getElementById('auth-error').innerText = '';
+            document.getElementById('auth-modal').style.display = 'flex';
+        } else {
             const esPremium = localStorage.getItem('regina_is_premium') === 'true';
             if (esPremium) resetearIntentosVIP();
+            activarChat();
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -973,8 +988,37 @@
         localStorage.removeItem('regina_user_id');
         localStorage.removeItem('regina_total_insignias');
         localStorage.removeItem('regina_is_premium');
+        localStorage.removeItem('regina_nombre');
+        localStorage.removeItem('regina_is_admin');
+        localStorage.removeItem('regina_session_summary');
+        if (typeof firebaseActivo !== 'undefined' && firebaseActivo && firebaseAuth) {
+            firebaseAuth.signOut().catch(e => console.warn('Firebase signOut:', e.message));
+        }
         mostrarNotificacion("🚪 Sesión cerrada. ¡Nos vemos pronto!", "#f44336");
         setTimeout(() => { window.location.reload(); }, 1200);
+    }
+
+    function activarChat() {
+        const inp = document.getElementById('user-input');
+        const btnEnv = document.querySelector('.btn-enviar');
+        const closeBtn = document.getElementById('auth-modal-close');
+        if (inp) { inp.disabled = false; inp.style.opacity = '1'; }
+        if (btnEnv) { btnEnv.disabled = false; btnEnv.style.opacity = '1'; }
+        if (closeBtn) closeBtn.style.display = 'block';
+        actualizarPerfilUI();
+    }
+
+    function actualizarPerfilUI(nombre, foto) {
+        const n = nombre || localStorage.getItem('regina_nombre') || '';
+        if (!n) return;
+        const sideTitle = document.querySelector('.side-menu-title');
+        if (sideTitle) {
+            sideTitle.innerHTML = `${n}<br><small style="opacity:0.8; font-weight:normal; font-size:0.85em;">Miembro del Rancho 🤠</small>`;
+        }
+        if (foto) {
+            const sideAvatar = document.querySelector('.side-menu-avatar');
+            if (sideAvatar) { sideAvatar.src = foto; sideAvatar.style.border = '3px solid #ffca28'; }
+        }
     }
 
     async function canjearCupon() {
@@ -1020,7 +1064,8 @@
                 localStorage.setItem('regina_user_id', data.user_id);
                 localStorage.setItem('regina_is_admin', 'false');
                 document.getElementById('auth-modal').style.display = 'none';
-                mostrarNotificacion("✅ ¡Cuenta lista!", "#4caf50");
+                activarChat();
+                mostrarNotificacion("✅ ¡Cuenta lista! Bienvenido/a al rancho 🤠", "#4caf50");
             } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
         } catch (e) { vibrar([50,50,50]); }
     }
@@ -1041,7 +1086,8 @@
                 localStorage.setItem('regina_is_admin', data.is_admin ? 'true' : 'false');
                 errorMsg.innerText = "";
                 document.getElementById('auth-modal').style.display = 'none';
-                mostrarNotificacion("✅ ¡Sesión iniciada!", "#4caf50");
+                activarChat();
+                mostrarNotificacion("✅ ¡Sesión iniciada! Bienvenido/a de regreso 🤠", "#4caf50");
                 if (data.puntos !== undefined) actualizarInsigniasVisuales(data.puntos);
                 if (data.is_premium) {
                     localStorage.setItem('regina_is_premium', 'true');
@@ -1168,6 +1214,12 @@
         const userId = getUserId();
 
         if (!message) return;
+
+        if (localStorage.getItem('regina_registrado') !== 'true') {
+            vibrar([50, 50, 50]);
+            abrirMiCuenta();
+            return;
+        }
 
         let displayMessage = lsmEnabled ? quitarAcentos(message) : message;
         chatBox.innerHTML += `<div class="message user-message" data-original="${message}">${displayMessage}</div>`;
@@ -1444,17 +1496,46 @@
             mostrarNotificacion("⚙️ Firebase no configurado. Pide al Jefe Supremo las credenciales.", "#ff9800", 5000);
             return;
         }
+        const errorMsg = document.getElementById('auth-error');
         try {
+            errorMsg.innerText = "Conectando con Google...";
             const provider = new firebase.auth.GoogleAuthProvider();
             const result = await firebaseAuth.signInWithPopup(provider);
             const u = result.user;
+
+            // Registrar / confirmar usuario en el backend Python
+            const regRes = await fetch(`${API_URL}/registro_google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: u.displayName || 'Pariente' })
+            });
+            const regData = await regRes.json();
+
+            if (!regRes.ok) {
+                errorMsg.innerText = regData.error || "Error al registrar con Google.";
+                vibrar([50, 50, 50]);
+                return;
+            }
+
             localStorage.setItem('regina_user_id', u.uid);
             localStorage.setItem('regina_registrado', 'true');
             localStorage.setItem('regina_nombre', u.displayName || 'Pariente');
+            if (regData.is_admin) localStorage.setItem('regina_is_admin', 'true');
+            if (regData.is_premium) {
+                localStorage.setItem('regina_is_premium', 'true');
+                resetearIntentosVIP();
+            }
+
+            errorMsg.innerText = "";
             document.getElementById('auth-modal').style.display = 'none';
-            mostrarNotificacion(`✅ ¡Bienvenido/a, ${u.displayName}! 🤠`, "#4caf50");
+            activarChat();
+            actualizarPerfilUI(u.displayName, u.photoURL);
+            if (regData.puntos) actualizarInsigniasVisuales(regData.puntos);
+            vibrar([50, 100, 50, 100]);
+            mostrarNotificacion(`✅ ¡Bienvenido/a, ${u.displayName || 'Pariente'}! 🤠🐾`, "#4caf50");
             await cargarResumenFirestore(u.uid);
         } catch(e) {
+            errorMsg.innerText = "";
             mostrarNotificacion("❌ Error Google Sign-In: " + e.message, "#f44336", 5000);
         }
     }
