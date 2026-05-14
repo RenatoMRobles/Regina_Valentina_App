@@ -757,15 +757,12 @@
     function toggleDyslexia() {
         dyslexiaEnabled = !dyslexiaEnabled;
         const body = document.body;
-        const btnModal = document.getElementById('btn-config-dyslexia');
         if (dyslexiaEnabled) {
             if (lsmEnabled) toggleLSM();
             body.classList.add('dyslexia-mode');
-            if(btnModal) { btnModal.style.background = 'rgba(76, 175, 80, 0.2)'; btnModal.style.borderColor = '#4caf50'; }
             mostrarNotificacion("👓 Lectura cómoda habilitada", "#4caf50");
         } else {
             body.classList.remove('dyslexia-mode');
-            if(btnModal) { btnModal.style.background = 'var(--bg-body)'; btnModal.style.borderColor = 'var(--input-border)'; }
             mostrarNotificacion("Lectura estándar restaurada", "var(--header-bg)");
         }
     }
@@ -892,9 +889,17 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+        const savedErgonomia = localStorage.getItem('regina_ergonomia');
         const savedTheme = localStorage.getItem('regina_theme');
-        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
-        else if (savedTheme === 'sepia') { document.documentElement.setAttribute('data-theme', 'sepia'); }
+        if (savedErgonomia && savedErgonomia !== 'ninguna') {
+            var selErgonomia = document.getElementById('sel-ergonomia');
+            if (selErgonomia) selErgonomia.value = savedErgonomia;
+            aplicarErgonomia(savedErgonomia, false);
+        } else if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (savedTheme === 'sepia') {
+            document.documentElement.setAttribute('data-theme', 'sepia');
+        }
 
         inicializarRacha();
         inicializarIntentos();
@@ -960,6 +965,57 @@
         } else {
             body.setAttribute('data-theme', 'dark');
             localStorage.setItem('regina_theme', 'dark');
+        }
+    }
+
+    function aplicarErgonomia(valor, notificar = true) {
+        document.documentElement.removeAttribute('data-theme');
+        document.body.classList.remove('dyslexia-mode', 'lsm-mode', 'large-text-mode', 'high-contrast-mode');
+        dyslexiaEnabled = false;
+        lsmEnabled = false;
+        document.querySelectorAll('.message[data-original]').forEach(function(msg) {
+            msg.innerHTML = msg.getAttribute('data-original');
+            msg.removeAttribute('data-original');
+        });
+        localStorage.setItem('regina_ergonomia', valor);
+        switch (valor) {
+            case 'dark':
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('regina_theme', 'dark');
+                if (notificar) mostrarNotificacion("🌙 Modo Oscuro activado", "#3f51b5");
+                break;
+            case 'sepia':
+                document.documentElement.setAttribute('data-theme', 'sepia');
+                localStorage.setItem('regina_theme', 'sepia');
+                if (notificar) mostrarNotificacion("☕ Modo Sepia activado", "#795548");
+                break;
+            case 'dyslexia':
+                dyslexiaEnabled = true;
+                document.body.classList.add('dyslexia-mode');
+                if (notificar) mostrarNotificacion("👓 Lectura cómoda habilitada", "#4caf50");
+                break;
+            case 'lsm':
+                lsmEnabled = true;
+                document.body.classList.add('lsm-mode');
+                document.querySelectorAll('.message').forEach(function(msg) {
+                    if (!msg.hasAttribute('data-original')) msg.setAttribute('data-original', msg.innerHTML);
+                    msg.innerHTML = quitarAcentos(msg.innerHTML);
+                });
+                if (notificar) mostrarNotificacion("🤟 Modo Dactilología Activado", "#d81b60");
+                var cb = document.getElementById('chat-box');
+                if (cb) cb.scrollTop = cb.scrollHeight;
+                break;
+            case 'lupa':
+                document.body.classList.add('large-text-mode');
+                if (notificar) mostrarNotificacion("🔍 Texto súper grande activado", "#4caf50");
+                break;
+            case 'contraste':
+                document.body.classList.add('high-contrast-mode');
+                if (notificar) mostrarNotificacion("🌗 Alto contraste activado", "#4caf50");
+                break;
+            default:
+                localStorage.setItem('regina_theme', 'light');
+                if (notificar) mostrarNotificacion("Vista estándar restaurada", "var(--header-bg)");
         }
     }
 
@@ -1516,7 +1572,7 @@
 <!-- ══════════════════════════════════════
      AJUSTES MODAL
 ══════════════════════════════════════ -->
-<div id="settings-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
+<div id="settings-modal" onclick="if(event.target===this){this.style.display='none'; vibrar(30);}" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; display:none;">
     <div class="modal-card" style="padding:30px; border-radius:15px; width:85%; max-width:320px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position:relative; border-top: 6px solid #6a1b9a;">
         <button onclick="document.getElementById('settings-modal').style.display='none'; vibrar(60);" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:2em; color:var(--text-main); opacity:0.6; cursor:pointer;">×</button>
 
@@ -1527,9 +1583,19 @@
             <button onclick="vibrar(40); document.getElementById('settings-modal').style.display='none'; abrirMiCuenta();" class="config-btn" style="font-size:1.15rem; padding:15px;">
                 <span style="font-size:1.8em;">👤</span> Mi Perfil / Cuenta
             </button>
-            <button id="btn-settings-voice" onclick="vibrar(40); togglePremiumVoice()" class="config-btn" style="font-size:1.15rem; padding:15px;">
-                <span id="settings-voice-icon" style="font-size:1.8em;">🗣️</span> Voz Premium HD
-            </button>
+            <!-- ── Dropdown 1: Ergonomía Visual ── -->
+            <div style="text-align:left;">
+                <label for="sel-ergonomia" style="font-size:0.85em; font-weight:bold; color:var(--text-main); opacity:0.75; display:block; margin-bottom:4px; padding-left:4px;">🎨 Ergonomía Visual</label>
+                <select id="sel-ergonomia" onchange="vibrar(20); aplicarErgonomia(this.value)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
+                    <option value="ninguna">👁️ Vista Estándar</option>
+                    <option value="dark">🌙 Modo Oscuro</option>
+                    <option value="sepia">☕ Modo Sepia</option>
+                    <option value="dyslexia">👓 Letra para Dislexia</option>
+                    <option value="lsm">🤟 Dactilología</option>
+                    <option value="lupa">🔍 Agrandar Letra</option>
+                    <option value="contraste">🌗 Alto Contraste</option>
+                </select>
+            </div>
 
             <!-- ── Dropdown 2: Motor de Voz ── -->
             <div style="text-align:left;">
@@ -1550,9 +1616,6 @@
                 </select>
             </div>
 
-            <button onclick="vibrar(30); toggleTheme()" class="config-btn" style="font-size:1.15rem; padding:15px;">
-                <span style="font-size:1.8em;">🌙</span> Modo Oscuro / Sepia
-            </button>
         </div>
 
         <hr style="border: 1px solid var(--input-border); margin: 0 0 15px 0;">
@@ -1560,26 +1623,6 @@
         <button id="btn-install-app" onclick="instalarApp()" class="btn" style="width:100%; margin-bottom:12px; background: linear-gradient(145deg, #ff9800, #f57c00); color:white; font-weight:bold; display:none; font-size:1.15rem; padding:12px; border-radius:8px; border:none;">📱 Instalar App</button>
 
         <button onclick="descargarHistorial()" class="btn" style="width:100%; margin-bottom:15px; background:#4caf50; color:white; font-weight:bold; font-size:1.15rem; padding:12px; border-radius:8px; border:none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor:pointer;">💾 Guardar Chat (TXT)</button>
-
-        <hr style="border: 1px solid var(--input-border); margin: 15px 0;">
-
-        <div style="display:flex; flex-direction:column; gap: 12px; margin-bottom: 25px;">
-            <button id="btn-config-dyslexia" onclick="vibrar(60); toggleDyslexia()" class="config-btn">
-                <span id="dyslexia-toggle" style="font-size:1.8em;">👓</span> Letra para Dislexia
-            </button>
-            <button id="btn-config-lsm" onclick="vibrar(60); toggleLSM()" class="config-btn">
-                <span id="lsm-toggle" style="font-size:1.8em;">🤟</span> Dactilología
-            </button>
-            <button id="btn-config-voice" onclick="vibrar(60); toggleVoice()" class="config-btn">
-                <span id="voice-toggle" style="font-size:1.8em;">🤫</span> Voz Robótica (Básica)
-            </button>
-            <button id="btn-config-lupa" onclick="vibrar(60); toggleLupa()" class="config-btn">
-                <span style="font-size:1.8em;">🔍</span> Agrandar Letra
-            </button>
-            <button id="btn-config-contraste" onclick="vibrar(60); toggleContraste()" class="config-btn">
-                <span style="font-size:1.8em;">🌗</span> Alto Contraste
-            </button>
-        </div>
 
         <button onclick="document.getElementById('settings-modal').style.display='none'; vibrar(60);" style="width:100%; padding:14px; background-color:#d32f2f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.15rem;">Cerrar Menú</button>
     </div>
