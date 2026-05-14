@@ -18,7 +18,7 @@ PROTO = "http" + "s://"
 PROTO_H = "htt" + "p://"
 
 URL_RANCHO = PROTO + "reginavalentina.com"
-URL_PYTHON = PROTO + "RenatoRobles.pythonanywhere.com"
+URL_CLOUD = PROTO + "regina-valentina-938250627989.us-central1.run.app"
 URL_API_IP = PROTO_H + "ip-api.com/json/"
 URL_CHART = PROTO + "cdn.jsdelivr.net/npm/chart.js"
 URL_WA = PROTO + "api.whatsapp.com/send?text="
@@ -211,18 +211,44 @@ def registro_google():
         data = request.json
         uid = data.get('uid', '').strip()
         email = data.get('email', '').strip()
-        nombre = data.get('nombre', 'Pariente').strip() or 'Pariente'
+        nombre = (data.get('nombre', '') or '').strip() or None
         if not uid:
             return jsonify({'error': 'UID de Firebase requerido'}), 400
         user = User.query.get(uid)
         if not user:
             conflicto = User.query.filter_by(email=email).first() if email else None
             if conflicto:
-                return jsonify({'error': 'Este correo ya está registrado con otra cuenta. Inicia sesión con email y contraseña.'}), 400
-            user = User(id=uid, email=email or None, nombre=nombre, message_count=0)
-            db.session.add(user)
+                if conflicto.password_hash:
+                    # Migrar cuenta del sistema antiguo (email+contraseña SQLite) al nuevo UID de Firebase
+                    user = User(
+                        id=uid,
+                        email=conflicto.email,
+                        nombre=nombre or conflicto.nombre,
+                        is_premium=conflicto.is_premium,
+                        premium_until=conflicto.premium_until,
+                        is_admin=conflicto.is_admin,
+                        is_banned=conflicto.is_banned,
+                        message_count=conflicto.message_count,
+                        pago_real=conflicto.pago_real,
+                        insignias=conflicto.insignias,
+                        pts_lider=conflicto.pts_lider,
+                        pts_zen=conflicto.pts_zen,
+                        pts_autocontrol=conflicto.pts_autocontrol,
+                        pts_atleta=conflicto.pts_atleta,
+                        pts_socio=conflicto.pts_socio,
+                        chat_history=conflicto.chat_history,
+                        session_summary=conflicto.session_summary,
+                        pais=conflicto.pais,
+                    )
+                    db.session.add(user)
+                    db.session.delete(conflicto)
+                else:
+                    return jsonify({'error': 'Este correo ya está vinculado a otra cuenta de Google.'}), 400
+            else:
+                user = User(id=uid, email=email or None, nombre=nombre, message_count=0)
+                db.session.add(user)
         else:
-            if nombre and nombre != 'Pariente' and not user.nombre:
+            if nombre and not user.nombre:
                 user.nombre = nombre
             if email and not user.email:
                 user.email = email
@@ -448,7 +474,7 @@ def blog_index():
 def blog_post(slug):
     post = BlogPost.query.filter_by(slug=slug).first_or_404()
     otros_posts = BlogPost.query.filter(BlogPost.id != post.id).order_by(BlogPost.fecha.desc()).limit(3).all()
-    url_articulo = f"{URL_PYTHON}/blog/{slug}"
+    url_articulo = f"{URL_CLOUD}/blog/{slug}"
     texto_whatsapp = urllib.parse.quote(f"¡Mira este súper consejo!\n{post.titulo}\n{url_articulo}")
     
     html_template = """<html><head><title>[[TITULO]]</title><meta name='viewport' content='width=device-width, initial-scale=1'><meta property="og:title" content="[[TITULO]]" /><meta property="og:image" content="[[URL_RANCHO]]/ReginaValentinaRostro.png" /><meta property="og:url" content="[[URL_ARTICULO]]" /><style>body { font-family: 'Segoe UI', sans-serif; background: #fdfaf6; color: #333; padding: 20px; max-width: 800px; margin: auto; line-height: 1.6; font-size: 1.1em; } h1, h2, h3 { color: #6a1b9a; } .contenido { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; } .btn-back { display: inline-block; margin-bottom: 10px; color: #d81b60; text-decoration: none; font-weight: bold; } .audio-btn { background: #f3e5f5; color: #6a1b9a; border: 1px solid #ce93d8; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-bottom: 15px; } .soft-share { text-align: center; margin-top: 30px; padding-top: 25px; border-top: 1px solid #eee; } .soft-share a { color: #25D366; text-decoration: none; font-weight: bold; font-size: 1.05em; display: inline-block; padding: 10px; } .main-cta { background: white; padding: 35px 20px; text-align: center; border-radius: 12px; margin-top: 40px; border: 1px solid #eee; } .btn-orange { background: #ff9800; color: white; padding: 16px 35px; border-radius: 30px; text-decoration: none; font-weight: bold; } .author-newsletter { background: #f9f9f9; padding: 30px; text-align: center; border-radius: 12px; margin-top: 40px; } .newsletter-form input { padding: 12px; border-radius: 25px; border: 1px solid #ccc; outline: none; } .newsletter-form button { background: #6a1b9a; color: white; padding: 12px 25px; border-radius: 25px; border:none; font-weight: bold; cursor:pointer;} .card-relacionado { flex:1; min-width:200px; background:white; padding:15px; border-radius:8px; border: 1px solid #eee; }</style><script>function leerArticulo() { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); var msg = new SpeechSynthesisUtterance(document.getElementById('texto-articulo').innerText); msg.lang = 'es-MX'; msg.rate = 1.05; window.speechSynthesis.speak(msg); } } function simularRegistroCorreo() { var e = document.getElementById('lead-email').value; if(e) { alert("¡Gracias!"); document.getElementById('lead-email').value = ''; } }</script></head><body><a href='/blog' class='btn-back'>⬅ Volver</a><div class='contenido'><button onclick="leerArticulo()" class="audio-btn">🔊 Escuchar</button><div id="texto-articulo">[[CONTENIDO]]</div><div class="soft-share"><a href="[[URL_WA]][[WHATSAPP]]" target="_blank">📱 Compartir en WhatsApp</a></div><div class='main-cta'><h2>💬 Consulta Personalizada</h2><a href='[[URL_RANCHO]]' class='btn-orange'>Iniciar Chat ➔</a></div><div class="author-newsletter"><img src="[[URL_RANCHO]]/ReginaValentinaRostro.png?v=2" alt="Regina Valentina" style="width:90px; height:90px; border-radius:50%; border:3px solid #6a1b9a; object-fit:cover; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto;"><h4 style="margin-top:0;">Regina Valentina</h4><div class="newsletter-form"><input type="email" id="lead-email" placeholder="Tu correo"><button onclick="simularRegistroCorreo()">Suscribirme</button></div></div></div>"""
@@ -506,7 +532,7 @@ def panel_robles():
                 .badge { background: #6a1b9a; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.8em; }
             </style>
             <script>
-                const API_BASE = "[[URL_PYTHON]]";
+                const API_BASE = "[[URL_CLOUD]]";
                 
                 async function darVIP(userId, dias) {
                     if(!confirm("¿Otorgar VIP a este usuario?")) return;
@@ -611,7 +637,7 @@ def panel_robles():
                         <table style="font-size: 0.9em;">
                             <tr><th>Código</th><th>Días</th><th>Usos</th><th>Estado</th></tr>
     """
-    html = html_template_top.replace('[[ADMIN_ID]]', str(admin_id)).replace('[[MRR]]', str(mrr_estimado)).replace('[[PAGOS_REALES]]', str(pagos_reales)).replace('[[REGALOS_ACTIVOS]]', str(regalos_activos)).replace('[[URL_CHART]]', URL_CHART).replace('[[URL_PYTHON]]', URL_PYTHON)
+    html = html_template_top.replace('[[ADMIN_ID]]', str(admin_id)).replace('[[MRR]]', str(mrr_estimado)).replace('[[PAGOS_REALES]]', str(pagos_reales)).replace('[[REGALOS_ACTIVOS]]', str(regalos_activos)).replace('[[URL_CHART]]', URL_CHART).replace('[[URL_CLOUD]]', URL_CLOUD)
 
     if not cupones:
         html += "<tr><td colspan='4'>Aún no hay códigos creados.</td></tr>"
@@ -630,7 +656,7 @@ def panel_robles():
             <div class="tarjeta" style="border-left-color: #00bcd4; margin-bottom: 20px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <h3 style="color:#00bcd4; margin-top:0;">✍️ Máquina de Tráfico Automático (Blog SEO)</h3>
-                    <a href="{URL_PYTHON}/blog" target="_blank" style="color:#00bcd4; font-weight:bold; text-decoration:none; background:#121212; padding:5px 10px; border-radius:5px;">🌐 Ver Vitrina ➔</a>
+                    <a href="{URL_CLOUD}/blog" target="_blank" style="color:#00bcd4; font-weight:bold; text-decoration:none; background:#121212; padding:5px 10px; border-radius:5px;">🌐 Ver Vitrina ➔</a>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; background:#121212; padding:15px; border-radius:8px; margin-bottom:15px;">
                     <input type="text" id="nuevo-tema-blog" placeholder="¿De qué quieres que escriba Regina hoy?" style="flex:2; padding:10px; border-radius:5px; border:1px solid #333; background:#222; color:#fff;">
@@ -645,7 +671,7 @@ def panel_robles():
         html += "<tr><td colspan='3'>No hay artículos aún.</td></tr>"
     else:
         for a in articulos_blog:
-            html += f'<tr><td><a href="{URL_PYTHON}/blog/{a.slug}" target="_blank" style="color:#00bcd4;">{a.titulo}</a></td><td style="color:#999;">{a.fecha.strftime("%d/%m/%y")}</td><td style="text-align:right;"><button class="btn btn-ban" onclick="borrarArticulo(\'{a.id}\')">Borrar 🗑️</button></td></tr>'
+            html += f'<tr><td><a href="{URL_CLOUD}/blog/{a.slug}" target="_blank" style="color:#00bcd4;">{a.titulo}</a></td><td style="color:#999;">{a.fecha.strftime("%d/%m/%y")}</td><td style="text-align:right;"><button class="btn btn-ban" onclick="borrarArticulo(\'{a.id}\')">Borrar 🗑️</button></td></tr>'
 
     html_template_middle = """
                     </table>
@@ -694,7 +720,7 @@ def panel_robles():
                     <h3>👥 Base de Datos Completa</h3>
                     <div style="display:flex; gap:10px;">
                         <button class="btn" onclick="purgarFantasmas()" style="background:#f44336;">🧹 Purgar Fantasmas</button>
-                        <button class="btn" onclick="window.location.href='[[URL_PYTHON]]/admin/exportar_csv?admin_id=[[ADMIN_ID]]'" style="background:#4caf50;">📥 Exportar CSV</button>
+                        <button class="btn" onclick="window.location.href='[[URL_CLOUD]]/admin/exportar_csv?admin_id=[[ADMIN_ID]]'" style="background:#4caf50;">📥 Exportar CSV</button>
                     </div>
                 </div>
                 <input type="text" id="buscador" onkeyup="buscarUsuario()" placeholder="🔍 Buscar por correo o ubicación..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #444; background:#121212; color:#fff; margin:15px 0; font-size:1.05em;">
@@ -702,7 +728,7 @@ def panel_robles():
                     <table>
                         <tr><th>Correo</th><th>Total Pts 🌟</th><th>Estado</th><th>Acciones Rápidas</th></tr>
     """
-    html += html_template_bottom.replace('[[ADMIN_ID]]', str(admin_id)).replace('[[URL_PYTHON]]', URL_PYTHON)
+    html += html_template_bottom.replace('[[ADMIN_ID]]', str(admin_id)).replace('[[URL_CLOUD]]', URL_CLOUD)
 
     for u in usuarios:
         correo_display = u.email if u.email else "Fantasma"
@@ -773,9 +799,9 @@ def chat():
         
         LIMITE_GRATIS = 3
         if user.message_count >= LIMITE_GRATIS and not user.is_premium:
-            pref_day = {"items": [{"title": "Pase 24h", "quantity": 1, "unit_price": 39.0, "currency_id": "MXN"}], "external_reference": user.id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_PYTHON}/webhook"}
+            pref_day = {"items": [{"title": "Pase 24h", "quantity": 1, "unit_price": 39.0, "currency_id": "MXN"}], "external_reference": user.id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_CLOUD}/webhook"}
             link_day = sdk.preference().create(pref_day)["response"]["init_point"]
-            pref_month = {"items": [{"title": "Mes VIP", "quantity": 1, "unit_price": 99.0, "currency_id": "MXN"}], "external_reference": user.id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_PYTHON}/webhook"}
+            pref_month = {"items": [{"title": "Mes VIP", "quantity": 1, "unit_price": 99.0, "currency_id": "MXN"}], "external_reference": user.id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_CLOUD}/webhook"}
             link_month = sdk.preference().create(pref_month)["response"]["init_point"]
             return jsonify({'status': 'quota_exceeded', 'response': "Se acabaron los créditos de prueba. 🛑", 'payment_link_day': link_day, 'payment_link_month': link_month})
 
@@ -844,15 +870,18 @@ def chat():
         db.session.commit()
 
         audio_base64 = None
-        if data.get('premium_voice', False):
+        if data.get('premium_voice', False) and user.is_premium:
             tts_key = os.environ.get('TTS_API_KEY')
             if tts_key:
                 try:
                     tts_url = f"{URL_TTS}{tts_key}"
-                    texto_a_leer = (
-                        texto_limpio.split("Aviso:")[0]
-                        .replace('*', '').replace('_', '').replace('#', '').strip()
-                    )
+                    texto_a_leer = texto_limpio.split("Aviso:")[0]
+                    # Fix 3: sanitización robusta — eliminar markdown, emojis y caracteres no pronunciables
+                    texto_a_leer = re.sub(r'[*_#`~>|\\]', '', texto_a_leer)
+                    texto_a_leer = re.sub(r'\[.*?\]\(.*?\)', '', texto_a_leer)
+                    texto_a_leer = re.sub(r'[\U00010000-\U0010ffff]', '', texto_a_leer, flags=re.UNICODE)
+                    texto_a_leer = re.sub(r'[☀-➿ἰ0-ᾯF]', '', texto_a_leer)
+                    texto_a_leer = re.sub(r'\s{2,}', ' ', texto_a_leer).strip()
                     texto_a_leer = texto_a_leer[:4500]
                     if texto_a_leer:
                         payload = {

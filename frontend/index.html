@@ -301,7 +301,7 @@
         <button class="close-side-menu" onclick="cerrarMenuLateral()">×</button>
     </div>
     <div class="side-menu-body">
-        <a href="https://regina-valentina-556774981559.us-east1.run.app/blog" target="_blank"
+        <a href="https://regina-valentina-938250627989.us-central1.run.app/blog" target="_blank"
            onclick="vibrar(60); cerrarMenuLateral()" class="menu-item">
             <span>📝</span> Blog de la Experta
         </a>
@@ -343,6 +343,7 @@
             </div>
 
             <button onclick="vibrar(40); ejecutarLogin();" style="width:100%; padding:14px; background-color:#6a1b9a; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:10px; font-size:1.1rem;">Iniciar Sesión</button>
+            <button onclick="vibrar(30); solicitarReset();" style="width:100%; padding:8px; background:none; border:none; color:var(--header-bg); font-size:0.9rem; cursor:pointer; text-decoration:underline; margin-bottom:10px;">¿Olvidaste tu contraseña?</button>
             <button onclick="vibrar(40); ejecutarRegistro();" style="width:100%; padding:14px; background-color:var(--bg-body); color:var(--text-main); border:2px solid var(--header-bg); border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.1rem;">Crear Cuenta Nueva</button>
 
             <div style="margin-top:18px; text-align:center;">
@@ -356,7 +357,7 @@
 
         <div id="logged-in-view" style="display:none; text-align:center;">
             <p style="color:var(--text-main); opacity:0.8; font-size:1.1em; margin-bottom:20px;">Usted ya es parte del rancho. ¡Su acceso está asegurado!</p>
-            <button id="btn-centro-mando" onclick="vibrar(40); window.open('https://regina-valentina-556774981559.us-east1.run.app/panel-robles?admin_id=' + getUserId(), '_blank')" style="display:none; width:100%; padding:14px; background-color:#1e1e1e; color:#ffca28; border:2px solid #ffca28; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto 15px auto; font-size:1.1rem;">🦅 Centro de Mando</button>
+            <button id="btn-centro-mando" onclick="vibrar(40); window.open('https://regina-valentina-938250627989.us-central1.run.app/panel-robles?admin_id=' + getUserId(), '_blank')" style="display:none; width:100%; padding:14px; background-color:#1e1e1e; color:#ffca28; border:2px solid #ffca28; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto 15px auto; font-size:1.1rem;">🦅 Centro de Mando</button>
             <button onclick="vibrar(40); cerrarSesion();" style="width:100%; padding:14px; background-color:#f44336; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin: 0 auto; font-size:1.1rem;">Cerrar Sesión 🚪</button>
 
             <div style="background: rgba(106, 27, 154, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--header-bg); margin-top:20px;">
@@ -451,10 +452,10 @@
 <script>
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://127.0.0.1:5000'
-        : 'https://regina-valentina-556774981559.us-east1.run.app';
+        : 'https://regina-valentina-938250627989.us-central1.run.app';
 
     let voiceEnabled = false;
-    let premiumVoiceEnabled = true;
+    let premiumVoiceEnabled = false;
     let reginaVoice = null;
     let audioPremiumActual = null;
     let dyslexiaEnabled = false;
@@ -1049,51 +1050,119 @@
         const terminos = document.getElementById('auth-terminos').checked;
         const errorMsg = document.getElementById('auth-error');
         if (!terminos) { vibrar([50,50,50]); errorMsg.innerText = "⚠️ Acepte los Términos."; return; }
+        if (!firebaseActivo) { errorMsg.innerText = "⚠️ Error de configuración. Recarga la página."; return; }
 
-        const authDatos = obtenerDatosAuth();
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        if (!email || !password) { vibrar([50,50,50]); errorMsg.innerText = "⚠️ Completa correo y contraseña."; return; }
+
+        errorMsg.style.color = '#f44336';
         errorMsg.innerText = "Registrando...";
         try {
-            const response = await fetch(`${API_URL}/registro`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authDatos)
+            const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+            const u = cred.user;
+
+            const regRes = await fetch(`${API_URL}/registro_google`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: '' })
             });
-            const data = await response.json();
-            if (response.ok) {
-                vibrar([50, 100, 50, 100]);
-                localStorage.setItem('regina_registrado', 'true');
-                localStorage.setItem('regina_user_id', data.user_id);
-                localStorage.setItem('regina_is_admin', 'false');
-                document.getElementById('auth-modal').style.display = 'none';
-                activarChat();
-                mostrarNotificacion("✅ ¡Cuenta lista! Bienvenido/a al rancho 🤠", "#4caf50");
-            } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
-        } catch (e) { vibrar([50,50,50]); }
+            const regData = await regRes.json();
+
+            if (!regRes.ok) {
+                await u.delete().catch(() => {});
+                vibrar([50,50,50]);
+                errorMsg.innerText = regData.error || "Error al crear cuenta. Intenta de nuevo.";
+                return;
+            }
+
+            vibrar([50, 100, 50, 100]);
+            localStorage.setItem('regina_registrado', 'true');
+            localStorage.setItem('regina_user_id', u.uid);
+            localStorage.setItem('regina_is_admin', regData.is_admin ? 'true' : 'false');
+            if (regData.is_premium) { localStorage.setItem('regina_is_premium', 'true'); resetearIntentosVIP(); }
+            errorMsg.innerText = "";
+            document.getElementById('auth-modal').style.display = 'none';
+            activarChat();
+            mostrarNotificacion("✅ ¡Cuenta lista! Bienvenido/a al rancho 🤠", "#4caf50");
+        } catch (e) {
+            vibrar([50,50,50]);
+            const msgs = {
+                'auth/email-already-in-use': '⚠️ Este correo ya tiene cuenta. Inicia sesión.',
+                'auth/weak-password': '⚠️ Contraseña muy corta (mínimo 6 caracteres).',
+                'auth/invalid-email': '⚠️ Correo electrónico inválido.',
+                'auth/network-request-failed': '⚠️ Sin conexión. Verifica tu internet.'
+            };
+            errorMsg.innerText = msgs[e.code] || ('Error: ' + e.message);
+        }
     }
 
     async function ejecutarLogin() {
-        const authDatos = obtenerDatosAuth();
         const errorMsg = document.getElementById('auth-error');
+        if (!firebaseActivo) { errorMsg.innerText = "⚠️ Error de configuración. Recarga la página."; return; }
+
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        if (!email || !password) { vibrar([50,50,50]); errorMsg.innerText = "⚠️ Completa correo y contraseña."; return; }
+
+        errorMsg.style.color = '#f44336';
         errorMsg.innerText = "Entrando...";
         try {
-            const response = await fetch(`${API_URL}/login`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authDatos)
+            const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
+            const u = cred.user;
+
+            const syncRes = await fetch(`${API_URL}/registro_google`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: u.displayName || '' })
             });
-            const data = await response.json();
-            if (response.ok) {
-                vibrar([50, 100, 50]);
-                localStorage.setItem('regina_registrado', 'true');
-                localStorage.setItem('regina_user_id', data.user_id);
-                localStorage.setItem('regina_is_admin', data.is_admin ? 'true' : 'false');
-                errorMsg.innerText = "";
-                document.getElementById('auth-modal').style.display = 'none';
-                activarChat();
-                mostrarNotificacion("✅ ¡Sesión iniciada! Bienvenido/a de regreso 🤠", "#4caf50");
-                if (data.puntos !== undefined) actualizarInsigniasVisuales(data.puntos);
-                if (data.is_premium) {
-                    localStorage.setItem('regina_is_premium', 'true');
-                    resetearIntentosVIP();
-                }
-            } else { vibrar([50,50,50]); errorMsg.innerText = data.error; }
-        } catch (e) {}
+            const syncData = await syncRes.json();
+
+            vibrar([50, 100, 50]);
+            localStorage.setItem('regina_registrado', 'true');
+            localStorage.setItem('regina_user_id', u.uid);
+            localStorage.setItem('regina_is_admin', syncData.is_admin ? 'true' : 'false');
+            if (syncData.is_premium) {
+                localStorage.setItem('regina_is_premium', 'true');
+                resetearIntentosVIP();
+            }
+            errorMsg.innerText = "";
+            document.getElementById('auth-modal').style.display = 'none';
+            activarChat();
+            mostrarNotificacion("✅ ¡Sesión iniciada! Bienvenido/a de regreso 🤠", "#4caf50");
+            if (syncData.puntos !== undefined) actualizarInsigniasVisuales(syncData.puntos);
+            await cargarResumenFirestore(u.uid);
+        } catch (e) {
+            vibrar([50,50,50]);
+            const msgs = {
+                'auth/invalid-credential': '⚠️ Correo o contraseña incorrectos.',
+                'auth/user-not-found': '⚠️ No existe cuenta con ese correo. ¿Quieres crearla?',
+                'auth/wrong-password': '⚠️ Contraseña incorrecta.',
+                'auth/too-many-requests': '⚠️ Demasiados intentos. Espera un momento.',
+                'auth/network-request-failed': '⚠️ Sin conexión. Verifica tu internet.'
+            };
+            errorMsg.innerText = msgs[e.code] || ('Error: ' + e.message);
+        }
+    }
+
+    async function solicitarReset() {
+        const errorMsg = document.getElementById('auth-error');
+        if (!firebaseActivo) { errorMsg.innerText = "⚠️ Firebase no disponible."; return; }
+        const email = document.getElementById('auth-email').value.trim();
+        if (!email) { vibrar([50,50,50]); errorMsg.style.color = '#f44336'; errorMsg.innerText = "⚠️ Escribe tu correo primero."; return; }
+        try {
+            await firebaseAuth.sendPasswordResetEmail(email);
+            errorMsg.style.color = '#4caf50';
+            errorMsg.innerText = "✅ Correo enviado. Revisa tu bandeja de entrada.";
+            vibrar([50, 100, 50, 100]);
+        } catch(e) {
+            vibrar([50,50,50]);
+            errorMsg.style.color = '#f44336';
+            const msgs = {
+                'auth/user-not-found': '⚠️ No existe cuenta con ese correo. Crea una.',
+                'auth/invalid-email': '⚠️ Correo electrónico inválido.',
+                'auth/too-many-requests': '⚠️ Demasiadas solicitudes. Intenta más tarde.'
+            };
+            errorMsg.innerText = msgs[e.code] || 'Error al enviar correo de restablecimiento.';
+        }
     }
 
     function getUserId() { return localStorage.getItem('regina_user_id'); }
@@ -1269,7 +1338,7 @@
         try {
             const response = await fetch(`${API_URL}/chat`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled, imagen_b64: imagenChatBase64 })
+                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true', imagen_b64: imagenChatBase64 })
             });
 
             imagenChatBase64 = null;
