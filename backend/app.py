@@ -900,7 +900,7 @@ def chat():
 
         motor_voz = data.get('motor_voz', 'nativa')
         audio_base64 = None
-        usar_tts_api = data.get('premium_voice', False) and user.is_premium and motor_voz in ('journey', 'neural2')
+        usar_tts_api = data.get('premium_voice', False) and motor_voz in ('journey', 'neural2')
         if usar_tts_api:
             tts_key = os.environ.get('TTS_API_KEY')
             if tts_key:
