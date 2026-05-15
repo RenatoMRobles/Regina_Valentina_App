@@ -955,6 +955,16 @@ def ilustrar():
         if res.status_code == 200: return jsonify({'imagen_b64': base64.b64encode(res.content).decode('utf-8')})
     except: return jsonify({'imagen_b64': base64.b64encode(requests.get(URL_UNSPLASH).content).decode('utf-8')})
 
+@app.route('/payment_links', methods=['POST'])
+def get_payment_links():
+    data = request.get_json()
+    user_id = data.get('user_id', 'guest')
+    pref_day = {"items": [{"title": "Pase 24h", "quantity": 1, "unit_price": 39.0, "currency_id": "MXN"}], "external_reference": user_id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_CLOUD}/webhook"}
+    link_day = sdk.preference().create(pref_day)["response"]["init_point"]
+    pref_month = {"items": [{"title": "Mes VIP", "quantity": 1, "unit_price": 99.0, "currency_id": "MXN"}], "external_reference": user_id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_CLOUD}/webhook"}
+    link_month = sdk.preference().create(pref_month)["response"]["init_point"]
+    return jsonify({'payment_link_day': link_day, 'payment_link_month': link_month})
+
 @app.route('/feedback', methods=['POST'])
 def guardar_feedback():
     data = request.json

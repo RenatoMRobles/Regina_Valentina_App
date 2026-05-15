@@ -298,13 +298,13 @@
 ══════════════════════════════════════ -->
 <header class="app-header">
     <button class="hamburger-btn" onclick="abrirMenuLateral()" title="Menú">☰</button>
-    <span class="app-header-title">Regina Valentina 🤠🐾</span>
+    <span class="app-header-title"></span>
     <div class="header-actions">
         <button class="bar-btn" id="btn-racha" onclick="vibrar(40); verRacha()" title="Tu racha diaria">
             🔥 <span class="badge-num" id="streak-count">0</span>
         </button>
-        <button class="bar-btn" id="btn-intentos" title="Intentos disponibles">
-            💬 <span class="badge-num" id="intentos-count">3</span>
+        <button class="bar-btn" id="btn-intentos" onclick="vibrar(30); abrirPaywallVoluntario()" title="Intentos disponibles">
+            <i id="battery-icon" class="fas fa-battery-full"></i> <span class="badge-num" id="intentos-count">3</span>
         </button>
         <button class="bar-btn icon-only" onclick="vibrar(40); abrirVitrina()" title="Vitrina de Logros">🏆</button>
         <button class="bar-btn icon-only" onclick="vibrar(30); document.getElementById('settings-modal').style.display='flex'" title="Ajustes">⚙️</button>
@@ -565,9 +565,21 @@
         const el = document.getElementById('intentos-count');
         if (el) el.textContent = intentosRestantes <= 0 ? '0' : intentosRestantes;
         const btn = document.getElementById('btn-intentos');
+        const icon = document.getElementById('battery-icon');
         if (!btn) return;
-        btn.title = intentosRestantes <= 0 ? 'Sin intentos restantes' : `${intentosRestantes} intentos disponibles`;
+        btn.title = intentosRestantes <= 0 ? 'Sin intentos restantes — ¡Hazte VIP!' : `${intentosRestantes} intentos disponibles`;
         btn.style.borderColor = intentosRestantes <= 0 ? 'rgba(244,67,54,0.8)' : intentosRestantes === 1 ? 'rgba(255,152,0,0.8)' : 'rgba(255,255,255,0.35)';
+        if (icon) {
+            if (intentosRestantes >= 3) {
+                icon.className = 'fas fa-battery-full'; icon.style.color = '';
+            } else if (intentosRestantes === 2) {
+                icon.className = 'fas fa-battery-three-quarters'; icon.style.color = '';
+            } else if (intentosRestantes === 1) {
+                icon.className = 'fas fa-battery-quarter'; icon.style.color = '';
+            } else {
+                icon.className = 'fas fa-battery-empty'; icon.style.color = '#f44336';
+            }
+        }
     }
 
     function decrementarIntentos() {
@@ -583,9 +595,44 @@
         intentosRestantes = 999;
         const el = document.getElementById('intentos-count');
         if (el) el.textContent = '∞';
+        const icon = document.getElementById('battery-icon');
+        if (icon) { icon.className = 'fas fa-bolt'; icon.style.color = '#ffca28'; }
         const btn = document.getElementById('btn-intentos');
         if (btn) { btn.title = 'VIP: mensajes ilimitados'; btn.style.borderColor = 'rgba(255,202,40,0.9)'; }
         localStorage.setItem('regina_intentos_restantes', 999);
+    }
+
+    async function abrirPaywallVoluntario() {
+        if (localStorage.getItem('regina_is_director') === 'true') {
+            mostrarNotificacion("🦅 Director: ¡Ya tienes acceso ilimitado!", '#ffca28', 3000);
+            return;
+        }
+        if (localStorage.getItem('regina_is_premium') === 'true') {
+            mostrarNotificacion("💎 ¡Ya eres Socio VIP! Acceso ilimitado activado.", '#4caf50', 3000);
+            return;
+        }
+        const old = document.getElementById('modal-premium');
+        if (old) old.remove();
+        try {
+            const res = await fetch(`${API_URL}/payment_links`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: getUserId() || 'guest' })
+            });
+            const data = await res.json();
+            const modalHtml = `
+            <div id="modal-premium" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
+                <div class="modal-card" style="padding:30px; border-radius:20px; max-width:90%; width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid #d81b60;">
+                    <h2 style="color:#d81b60; margin-top:0;">💎 Hazte Socio VIP 🤠</h2>
+                    <p style="font-size:1.1em; font-weight:bold;">Acceso ilimitado a Regina Valentina.</p>
+                    <a href="${data.payment_link_day}" style="display:block; background:#ffca28; color:#333; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:12px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">🤠 Pase 24 Horas - $39 MXN</a>
+                    <a href="${data.payment_link_month}" style="display:block; background:#d81b60; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:20px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">💎 Mes VIP Ilimitado - $99 MXN</a>
+                    <button onclick="document.getElementById('modal-premium').remove()" style="background:none; border:none; color:var(--text-main); opacity:0.6; text-decoration:underline; cursor:pointer; font-size:1em;">Cerrar por ahora</button>
+                </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        } catch(e) {
+            mostrarNotificacion("🌐 Error al cargar opciones. ¡Intenta de nuevo!", '#f44336', 3000);
+        }
     }
 
     // ══════════════════════════════════════
