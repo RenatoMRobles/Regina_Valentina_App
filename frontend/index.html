@@ -443,13 +443,12 @@
         <div class="message bot-message">
             ¡Hola! Soy Regina Valentina. Cuéntame, ¿qué problema traes con tu mascota? Habla claro y <strong>adjunta una foto 📷 de tu peludo o del problema</strong> para entender mejor tu caso.
         </div>
+        <div class="chips-container" id="chips-bienvenida">
+            <button class="chip" onclick="sendChip('🧐 ¡Analízame Regina!')">🧐 Analízame</button>
+            <button class="chip" onclick="sendChip('🤠 ¿Cómo educar a un perro latoso?')">🤠 Educar perro latoso</button>
+        </div>
     </div>
     <div class="loading" id="loading">Regina está escribiendo...</div>
-
-    <div class="chips-container">
-        <button class="chip" onclick="sendChip('🧐 ¡Analízame Regina!')">🧐 Analízame</button>
-        <button class="chip" onclick="sendChip('🤠 ¿Cómo educar a un perro latoso?')">🤠 Educar perro latoso</button>
-    </div>
 
     <div class="input-area">
         <input type="text" id="user-input" placeholder="Escribe tu consulta aquí...">
@@ -1430,6 +1429,8 @@
         }
 
         let displayMessage = lsmEnabled ? quitarAcentos(message) : message;
+        const chipsEl = document.getElementById('chips-bienvenida');
+        if (chipsEl) chipsEl.style.display = 'none';
         chatBox.innerHTML += `<div class="message user-message" data-original="${message}">${displayMessage}</div>`;
         input.value = '';
         chatBox.scrollTop = chatBox.scrollHeight;
