@@ -484,7 +484,7 @@
     let lsmEnabled = false;
 
     function vibrar(patron) {
-        try { if (navigator && navigator.vibrate) navigator.vibrate(patron); } catch(e) {}
+        if (navigator && navigator.vibrate) navigator.vibrate(patron);
     }
 
     function compartirApp() {
@@ -846,24 +846,16 @@
         const audioData = elemento ? elemento.getAttribute('data-audio') : null;
 
         if (audioData) {
-            try {
-                console.log('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
-                audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
-                audioPremiumActual.play().then(() => {
-                    console.log('[TTS] Audio del mensaje', msgId, 'reproduciéndose correctamente.');
-                }).catch(err => {
-                    console.error('[TTS] Error en play() para mensaje', msgId, ':', err);
-                });
-                ultimoMensajeLeido = msgId;
-                if (btn) btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
-                audioPremiumActual.onended = function() {
-                    if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-                    if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null;
-                };
-                mostrarNotificacion('🔊 Reproduciendo voz premium...', '#ffca28', 3000);
-            } catch (err) {
-                console.error('[TTS] Error al crear/reproducir Audio para mensaje', msgId, ':', err);
-            }
+            console.log('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
+            audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
+            audioPremiumActual.play();
+            ultimoMensajeLeido = msgId;
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+            audioPremiumActual.onended = function() {
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null;
+            };
+            mostrarNotificacion('🔊 Reproduciendo voz premium...', '#ffca28', 3000);
             return;
         }
 
@@ -996,22 +988,17 @@
             const chatBox = document.getElementById('chat-box');
             const loading = document.getElementById('loading');
             loading.style.display = 'block';
-            try {
-                const response = await fetch(`${API_URL}/chat`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "__PAGO_CONFIRMADO__", user_id: getUserId() })
-                });
-                const data = await response.json();
-                loading.style.display = 'none';
-                if (data.response) {
-                    const newMsg = document.createElement("div");
-                    newMsg.className = "message bot-message";
-                    chatBox.appendChild(newMsg);
-                    typeEffect(newMsg, data.response);
-                }
-            } catch (e) {
-                loading.style.display = 'none';
-                chatBox.innerHTML += `<div class="message bot-message" style="background:#f44336; color:white;">⚠️ <b>ALERTA DE SISTEMA:</b> Error de conexión inicial. Verifica GCP GC Run.</div>`;
+            const response = await fetch(`${API_URL}/chat`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: "__PAGO_CONFIRMADO__", user_id: getUserId() })
+            });
+            const data = await response.json();
+            loading.style.display = 'none';
+            if (data.response) {
+                const newMsg = document.createElement("div");
+                newMsg.className = "message bot-message";
+                chatBox.appendChild(newMsg);
+                typeEffect(newMsg, data.response);
             }
         }
     });
@@ -1153,18 +1140,16 @@
     async function canjearCupon() {
         const codigo = document.getElementById('input-cupon').value;
         if(!codigo) { vibrar([50, 50, 50]); return; }
-        try {
-            const response = await fetch(`${API_URL}/canjear_codigo`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: getUserId(), codigo: codigo })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                vibrar([50, 100, 50, 100]);
-                mostrarNotificacion(data.message, "#4caf50", 5000);
-                document.getElementById('input-cupon').value = "";
-            } else { vibrar([50, 50, 50]); mostrarNotificacion(data.error, "#f44336", 4000); }
-        } catch (e) {}
+        const response = await fetch(`${API_URL}/canjear_codigo`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: getUserId(), codigo: codigo })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            vibrar([50, 100, 50, 100]);
+            mostrarNotificacion(data.message, "#4caf50", 5000);
+            document.getElementById('input-cupon').value = "";
+        } else { vibrar([50, 50, 50]); mostrarNotificacion(data.error, "#f44336", 4000); }
     }
 
     function obtenerDatosAuth() {
@@ -1187,42 +1172,31 @@
 
         errorMsg.style.color = '#f44336';
         errorMsg.innerText = "Registrando...";
-        try {
-            const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
-            const u = cred.user;
+        const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+        const u = cred.user;
 
-            const regRes = await fetch(`${API_URL}/registro_google`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: '' })
-            });
-            const regData = await regRes.json();
+        const regRes = await fetch(`${API_URL}/registro_google`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: '' })
+        });
+        const regData = await regRes.json();
 
-            if (!regRes.ok) {
-                await u.delete().catch(() => {});
-                vibrar([50,50,50]);
-                errorMsg.innerText = regData.error || "Error al crear cuenta. Intenta de nuevo.";
-                return;
-            }
-
-            vibrar([50, 100, 50, 100]);
-            localStorage.setItem('regina_registrado', 'true');
-            localStorage.setItem('regina_user_id', u.uid);
-            localStorage.setItem('regina_is_admin', regData.is_admin ? 'true' : 'false');
-            if (regData.is_premium) { localStorage.setItem('regina_is_premium', 'true'); resetearIntentosVIP(); }
-            errorMsg.innerText = "";
-            document.getElementById('auth-modal').style.display = 'none';
-            activarChat();
-            mostrarNotificacion("✅ ¡Cuenta lista! Bienvenido/a al rancho 🤠", "#4caf50");
-        } catch (e) {
+        if (!regRes.ok) {
+            await u.delete();
             vibrar([50,50,50]);
-            const msgs = {
-                'auth/email-already-in-use': '⚠️ Este correo ya tiene cuenta. Inicia sesión.',
-                'auth/weak-password': '⚠️ Contraseña muy corta (mínimo 6 caracteres).',
-                'auth/invalid-email': '⚠️ Correo electrónico inválido.',
-                'auth/network-request-failed': '⚠️ Sin conexión. Verifica tu internet.'
-            };
-            errorMsg.innerText = msgs[e.code] || ('Error: ' + e.message);
+            errorMsg.innerText = regData.error || "Error al crear cuenta. Intenta de nuevo.";
+            return;
         }
+
+        vibrar([50, 100, 50, 100]);
+        localStorage.setItem('regina_registrado', 'true');
+        localStorage.setItem('regina_user_id', u.uid);
+        localStorage.setItem('regina_is_admin', regData.is_admin ? 'true' : 'false');
+        if (regData.is_premium) { localStorage.setItem('regina_is_premium', 'true'); resetearIntentosVIP(); }
+        errorMsg.innerText = "";
+        document.getElementById('auth-modal').style.display = 'none';
+        activarChat();
+        mostrarNotificacion("✅ ¡Cuenta lista! Bienvenido/a al rancho 🤠", "#4caf50");
     }
 
     async function ejecutarLogin() {
@@ -1235,41 +1209,29 @@
 
         errorMsg.style.color = '#f44336';
         errorMsg.innerText = "Entrando...";
-        try {
-            const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
-            const u = cred.user;
+        const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
+        const u = cred.user;
 
-            const syncRes = await fetch(`${API_URL}/registro_google`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: u.displayName || '' })
-            });
-            const syncData = await syncRes.json();
+        const syncRes = await fetch(`${API_URL}/registro_google`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: u.displayName || '' })
+        });
+        const syncData = await syncRes.json();
 
-            vibrar([50, 100, 50]);
-            localStorage.setItem('regina_registrado', 'true');
-            localStorage.setItem('regina_user_id', u.uid);
-            localStorage.setItem('regina_is_admin', syncData.is_admin ? 'true' : 'false');
-            if (syncData.is_premium) {
-                localStorage.setItem('regina_is_premium', 'true');
-                resetearIntentosVIP();
-            }
-            errorMsg.innerText = "";
-            document.getElementById('auth-modal').style.display = 'none';
-            activarChat();
-            mostrarNotificacion("✅ ¡Sesión iniciada! Bienvenido/a de regreso 🤠", "#4caf50");
-            if (syncData.puntos !== undefined) actualizarInsigniasVisuales(syncData.puntos);
-            await cargarResumenFirestore(u.uid);
-        } catch (e) {
-            vibrar([50,50,50]);
-            const msgs = {
-                'auth/invalid-credential': '⚠️ Correo o contraseña incorrectos.',
-                'auth/user-not-found': '⚠️ No existe cuenta con ese correo. ¿Quieres crearla?',
-                'auth/wrong-password': '⚠️ Contraseña incorrecta.',
-                'auth/too-many-requests': '⚠️ Demasiados intentos. Espera un momento.',
-                'auth/network-request-failed': '⚠️ Sin conexión. Verifica tu internet.'
-            };
-            errorMsg.innerText = msgs[e.code] || ('Error: ' + e.message);
+        vibrar([50, 100, 50]);
+        localStorage.setItem('regina_registrado', 'true');
+        localStorage.setItem('regina_user_id', u.uid);
+        localStorage.setItem('regina_is_admin', syncData.is_admin ? 'true' : 'false');
+        if (syncData.is_premium) {
+            localStorage.setItem('regina_is_premium', 'true');
+            resetearIntentosVIP();
         }
+        errorMsg.innerText = "";
+        document.getElementById('auth-modal').style.display = 'none';
+        activarChat();
+        mostrarNotificacion("✅ ¡Sesión iniciada! Bienvenido/a de regreso 🤠", "#4caf50");
+        if (syncData.puntos !== undefined) actualizarInsigniasVisuales(syncData.puntos);
+        await cargarResumenFirestore(u.uid);
     }
 
     async function solicitarReset() {
@@ -1277,21 +1239,10 @@
         if (!firebaseActivo) { errorMsg.innerText = "⚠️ Firebase no disponible."; return; }
         const email = document.getElementById('auth-email').value.trim();
         if (!email) { vibrar([50,50,50]); errorMsg.style.color = '#f44336'; errorMsg.innerText = "⚠️ Escribe tu correo primero."; return; }
-        try {
-            await firebaseAuth.sendPasswordResetEmail(email);
-            errorMsg.style.color = '#4caf50';
-            errorMsg.innerText = "✅ Correo enviado. Revisa tu bandeja de entrada.";
-            vibrar([50, 100, 50, 100]);
-        } catch(e) {
-            vibrar([50,50,50]);
-            errorMsg.style.color = '#f44336';
-            const msgs = {
-                'auth/user-not-found': '⚠️ No existe cuenta con ese correo. Crea una.',
-                'auth/invalid-email': '⚠️ Correo electrónico inválido.',
-                'auth/too-many-requests': '⚠️ Demasiadas solicitudes. Intenta más tarde.'
-            };
-            errorMsg.innerText = msgs[e.code] || 'Error al enviar correo de restablecimiento.';
-        }
+        await firebaseAuth.sendPasswordResetEmail(email);
+        errorMsg.style.color = '#4caf50';
+        errorMsg.innerText = "✅ Correo enviado. Revisa tu bandeja de entrada.";
+        vibrar([50, 100, 50, 100]);
     }
 
     function getUserId() { return localStorage.getItem('regina_user_id'); }
@@ -1403,24 +1354,19 @@
         if (btn) { btn.innerText = '⏳ Ilustrando...'; btn.disabled = true; }
         const el = document.getElementById(msgId);
         const texto = (el.getAttribute('data-puretext') || el.innerText.split('📋')[0].trim()).substring(0, 200);
-        try {
-            const res = await fetch(`${API_URL}/ilustrar`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ texto })
-            });
-            const data = await res.json();
-            if (data.imagen_b64) {
-                const img = document.createElement('img');
-                img.src = 'data:image/jpeg;base64,' + data.imagen_b64;
-                img.style.cssText = 'width:100%; border-radius:10px; margin-top:12px; border:2px solid #6a1b9a;';
-                img.alt = 'Ilustración del manual';
-                el.appendChild(img);
-                if (btn) btn.style.display = 'none';
-                vibrar([50, 100]);
-            }
-        } catch(e) {
-            if (btn) { btn.innerText = '✨ Ilustrar Manual (VIP)'; btn.disabled = false; }
-            mostrarNotificacion("⚠️ Error al ilustrar. Intenta de nuevo.", "#f44336");
+        const res = await fetch(`${API_URL}/ilustrar`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texto })
+        });
+        const data = await res.json();
+        if (data.imagen_b64) {
+            const img = document.createElement('img');
+            img.src = 'data:image/jpeg;base64,' + data.imagen_b64;
+            img.style.cssText = 'width:100%; border-radius:10px; margin-top:12px; border:2px solid #6a1b9a;';
+            img.alt = 'Ilustración del manual';
+            el.appendChild(img);
+            if (btn) btn.style.display = 'none';
+            vibrar([50, 100]);
         }
     }
 
@@ -1456,78 +1402,63 @@
         chatBox.scrollTop = chatBox.scrollHeight;
         loading.style.display = 'block';
 
-        try {
-            const response = await fetch(`${API_URL}/chat`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true', imagen_b64: imagenChatBase64, motor_voz: (document.getElementById('sel-motor-voz') || {value:'nativa'}).value, cerebro_llm: (document.getElementById('sel-cerebro-llm') || {value:'gemini'}).value })
-            });
+        const response = await fetch(`${API_URL}/chat`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true', imagen_b64: imagenChatBase64, motor_voz: (document.getElementById('sel-motor-voz') || {value:'nativa'}).value, cerebro_llm: (document.getElementById('sel-cerebro-llm') || {value:'gemini'}).value })
+        });
 
-            imagenChatBase64 = null;
-            document.getElementById('input-foto-chat').value = '';
+        imagenChatBase64 = null;
+        document.getElementById('input-foto-chat').value = '';
 
-            const data = await response.json();
-            loading.style.display = 'none';
+        const data = await response.json();
+        loading.style.display = 'none';
 
-            if (data.status === 'quota_exceeded') {
-                vibrar([50, 100, 50, 100, 50]);
-                intentosRestantes = 0;
-                renderizarIntentos();
-                if (!localStorage.getItem('regina_registrado')) {
-                    document.getElementById('auth-modal').style.display = 'flex';
-                } else {
-                    const modalHtml = `
-                    <div id="modal-premium" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
-                        <div class="modal-card" style="padding:30px; border-radius:20px; max-width:90%; width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid #d81b60;">
-                            <h2 style="color:#d81b60; margin-top:0;">¡Tiempo Fuera, Pariente! 🛑</h2>
-                            <p style="font-size:1.1em; font-weight:bold;">Se nos acabaron los mensajes de prueba.</p>
-                            <a href="${data.payment_link_day}" style="display:block; background:#ffca28; color:#333; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:12px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">🤠 Pase 24 Horas - $39 MXN</a>
-                            <a href="${data.payment_link_month}" style="display:block; background:#d81b60; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:20px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">💎 Mes VIP Ilimitado - $99 MXN</a>
-                            <button onclick="document.getElementById('modal-premium').remove()" style="background:none; border:none; color:var(--text-main); opacity:0.6; text-decoration:underline; cursor:pointer; font-size:1em;">Cerrar por ahora</button>
-                        </div>
-                    </div>`;
-                    document.body.insertAdjacentHTML('beforeend', modalHtml);
-                }
-            } else if (data.response) {
-                decrementarIntentos();
-                const newMsg = document.createElement("div");
-                newMsg.className = "message bot-message";
-                chatBox.appendChild(newMsg);
-                typeEffect(newMsg, data.response);
-
-                if (data.response.includes("Jefe Supremo detectado")) {
-                    localStorage.setItem('regina_is_admin', 'true');
-                    localStorage.setItem('regina_registrado', 'true');
-                    setTimeout(() => { vibrar([50,100,50,100]); abrirMiCuenta(); }, 2000);
-                }
-
-                if (data.audio) {
-                    try {
-                        console.log('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
-                        if (audioPremiumActual) audioPremiumActual.pause();
-                        newMsg.setAttribute('data-audio', data.audio);
-                        if (!isMuted && premiumVoiceEnabled) {
-                            console.log('[TTS] Iniciando reproducción automática...');
-                            audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
-                            audioPremiumActual.play().then(() => {
-                                console.log('[TTS] Audio premium reproduciéndose correctamente.');
-                            }).catch(err => {
-                                console.error('[TTS] Error en play() automático:', err);
-                            });
-                        } else {
-                            console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
-                        }
-                    } catch (err) {
-                        console.error('[TTS] Error al procesar audio del servidor:', err);
-                    }
-                }
-
-                if (data.puntos !== undefined) { actualizarInsigniasVisuales(data.puntos); }
+        if (data.status === 'quota_exceeded') {
+            vibrar([50, 100, 50, 100, 50]);
+            intentosRestantes = 0;
+            renderizarIntentos();
+            if (!localStorage.getItem('regina_registrado')) {
+                document.getElementById('auth-modal').style.display = 'flex';
+            } else {
+                const modalHtml = `
+                <div id="modal-premium" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
+                    <div class="modal-card" style="padding:30px; border-radius:20px; max-width:90%; width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid #d81b60;">
+                        <h2 style="color:#d81b60; margin-top:0;">¡Tiempo Fuera, Pariente! 🛑</h2>
+                        <p style="font-size:1.1em; font-weight:bold;">Se nos acabaron los mensajes de prueba.</p>
+                        <a href="${data.payment_link_day}" style="display:block; background:#ffca28; color:#333; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:12px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">🤠 Pase 24 Horas - $39 MXN</a>
+                        <a href="${data.payment_link_month}" style="display:block; background:#d81b60; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:20px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">💎 Mes VIP Ilimitado - $99 MXN</a>
+                        <button onclick="document.getElementById('modal-premium').remove()" style="background:none; border:none; color:var(--text-main); opacity:0.6; text-decoration:underline; cursor:pointer; font-size:1em;">Cerrar por ahora</button>
+                    </div>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
             }
-        } catch (error) {
-            vibrar([100, 100, 100]);
-            loading.style.display = 'none';
-            chatBox.innerHTML += `<div class="message bot-message" style="background:#f44336; color:white; font-weight:bold;">⚠️ ALERTA ROJA: El servidor Python se detuvo de golpe. Pariente, avísale al Jefe Supremo que revise su consola. (Error: ${error.message})</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
+        } else if (data.response) {
+            decrementarIntentos();
+            const newMsg = document.createElement("div");
+            newMsg.className = "message bot-message";
+            chatBox.appendChild(newMsg);
+            typeEffect(newMsg, data.response);
+
+            if (data.response.includes("Jefe Supremo detectado")) {
+                localStorage.setItem('regina_is_admin', 'true');
+                localStorage.setItem('regina_registrado', 'true');
+                setTimeout(() => { vibrar([50,100,50,100]); abrirMiCuenta(); }, 2000);
+            }
+
+            if (data.audio) {
+                console.log('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
+                if (audioPremiumActual) audioPremiumActual.pause();
+                newMsg.setAttribute('data-audio', data.audio);
+                if (!isMuted && premiumVoiceEnabled) {
+                    console.log('[TTS] Iniciando reproducción automática...');
+                    audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
+                    audioPremiumActual.play();
+                } else {
+                    console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
+                }
+            }
+
+            if (data.puntos !== undefined) { actualizarInsigniasVisuales(data.puntos); }
         }
     }
 
@@ -1625,20 +1556,15 @@
         if (!texto) { vibrar([50,50,50]); return; }
         const btnEnviar = document.getElementById('btn-enviar-sug');
         btnEnviar.disabled = true; btnEnviar.innerText = 'Enviando...';
-        try {
-            await fetch(`${API_URL}/feedback`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: getUserId(), mensaje: texto })
-            });
-            vibrar([50, 100, 200]);
-            mostrarNotificacion("✅ ¡Mensaje enviado! Gracias por tu aporte.", "#4caf50", 4000);
-            document.getElementById('feedback-texto').value = '';
-            document.getElementById('feedback-modal').style.display = 'none';
-        } catch(e) {
-            mostrarNotificacion("❌ Error al enviar. Intenta de nuevo.", "#f44336");
-        } finally {
-            btnEnviar.disabled = false; btnEnviar.innerText = 'Enviar Mensaje 🚀';
-        }
+        await fetch(`${API_URL}/feedback`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: getUserId(), mensaje: texto })
+        });
+        vibrar([50, 100, 200]);
+        mostrarNotificacion("✅ ¡Mensaje enviado! Gracias por tu aporte.", "#4caf50", 4000);
+        document.getElementById('feedback-texto').value = '';
+        document.getElementById('feedback-modal').style.display = 'none';
+        btnEnviar.disabled = false; btnEnviar.innerText = 'Enviar Mensaje 🚀';
     }
 </script>
 
@@ -1753,15 +1679,11 @@
     let firebaseAuth = null;
     let firestore = null;
 
-    try {
-        if (FIREBASE_CONFIG.apiKey !== "TU_API_KEY_AQUI") {
-            firebase.initializeApp(FIREBASE_CONFIG);
-            firebaseAuth = firebase.auth();
-            firestore = firebase.firestore();
-            firebaseActivo = true;
-        }
-    } catch(e) {
-        console.warn('Firebase: modo local sin credenciales.', e.message);
+    if (FIREBASE_CONFIG.apiKey !== "TU_API_KEY_AQUI") {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        firebaseAuth = firebase.auth();
+        firestore = firebase.firestore();
+        firebaseActivo = true;
     }
 
     async function signInWithGoogle() {
@@ -1770,72 +1692,62 @@
             return;
         }
         const errorMsg = document.getElementById('auth-error');
-        try {
-            errorMsg.innerText = "Conectando con Google...";
-            const provider = new firebase.auth.GoogleAuthProvider();
-            const result = await firebaseAuth.signInWithPopup(provider);
-            const u = result.user;
+        errorMsg.innerText = "Conectando con Google...";
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebaseAuth.signInWithPopup(provider);
+        const u = result.user;
 
-            // Registrar / confirmar usuario en el backend Python
-            const regRes = await fetch(`${API_URL}/registro_google`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: u.displayName || 'Pariente' })
-            });
-            const regData = await regRes.json();
+        const regRes = await fetch(`${API_URL}/registro_google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: u.uid, email: u.email || '', nombre: u.displayName || 'Pariente' })
+        });
+        const regData = await regRes.json();
 
-            if (!regRes.ok) {
-                errorMsg.innerText = regData.error || "Error al registrar con Google.";
-                vibrar([50, 50, 50]);
-                return;
-            }
-
-            localStorage.setItem('regina_user_id', u.uid);
-            localStorage.setItem('regina_registrado', 'true');
-            localStorage.setItem('regina_nombre', u.displayName || 'Pariente');
-            if (regData.is_admin) localStorage.setItem('regina_is_admin', 'true');
-            if (regData.is_premium) {
-                localStorage.setItem('regina_is_premium', 'true');
-                resetearIntentosVIP();
-            }
-
-            errorMsg.innerText = "";
-            document.getElementById('auth-modal').style.display = 'none';
-            activarChat();
-            actualizarPerfilUI(u.displayName, u.photoURL);
-            if (regData.puntos) actualizarInsigniasVisuales(regData.puntos);
-            vibrar([50, 100, 50, 100]);
-            mostrarNotificacion(`✅ ¡Bienvenido/a, ${u.displayName || 'Pariente'}! 🤠🐾`, "#4caf50");
-            await cargarResumenFirestore(u.uid);
-        } catch(e) {
-            errorMsg.innerText = "";
-            mostrarNotificacion("❌ Error Google Sign-In: " + e.message, "#f44336", 5000);
+        if (!regRes.ok) {
+            errorMsg.innerText = regData.error || "Error al registrar con Google.";
+            vibrar([50, 50, 50]);
+            return;
         }
+
+        localStorage.setItem('regina_user_id', u.uid);
+        localStorage.setItem('regina_registrado', 'true');
+        localStorage.setItem('regina_nombre', u.displayName || 'Pariente');
+        if (regData.is_admin) localStorage.setItem('regina_is_admin', 'true');
+        if (regData.is_premium) {
+            localStorage.setItem('regina_is_premium', 'true');
+            resetearIntentosVIP();
+        }
+
+        errorMsg.innerText = "";
+        document.getElementById('auth-modal').style.display = 'none';
+        activarChat();
+        actualizarPerfilUI(u.displayName, u.photoURL);
+        if (regData.puntos) actualizarInsigniasVisuales(regData.puntos);
+        vibrar([50, 100, 50, 100]);
+        mostrarNotificacion(`✅ ¡Bienvenido/a, ${u.displayName || 'Pariente'}! 🤠🐾`, "#4caf50");
+        await cargarResumenFirestore(u.uid);
     }
 
     async function guardarResumenFirestore(userId, resumen) {
         if (!firebaseActivo || !firestore || !userId) return;
-        try {
-            await firestore.collection('sesiones_regina').doc(userId).set({
-                nombre:                 resumen.nombre || 'Pariente',
-                mascota_nombre:         resumen.mascota_nombre || '',
-                mascota_especie:        resumen.mascota_especie || '',
-                ultimas_recomendaciones: resumen.ultimas_recomendaciones || '',
-                timestamp:              firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch(e) { console.error('Firestore write error:', e.message); }
+        await firestore.collection('sesiones_regina').doc(userId).set({
+            nombre:                 resumen.nombre || 'Pariente',
+            mascota_nombre:         resumen.mascota_nombre || '',
+            mascota_especie:        resumen.mascota_especie || '',
+            ultimas_recomendaciones: resumen.ultimas_recomendaciones || '',
+            timestamp:              firebase.firestore.FieldValue.serverTimestamp()
+        });
     }
 
     async function cargarResumenFirestore(userId) {
         if (!firebaseActivo || !firestore || !userId) return null;
-        try {
-            const doc = await firestore.collection('sesiones_regina').doc(userId).get();
-            if (doc.exists) {
-                const data = doc.data();
-                localStorage.setItem('regina_session_summary', JSON.stringify(data));
-                return data;
-            }
-        } catch(e) { console.error('Firestore read error:', e.message); }
+        const doc = await firestore.collection('sesiones_regina').doc(userId).get();
+        if (doc.exists) {
+            const data = doc.data();
+            localStorage.setItem('regina_session_summary', JSON.stringify(data));
+            return data;
+        }
         return null;
     }
 
@@ -1844,25 +1756,23 @@
         if (!userId) return;
         const mensajes = document.querySelectorAll('.message');
         if (mensajes.length <= 2) return;
-        try {
-            const res = await fetch(`${API_URL}/guardar_resumen`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.resumen && firebaseActivo) {
-                    const partes = data.resumen.match(/Usuario: (.+?) \| Mascota: (.+?) llamado\/a (.+?) \| Recomendaciones anteriores: (.+)/);
-                    if (partes) {
-                        await guardarResumenFirestore(userId, {
-                            nombre: partes[1], mascota_especie: partes[2],
-                            mascota_nombre: partes[3], ultimas_recomendaciones: partes[4]
-                        });
-                    }
+        const res = await fetch(`${API_URL}/guardar_resumen`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.resumen && firebaseActivo) {
+                const partes = data.resumen.match(/Usuario: (.+?) \| Mascota: (.+?) llamado\/a (.+?) \| Recomendaciones anteriores: (.+)/);
+                if (partes) {
+                    await guardarResumenFirestore(userId, {
+                        nombre: partes[1], mascota_especie: partes[2],
+                        mascota_nombre: partes[3], ultimas_recomendaciones: partes[4]
+                    });
                 }
             }
-        } catch(e) { /* silencioso al cerrar */ }
+        }
     }
 
     window.addEventListener('beforeunload', guardarResumenAlCerrar);
