@@ -917,14 +917,14 @@ def chat():
                             voice_cfg = {"languageCode": "es-US", "name": "es-US-Journey-F"}
                             audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.0}
                         elif motor_voz == 'neural2':
-                            voice_cfg = {"languageCode": "es-US", "name": "es-US-Neural2-F"}
+                            voice_cfg = {"languageCode": "es-US", "name": "es-US-Neural2-A"}
                             audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}
                         payload = {"input": {"text": texto_a_leer}, "voice": voice_cfg, "audioConfig": audio_cfg}
                         tts_res = requests.post(tts_url, json=payload, timeout=10)
                         if tts_res.status_code == 200:
                             audio_base64 = tts_res.json().get("audioContent")
                         else:
-                            print(f"[TTS ERROR] {tts_res.status_code}: {tts_res.text[:200]}")
+                            print(f"[TTS ERROR] status={tts_res.status_code} voice={voice_cfg.get('name')} body={tts_res.text[:500]}")
                 except Exception as tts_err:
                     print(f"[TTS EXCEPTION] {type(tts_err).__name__}: {tts_err}")
 
