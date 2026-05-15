@@ -258,6 +258,9 @@
         @keyframes latidoVictoria { 0% { transform: scale(1); } 50% { transform: scale(1.8); filter: drop-shadow(0 0 25px #ffca28); } 100% { transform: scale(1); } }
         .animar-victoria { animation: latidoVictoria 0.8s ease-in-out 3; }
 
+        @keyframes fadeInMsg { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-fade-in { animation: fadeInMsg 0.35s ease forwards; }
+
         #membrete-pdf, #reporte-cientifico-pdf { display: none; }
 
         /* ══════════════════════════════════════
@@ -468,6 +471,7 @@
      JAVASCRIPT PRINCIPAL
 ══════════════════════════════════════ -->
 <script>
+    console.warn('Script cargado y listo');
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://127.0.0.1:5000'
         : 'https://regina-valentina-938250627989.us-central1.run.app';
@@ -843,10 +847,10 @@
 
         if (audioData) {
             try {
-                console.log('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
+                console.warn('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
                 audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
                 audioPremiumActual.play().then(() => {
-                    console.log('[TTS] Audio del mensaje', msgId, 'reproduciéndose correctamente.');
+                    console.warn('[TTS] Audio del mensaje', msgId, 'reproduciéndose correctamente.');
                 }).catch(err => {
                     console.error('[TTS] Error en play() para mensaje', msgId, ':', err);
                 });
@@ -1345,56 +1349,45 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    function typeEffect(element, text, speed = 18) {
-        let i = 0;
-        element.innerHTML = "";
-        element.setAttribute('data-original', text);
-        element.setAttribute('data-puretext', text);
+    function typeEffect(element, text) {
         const msgId = 'msg_' + Date.now();
         element.id = msgId;
+        element.setAttribute('data-original', text);
+        element.setAttribute('data-puretext', text);
 
-        let textoAEscribir = lsmEnabled ? quitarAcentos(text) : text;
+        let textoAMostrar = lsmEnabled ? quitarAcentos(text) : text;
+        element.innerHTML = textoAMostrar;
+
         hablar(text);
+        vibrar([50, 100, 50]);
 
-        function typing() {
-            if (i < textoAEscribir.length) {
-                element.innerHTML += textoAEscribir.charAt(i);
-                i++;
-                setTimeout(typing, speed);
-                const chatBox = document.getElementById('chat-box');
-                chatBox.scrollTop = chatBox.scrollHeight;
-            } else {
-                vibrar([50, 100, 50]);
+        let copyBtn = `<button onclick="copiarConsejo('${msgId}')" style="background:var(--bg-body); border:1px solid var(--header-bg); color:var(--text-main); border-radius:15px; padding:6px 14px; cursor:pointer; font-size:1rem; font-weight:bold;">📋 Copiar</button>`;
 
-                let copyBtn = `<button onclick="copiarConsejo('${msgId}')" style="background:var(--bg-body); border:1px solid var(--header-bg); color:var(--text-main); border-radius:15px; padding:6px 14px; cursor:pointer; font-size:1rem; font-weight:bold;">📋 Copiar</button>`;
+        let califBtns = `
+            <button id="btn-up-${msgId}" onclick="calificarMensaje('${msgId}', 'up')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:15px; transition:0.2s; filter:grayscale(0%);" title="¡Buen consejo!">👍</button>
+            <button id="btn-down-${msgId}" onclick="calificarMensaje('${msgId}', 'down')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:5px; transition:0.2s; filter:grayscale(0%);" title="No me sirvió">👎</button>`;
 
-                let califBtns = `
-                    <button id="btn-up-${msgId}" onclick="calificarMensaje('${msgId}', 'up')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:15px; transition:0.2s; filter:grayscale(0%);" title="¡Buen consejo!">👍</button>
-                    <button id="btn-down-${msgId}" onclick="calificarMensaje('${msgId}', 'down')" style="background:none; border:none; cursor:pointer; font-size:1.5em; margin-left:5px; transition:0.2s; filter:grayscale(0%);" title="No me sirvió">👎</button>`;
+        let botonesAccion = `<br><div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap;">${copyBtn}<div style="margin-left:auto;">${califBtns}</div></div>`;
 
-                let botonesAccion = `<br><div style="margin-top:10px; display:flex; align-items:center; flex-wrap:wrap;">${copyBtn}<div style="margin-left:auto;">${califBtns}</div></div>`;
-
-                if (textoAEscribir.length > 600 && (textoAEscribir.includes('Guia') || textoAEscribir.includes('paso a paso') || textoAEscribir.includes('1.'))) {
-                    let btnHTML = `<br>
-                    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-                        <button class="pdf-btn" onclick="vibrar(60); imprimirGuia('${msgId}')">📄 Guardar PDF Simple</button>
-                        <button class="pdf-btn" style="background:#ffca28; color:black; border:2px solid #ffb300;" id="btn-ilustrar-${msgId}" onclick="vibrar(60); ilustrarManual('${msgId}')">✨ Ilustrar Manual (VIP)</button>
-                    </div>`;
-                    element.innerHTML += btnHTML + botonesAccion;
-                    element.setAttribute('data-original', text + btnHTML + botonesAccion);
-                } else {
-                    element.innerHTML += botonesAccion;
-                    element.setAttribute('data-original', text + botonesAccion);
-                }
-
-                // Inyectar iconos de audio DESPUÉS de todos los innerHTML+= para que no sean destruidos
-                const audioCtrl = document.createElement('div');
-                audioCtrl.className = 'msg-audio-controls';
-                audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" onclick="toggleAudioMensaje('${msgId}')" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
-                element.appendChild(audioCtrl);
-            }
+        if (textoAMostrar.length > 600 && (textoAMostrar.includes('Guia') || textoAMostrar.includes('paso a paso') || textoAMostrar.includes('1.'))) {
+            let btnHTML = `<br>
+            <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                <button class="pdf-btn" onclick="vibrar(60); imprimirGuia('${msgId}')">📄 Guardar PDF Simple</button>
+                <button class="pdf-btn" style="background:#ffca28; color:black; border:2px solid #ffb300;" id="btn-ilustrar-${msgId}" onclick="vibrar(60); ilustrarManual('${msgId}')">✨ Ilustrar Manual (VIP)</button>
+            </div>`;
+            element.innerHTML += btnHTML + botonesAccion;
+            element.setAttribute('data-original', text + btnHTML + botonesAccion);
+        } else {
+            element.innerHTML += botonesAccion;
+            element.setAttribute('data-original', text + botonesAccion);
         }
-        typing();
+
+        const audioCtrl = document.createElement('div');
+        audioCtrl.className = 'msg-audio-controls';
+        audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" onclick="toggleAudioMensaje('${msgId}')" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
+        element.appendChild(audioCtrl);
+
+        element.classList.add('msg-fade-in');
     }
 
     function imprimirGuia(msgId) {
@@ -1515,19 +1508,19 @@
 
                 if (data.audio) {
                     try {
-                        console.log('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
+                        console.warn('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
                         if (audioPremiumActual) audioPremiumActual.pause();
                         newMsg.setAttribute('data-audio', data.audio);
                         if (!isMuted && premiumVoiceEnabled) {
-                            console.log('[TTS] Iniciando reproducción automática...');
+                            console.warn('[TTS] Iniciando reproducción automática...');
                             audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
                             audioPremiumActual.play().then(() => {
-                                console.log('[TTS] Audio premium reproduciéndose correctamente.');
+                                console.warn('[TTS] Audio premium reproduciéndose correctamente.');
                             }).catch(err => {
                                 console.error('[TTS] Error en play() automático:', err);
                             });
                         } else {
-                            console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
+                            console.warn('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
                         }
                     } catch (err) {
                         console.error('[TTS] Error al procesar audio del servidor:', err);
