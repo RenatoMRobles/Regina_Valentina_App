@@ -8,6 +8,8 @@ on:
       - 'frontend/**'
       - 'firebase.json'
       - '.firebaserc'
+      - '.github/workflows/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
