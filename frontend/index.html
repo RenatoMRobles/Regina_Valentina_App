@@ -833,9 +833,19 @@
     }
 
     function toggleAudioMensaje(msgId) {
+        console.log('BOCINA CLICKEADA — msgId:', msgId);
         if (ultimoMensajeLeido === msgId) { pararMensaje(); return; }
         reproducirMensaje(msgId);
     }
+
+    // Delegacion de eventos: escucha clicks en botones de audio inyectados dinamicamente
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.msg-audio-btn');
+        if (!btn) return;
+        console.log('BOCINA CLICKEADA (delegacion) — btn.id:', btn.id);
+        const msgId = btn.id.replace('audio-btn-', '');
+        if (msgId) toggleAudioMensaje(msgId);
+    });
 
     function reproducirMensaje(msgId) {
         vibrar(60);
@@ -1329,7 +1339,7 @@
 
         const audioCtrl = document.createElement('div');
         audioCtrl.className = 'msg-audio-controls';
-        audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" onclick="toggleAudioMensaje('${msgId}')" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
+        audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
         element.appendChild(audioCtrl);
 
         element.classList.add('msg-fade-in');
