@@ -1417,7 +1417,7 @@
         chatBox.scrollTop = chatBox.scrollHeight;
         loading.style.display = 'block';
 
-        const premiumVoiceFlag = premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true';
+        const premiumVoiceFlag = premiumVoiceEnabled;
         const motorVoz = (document.getElementById('sel-motor-voz') || {value:'nativa'}).value;
         console.log('[TTS] Enviando al backend — premium_voice:', premiumVoiceFlag, '| motor_voz:', motorVoz, '| premiumVoiceEnabled:', premiumVoiceEnabled, '| regina_is_premium:', localStorage.getItem('regina_is_premium'));
 
