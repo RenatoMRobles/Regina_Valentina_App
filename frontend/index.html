@@ -820,32 +820,52 @@
     function pararMensaje() {
         vibrar(30);
         window.speechSynthesis.cancel();
+        if (ultimoMensajeLeido) {
+            var prevBtn = document.getElementById('audio-btn-' + ultimoMensajeLeido);
+            if (prevBtn) prevBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        }
         ultimoMensajeLeido = null;
         if (audioPremiumActual) { audioPremiumActual.pause(); audioPremiumActual.currentTime = 0; }
+    }
+
+    function toggleAudioMensaje(msgId) {
+        if (ultimoMensajeLeido === msgId) { pararMensaje(); return; }
+        reproducirMensaje(msgId);
     }
 
     function reproducirMensaje(msgId) {
         vibrar(60);
         pararMensaje();
 
+        const btn = document.getElementById('audio-btn-' + msgId);
         const elemento = document.getElementById(msgId);
         const audioData = elemento ? elemento.getAttribute('data-audio') : null;
 
         if (audioData) {
             audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
             audioPremiumActual.play();
+            ultimoMensajeLeido = msgId;
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+            audioPremiumActual.onended = function() {
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null;
+            };
             mostrarNotificacion('🔊 Reproduciendo voz premium...', '#ffca28', 3000);
             return;
         }
 
         ultimoMensajeLeido = msgId;
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
         let textoPuro = elemento.getAttribute('data-puretext') || elemento.innerText;
         let textoLimpio = silenciarAviso(textoPuro);
 
         const utterance = new SpeechSynthesisUtterance(textoLimpio);
         if (reginaVoice) utterance.voice = reginaVoice;
         utterance.lang = 'es-MX'; utterance.rate = 1.05;
-        utterance.onend = function() { if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null; };
+        utterance.onend = function() {
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null;
+        };
         window.speechSynthesis.speak(utterance);
         mostrarNotificacion('🔊 Leyendo... (Click en ⏹ para detener)', '#2196f3', 3500);
     }
@@ -919,10 +939,11 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-        // Restaurar toggles de Ergonomía independientes
+        // Restaurar toggles de Ergonomía independientes (dark mode activo por defecto)
         ['dark', 'sepia', 'dyslexia', 'lsm', 'lupa', 'contraste'].forEach(function(modo) {
             var val = localStorage.getItem('regina_ergo_' + modo);
-            if (val === '1') {
+            var active = (val === '1') || (val === null && modo === 'dark');
+            if (active) {
                 ergoState[modo] = true;
                 var cb = document.getElementById('toggle-' + modo);
                 if (cb) cb.checked = true;
@@ -1359,7 +1380,7 @@
                 // Inyectar iconos de audio DESPUÉS de todos los innerHTML+= para que no sean destruidos
                 const audioCtrl = document.createElement('div');
                 audioCtrl.className = 'msg-audio-controls';
-                audioCtrl.innerHTML = `<button class="msg-audio-btn" onclick="reproducirMensaje('${msgId}')" title="Escuchar"><i class="fa-solid fa-volume-high"></i></button><button class="msg-audio-btn" onclick="pararMensaje()" title="Detener"><i class="fa-solid fa-stop"></i></button>`;
+                audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" onclick="toggleAudioMensaje('${msgId}')" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
                 element.appendChild(audioCtrl);
             }
         }
@@ -1633,18 +1654,10 @@
             <button onclick="vibrar(40); document.getElementById('settings-modal').style.display='none'; abrirMiCuenta();" class="config-btn" style="font-size:1.15rem; padding:15px;">
                 <span style="font-size:1.8em;">👤</span> Mi Perfil / Cuenta
             </button>
-            <!-- ── Collapsible: Ergonomía Visual ── -->
+            <!-- ── Collapsible: Ergonomía Visual (aspecto) ── -->
             <details class="ergo-details">
-                <summary>🎨 Ergonomía Visual</summary>
+                <summary>🎨 Ergonomía Visual (aspecto)</summary>
                 <div class="ergo-panel">
-                    <div class="ergo-row">
-                        <span class="ergo-lbl">🌙 Modo Oscuro</span>
-                        <label class="ergo-switch"><input type="checkbox" id="toggle-dark" onchange="vibrar(20); toggleErgonomia('dark')"><span class="ergo-thumb"></span></label>
-                    </div>
-                    <div class="ergo-row">
-                        <span class="ergo-lbl">☕ Modo Sepia</span>
-                        <label class="ergo-switch"><input type="checkbox" id="toggle-sepia" onchange="vibrar(20); toggleErgonomia('sepia')"><span class="ergo-thumb"></span></label>
-                    </div>
                     <div class="ergo-row">
                         <span class="ergo-lbl">👓 Letra para Dislexia</span>
                         <label class="ergo-switch"><input type="checkbox" id="toggle-dyslexia" onchange="vibrar(20); toggleErgonomia('dyslexia')"><span class="ergo-thumb"></span></label>
@@ -1657,6 +1670,21 @@
                         <span class="ergo-lbl">🔍 Agrandar Letra</span>
                         <label class="ergo-switch"><input type="checkbox" id="toggle-lupa" onchange="vibrar(20); toggleErgonomia('lupa')"><span class="ergo-thumb"></span></label>
                     </div>
+                </div>
+            </details>
+
+            <!-- ── Collapsible: Comfort visual (colores) ── -->
+            <details class="ergo-details">
+                <summary>🌈 Comfort visual (colores)</summary>
+                <div class="ergo-panel">
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">🌙 Modo Oscuro</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-dark" onchange="vibrar(20); toggleErgonomia('dark')"><span class="ergo-thumb"></span></label>
+                    </div>
+                    <div class="ergo-row">
+                        <span class="ergo-lbl">☕ Modo Sepia</span>
+                        <label class="ergo-switch"><input type="checkbox" id="toggle-sepia" onchange="vibrar(20); toggleErgonomia('sepia')"><span class="ergo-thumb"></span></label>
+                    </div>
                     <div class="ergo-row">
                         <span class="ergo-lbl">🌗 Alto Contraste</span>
                         <label class="ergo-switch"><input type="checkbox" id="toggle-contraste" onchange="vibrar(20); toggleErgonomia('contraste')"><span class="ergo-thumb"></span></label>
@@ -1668,9 +1696,9 @@
             <div style="text-align:left;">
                 <label for="sel-motor-voz" style="font-size:0.85em; font-weight:bold; color:var(--text-main); opacity:0.75; display:block; margin-bottom:4px; padding-left:4px;">🎙️ Motor de Voz</label>
                 <select id="sel-motor-voz" onchange="vibrar(20)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
-                    <option value="nativa">🗣️ Nativa del Navegador</option>
                     <option value="journey">✨ Emocional Journey</option>
                     <option value="neural2">🔊 Dinámica Neural2</option>
+                    <option value="nativa">🗣️ Nativa del Navegador</option>
                 </select>
             </div>
 
