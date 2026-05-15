@@ -216,8 +216,8 @@
         }
         .user-message { align-self: flex-end; background-color: #6a1b9a; color: white; border-bottom-right-radius: 2px; }
         .bot-message { align-self: flex-start; background-color: var(--bot-bubble); color: var(--bot-text); border-bottom-left-radius: 2px; }
-        .msg-audio-controls { position: absolute; top: 6px; right: 8px; display: flex; gap: 3px; z-index: 2; }
-        .msg-audio-btn { background: transparent; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 0.7rem; color: var(--text-main); opacity: 0.45; display: flex; align-items: center; justify-content: center; padding: 0; transition: opacity 0.2s; }
+        .msg-audio-controls { position: absolute; top: 6px; right: 8px; display: flex; gap: 3px; z-index: 2; pointer-events: auto; }
+        .msg-audio-btn { background: transparent; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 0.95rem; color: var(--text-main); opacity: 0.65; display: flex; align-items: center; justify-content: center; padding: 0; transition: opacity 0.2s; pointer-events: auto; }
         .msg-audio-btn:hover { opacity: 1; }
 
         .input-area {
@@ -838,11 +838,12 @@
         reproducirMensaje(msgId);
     }
 
-    // Delegacion de eventos: escucha clicks en botones de audio inyectados dinamicamente
+    // Delegacion de eventos: captura clicks en botones de audio (fallback si onclick falla)
     document.addEventListener('click', function(e) {
+        console.log('[CLICK] target:', e.target.tagName, '| class:', e.target.className, '| id:', e.target.id);
         const btn = e.target.closest('.msg-audio-btn');
         if (!btn) return;
-        console.log('BOCINA CLICKEADA (delegacion) — btn.id:', btn.id);
+        console.log('[BOCINA] delegacion — btn.id:', btn.id);
         const msgId = btn.id.replace('audio-btn-', '');
         if (msgId) toggleAudioMensaje(msgId);
     });
@@ -1339,7 +1340,7 @@
 
         const audioCtrl = document.createElement('div');
         audioCtrl.className = 'msg-audio-controls';
-        audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
+        audioCtrl.innerHTML = `<button class="msg-audio-btn" id="audio-btn-${msgId}" onclick="toggleAudioMensaje('${msgId}')" title="Escuchar / Detener"><i class="fa-solid fa-volume-high"></i></button>`;
         element.appendChild(audioCtrl);
 
         element.classList.add('msg-fade-in');
@@ -1407,20 +1408,36 @@
         let displayMessage = lsmEnabled ? quitarAcentos(message) : message;
         const chipsEl = document.getElementById('chips-bienvenida');
         if (chipsEl) chipsEl.style.display = 'none';
-        chatBox.innerHTML += `<div class="message user-message" data-original="${message}">${displayMessage}</div>`;
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message user-message';
+        userMsg.setAttribute('data-original', message);
+        userMsg.textContent = displayMessage;
+        chatBox.appendChild(userMsg);
         input.value = '';
         chatBox.scrollTop = chatBox.scrollHeight;
         loading.style.display = 'block';
 
-        const response = await fetch(`${API_URL}/chat`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true', imagen_b64: imagenChatBase64, motor_voz: (document.getElementById('sel-motor-voz') || {value:'nativa'}).value, cerebro_llm: (document.getElementById('sel-cerebro-llm') || {value:'gemini'}).value })
-        });
+        const premiumVoiceFlag = premiumVoiceEnabled && localStorage.getItem('regina_is_premium') === 'true';
+        const motorVoz = (document.getElementById('sel-motor-voz') || {value:'nativa'}).value;
+        console.log('[TTS] Enviando al backend — premium_voice:', premiumVoiceFlag, '| motor_voz:', motorVoz, '| premiumVoiceEnabled:', premiumVoiceEnabled, '| regina_is_premium:', localStorage.getItem('regina_is_premium'));
+
+        let data;
+        try {
+            const response = await fetch(`${API_URL}/chat`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, user_id: userId, premium_voice: premiumVoiceFlag, imagen_b64: imagenChatBase64, motor_voz: motorVoz, cerebro_llm: (document.getElementById('sel-cerebro-llm') || {value:'gemini'}).value })
+            });
+            data = await response.json();
+        } catch (error) {
+            console.error('Error en TTS Premium:', error);
+            loading.style.display = 'none';
+            imagenChatBase64 = null;
+            document.getElementById('input-foto-chat').value = '';
+            return;
+        }
 
         imagenChatBase64 = null;
         document.getElementById('input-foto-chat').value = '';
-
-        const data = await response.json();
         loading.style.display = 'none';
 
         if (data.status === 'quota_exceeded') {
@@ -1462,10 +1479,12 @@
                 if (!isMuted && premiumVoiceEnabled) {
                     console.log('[TTS] Iniciando reproducción automática...');
                     audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
-                    audioPremiumActual.play();
+                    audioPremiumActual.play().catch(err => console.error('Error al reproducir audio premium:', err));
                 } else {
                     console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
                 }
+            } else if (premiumVoiceFlag) {
+                console.warn('[TTS] premium_voice=true fue enviado pero el servidor NO devolvió audio. Posibles causas: TTS_API_KEY no configurada en Cloud Run, usuario no es premium en BD, o Google TTS devolvió error. Revise logs del servidor.');
             }
 
             if (data.puntos !== undefined) { actualizarInsigniasVisuales(data.puntos); }
@@ -1504,7 +1523,11 @@
 
     function dispararEmergencia() {
         const chatBox = document.getElementById('chat-box');
-        chatBox.innerHTML += `<div class="message user-message" style="background:#d32f2f; color:white; font-weight:bold;">🧑‍⚕️ Consulta de Urgencia</div>`;
+        const emergMsg = document.createElement('div');
+        emergMsg.className = 'message user-message';
+        emergMsg.style.cssText = 'background:#d32f2f; color:white; font-weight:bold;';
+        emergMsg.textContent = '🧑‍⚕️ Consulta de Urgencia';
+        chatBox.appendChild(emergMsg);
         const warningHTML = `¡ATENCIÓN! 🧑‍⚕️ No soy un médico veterinario, soy una IA experta en comportamiento.<br><br>Si tu mascota sufrió un accidente grave o presenta una condición crítica, <strong>ESTO REQUIERE ATENCIÓN PROFESIONAL INMEDIATA</strong>.<br><br>📍 <a href="https://www.google.com/maps/search/veterinaria+24+horas" target="_blank" style="color:#d32f2f; font-weight:900; text-decoration:underline;">Haz clic aquí para buscar veterinarias en Maps</a>.`;
 
         const newMsg = document.createElement("div");
