@@ -916,8 +916,8 @@ def chat():
                         if motor_voz == 'journey':
                             voice_cfg = {"languageCode": "es-US", "name": "es-US-Journey-F"}
                             audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.0}
-                        else:
-                            voice_cfg = {"languageCode": "es-US", "name": "es-US-Neural2-A"}
+                        elif motor_voz == 'neural2':
+                            voice_cfg = {"languageCode": "es-US", "name": "es-US-Neural2-F"}
                             audio_cfg = {"audioEncoding": "MP3", "speakingRate": 1.12, "pitch": -2.5}
                         payload = {"input": {"text": texto_a_leer}, "voice": voice_cfg, "audioConfig": audio_cfg}
                         tts_res = requests.post(tts_url, json=payload, timeout=10)

@@ -1417,9 +1417,9 @@
         chatBox.scrollTop = chatBox.scrollHeight;
         loading.style.display = 'block';
 
-        const premiumVoiceFlag = premiumVoiceEnabled;
-        const motorVoz = (document.getElementById('sel-motor-voz') || {value:'nativa'}).value;
-        console.log('[TTS] Enviando al backend — premium_voice:', premiumVoiceFlag, '| motor_voz:', motorVoz, '| premiumVoiceEnabled:', premiumVoiceEnabled, '| regina_is_premium:', localStorage.getItem('regina_is_premium'));
+        const motorVoz = (document.getElementById('sel-motor-voz') || {value:'journey'}).value;
+        const premiumVoiceFlag = motorVoz === 'journey' || motorVoz === 'neural2';
+        console.log('[TTS] Motor seleccionado:', motorVoz, '| premium_voice:', premiumVoiceFlag);
 
         let data;
         try {
@@ -1473,18 +1473,21 @@
             }
 
             if (data.audio) {
-                console.log('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
                 if (audioPremiumActual) audioPremiumActual.pause();
                 newMsg.setAttribute('data-audio', data.audio);
-                if (!isMuted && premiumVoiceEnabled) {
-                    console.log('[TTS] Iniciando reproducción automática...');
+                if (!isMuted) {
                     audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
-                    audioPremiumActual.play().catch(err => console.error('Error al reproducir audio premium:', err));
-                } else {
-                    console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
+                    audioPremiumActual.play().catch(err => console.error('[TTS] Error al reproducir:', err));
                 }
+            } else if (motorVoz === 'nativa' && !isMuted) {
+                window.speechSynthesis.cancel();
+                cargarVoces();
+                const utterance = new SpeechSynthesisUtterance(silenciarAviso(data.response));
+                if (reginaVoice) utterance.voice = reginaVoice;
+                utterance.lang = 'es-MX'; utterance.rate = 1.05;
+                window.speechSynthesis.speak(utterance);
             } else if (premiumVoiceFlag) {
-                console.warn('[TTS] premium_voice=true fue enviado pero el servidor NO devolvió audio. Posibles causas: TTS_API_KEY no configurada en Cloud Run, usuario no es premium en BD, o Google TTS devolvió error. Revise logs del servidor.');
+                console.warn('[TTS] premium_voice=true pero servidor no devolvió audio. Revise TTS_API_KEY en Cloud Run.');
             }
 
             if (data.puntos !== undefined) { actualizarInsigniasVisuales(data.puntos); }
