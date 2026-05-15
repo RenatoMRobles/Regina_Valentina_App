@@ -842,15 +842,24 @@
         const audioData = elemento ? elemento.getAttribute('data-audio') : null;
 
         if (audioData) {
-            audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
-            audioPremiumActual.play();
-            ultimoMensajeLeido = msgId;
-            if (btn) btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
-            audioPremiumActual.onended = function() {
-                if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-                if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null;
-            };
-            mostrarNotificacion('🔊 Reproduciendo voz premium...', '#ffca28', 3000);
+            try {
+                console.log('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
+                audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
+                audioPremiumActual.play().then(() => {
+                    console.log('[TTS] Audio del mensaje', msgId, 'reproduciéndose correctamente.');
+                }).catch(err => {
+                    console.error('[TTS] Error en play() para mensaje', msgId, ':', err);
+                });
+                ultimoMensajeLeido = msgId;
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+                audioPremiumActual.onended = function() {
+                    if (btn) btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                    if (ultimoMensajeLeido === msgId) ultimoMensajeLeido = null;
+                };
+                mostrarNotificacion('🔊 Reproduciendo voz premium...', '#ffca28', 3000);
+            } catch (err) {
+                console.error('[TTS] Error al crear/reproducir Audio para mensaje', msgId, ':', err);
+            }
             return;
         }
 
@@ -1030,6 +1039,7 @@
             document.documentElement.removeAttribute('data-theme');
         }
         // Clases de cuerpo
+        document.body.classList.toggle('dark-mode', ergoState.dark);
         document.body.classList.toggle('dyslexia-mode', ergoState.dyslexia);
         document.body.classList.toggle('large-text-mode', ergoState.lupa);
         document.body.classList.toggle('high-contrast-mode', ergoState.contraste);
@@ -1504,11 +1514,23 @@
                 }
 
                 if (data.audio) {
-                    if (audioPremiumActual) audioPremiumActual.pause();
-                    newMsg.setAttribute('data-audio', data.audio);
-                    if (!isMuted && premiumVoiceEnabled) {
-                        audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
-                        audioPremiumActual.play();
+                    try {
+                        console.log('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
+                        if (audioPremiumActual) audioPremiumActual.pause();
+                        newMsg.setAttribute('data-audio', data.audio);
+                        if (!isMuted && premiumVoiceEnabled) {
+                            console.log('[TTS] Iniciando reproducción automática...');
+                            audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
+                            audioPremiumActual.play().then(() => {
+                                console.log('[TTS] Audio premium reproduciéndose correctamente.');
+                            }).catch(err => {
+                                console.error('[TTS] Error en play() automático:', err);
+                            });
+                        } else {
+                            console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
+                        }
+                    } catch (err) {
+                        console.error('[TTS] Error al procesar audio del servidor:', err);
                     }
                 }
 
@@ -1675,7 +1697,7 @@
 
             <!-- ── Collapsible: Comfort visual (colores) ── -->
             <details class="ergo-details">
-                <summary>🌈 Comfort visual (colores)</summary>
+                <summary>🕶️ Comfort visual (colores)</summary>
                 <div class="ergo-panel">
                     <div class="ergo-row">
                         <span class="ergo-lbl">🌙 Modo Oscuro</span>
