@@ -1408,6 +1408,8 @@
 
     function sendChip(texto) {
         vibrar(40);
+        const chipsEl = document.getElementById('chips-bienvenida');
+        if (chipsEl) chipsEl.style.display = 'none';
         const input = document.getElementById('user-input');
         input.value = texto;
         sendMessage();
@@ -1614,7 +1616,7 @@
      BARRA INFERIOR — FOOTER BAR
 ══════════════════════════════════════ -->
 <footer class="app-footer">
-    <p>⚠️ IA educativa, no sustituye asesoría veterinaria. <a href="terminos.html" target="_blank">Términos</a> · © 2026 <strong>Robles Bienestar</strong>.</p>
+    <p>IA educativa, no sustituye asesoría veterinaria. <a href="terminos.html" target="_blank">Términos</a> · © 2026 <strong>Robles Bienestar</strong>.</p>
 </footer>
 
 <!-- ══════════════════════════════════════
