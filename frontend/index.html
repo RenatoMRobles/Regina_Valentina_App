@@ -471,13 +471,13 @@
      JAVASCRIPT PRINCIPAL
 ══════════════════════════════════════ -->
 <script>
-    console.warn('Script cargado y listo');
+    console.log('Script cargado y listo');
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://127.0.0.1:5000'
         : 'https://regina-valentina-938250627989.us-central1.run.app';
 
     let voiceEnabled = false;
-    let premiumVoiceEnabled = false;
+    let premiumVoiceEnabled = true; // Journey está seleccionado por defecto
     let reginaVoice = null;
     let audioPremiumActual = null;
     let dyslexiaEnabled = false;
@@ -847,10 +847,10 @@
 
         if (audioData) {
             try {
-                console.warn('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
+                console.log('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
                 audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
                 audioPremiumActual.play().then(() => {
-                    console.warn('[TTS] Audio del mensaje', msgId, 'reproduciéndose correctamente.');
+                    console.log('[TTS] Audio del mensaje', msgId, 'reproduciéndose correctamente.');
                 }).catch(err => {
                     console.error('[TTS] Error en play() para mensaje', msgId, ':', err);
                 });
@@ -1297,23 +1297,17 @@
     function getUserId() { return localStorage.getItem('regina_user_id'); }
 
     let isMuted = false;
-    function togglePremiumVoice() {
-        vibrar(60);
-        const iconoVoz = document.getElementById('settings-voice-icon');
-        if (isMuted) {
+    function onMotorVozChange() {
+        const sel = document.getElementById('sel-motor-voz');
+        if (!sel) return;
+        premiumVoiceEnabled = sel.value === 'journey' || sel.value === 'neural2';
+        if (premiumVoiceEnabled) {
+            voiceEnabled = false;
             isMuted = false;
-            premiumVoiceEnabled = true;
-            voiceEnabled = false;
-            if (iconoVoz) iconoVoz.textContent = '🗣️';
-            mostrarNotificacion("✨ Voz Premium HD Activada", "#ffca28");
-        } else {
-            isMuted = true;
-            premiumVoiceEnabled = false;
-            voiceEnabled = false;
             window.speechSynthesis.cancel();
-            if (audioPremiumActual) { audioPremiumActual.pause(); audioPremiumActual.currentTime = 0; }
-            if (iconoVoz) iconoVoz.textContent = '🤫';
-            mostrarNotificacion("🤫 Silencio total activado", "#9e9e9e");
+            mostrarNotificacion('✨ Motor ' + sel.options[sel.selectedIndex].text + ' listo', '#ffca28', 2000);
+        } else {
+            mostrarNotificacion('🗣️ Voz nativa del navegador activada', '#2196f3', 2000);
         }
     }
 
@@ -1508,19 +1502,19 @@
 
                 if (data.audio) {
                     try {
-                        console.warn('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
+                        console.log('[TTS] Audio recibido del servidor. Longitud base64:', data.audio.length, '| isMuted:', isMuted, '| premiumVoiceEnabled:', premiumVoiceEnabled);
                         if (audioPremiumActual) audioPremiumActual.pause();
                         newMsg.setAttribute('data-audio', data.audio);
                         if (!isMuted && premiumVoiceEnabled) {
-                            console.warn('[TTS] Iniciando reproducción automática...');
+                            console.log('[TTS] Iniciando reproducción automática...');
                             audioPremiumActual = new Audio("data:audio/mp3;base64," + data.audio);
                             audioPremiumActual.play().then(() => {
-                                console.warn('[TTS] Audio premium reproduciéndose correctamente.');
+                                console.log('[TTS] Audio premium reproduciéndose correctamente.');
                             }).catch(err => {
                                 console.error('[TTS] Error en play() automático:', err);
                             });
                         } else {
-                            console.warn('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
+                            console.log('[TTS] Audio guardado en el mensaje pero no reproducido automáticamente (isMuted o premium inactivo).');
                         }
                     } catch (err) {
                         console.error('[TTS] Error al procesar audio del servidor:', err);
@@ -1710,7 +1704,7 @@
             <!-- ── Dropdown 2: Motor de Voz ── -->
             <div style="text-align:left;">
                 <label for="sel-motor-voz" style="font-size:0.85em; font-weight:bold; color:var(--text-main); opacity:0.75; display:block; margin-bottom:4px; padding-left:4px;">🎙️ Motor de Voz</label>
-                <select id="sel-motor-voz" onchange="vibrar(20)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
+                <select id="sel-motor-voz" onchange="vibrar(20); onMotorVozChange()" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:1em; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236a1b9a%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
                     <option value="journey">✨ Emocional Journey</option>
                     <option value="neural2">🔊 Dinámica Neural2</option>
                     <option value="nativa">🗣️ Nativa del Navegador</option>
@@ -1829,7 +1823,7 @@
                 ultimas_recomendaciones: resumen.ultimas_recomendaciones || '',
                 timestamp:              firebase.firestore.FieldValue.serverTimestamp()
             });
-        } catch(e) { console.warn('Firestore write error:', e.message); }
+        } catch(e) { console.error('Firestore write error:', e.message); }
     }
 
     async function cargarResumenFirestore(userId) {
@@ -1841,7 +1835,7 @@
                 localStorage.setItem('regina_session_summary', JSON.stringify(data));
                 return data;
             }
-        } catch(e) { console.warn('Firestore read error:', e.message); }
+        } catch(e) { console.error('Firestore read error:', e.message); }
         return null;
     }
 
