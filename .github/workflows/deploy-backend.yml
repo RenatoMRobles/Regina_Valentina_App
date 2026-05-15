@@ -24,7 +24,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: 'projects/938250627989/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-          service_account: 'robles-gateway-sa@academia-robles-cloudrun.iam.gserviceaccount.com'
+          service_account: 'github-deploy-regina@academia-robles-cloudrun.iam.gserviceaccount.com'
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
