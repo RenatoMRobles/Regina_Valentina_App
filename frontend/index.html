@@ -550,6 +550,10 @@
     let intentosRestantes = 3;
 
     function inicializarIntentos() {
+        if (localStorage.getItem('regina_is_director') === 'true') {
+            resetearIntentosVIP();
+            return;
+        }
         const guardado = localStorage.getItem('regina_intentos_restantes');
         if (guardado !== null) {
             intentosRestantes = parseInt(guardado);
@@ -567,6 +571,7 @@
     }
 
     function decrementarIntentos() {
+        if (localStorage.getItem('regina_is_director') === 'true') return;
         if (intentosRestantes > 0 && intentosRestantes < 999) {
             intentosRestantes--;
             localStorage.setItem('regina_intentos_restantes', intentosRestantes);
@@ -989,7 +994,8 @@
             document.getElementById('auth-modal').style.display = 'flex';
         } else {
             const esPremium = localStorage.getItem('regina_is_premium') === 'true';
-            if (esPremium) resetearIntentosVIP();
+            const esDirector = localStorage.getItem('regina_is_director') === 'true';
+            if (esPremium || esDirector) resetearIntentosVIP();
             activarChat();
         }
 
@@ -1100,7 +1106,7 @@
             titulo.innerText = "Mi Cuenta VIP 💎";
             document.getElementById('auth-inputs').style.display = 'none';
             document.getElementById('logged-in-view').style.display = 'block';
-            if (localStorage.getItem('regina_is_admin') === 'true') { document.getElementById('btn-centro-mando').style.display = 'block'; }
+            if (localStorage.getItem('regina_is_admin') === 'true' || localStorage.getItem('regina_is_director') === 'true') { document.getElementById('btn-centro-mando').style.display = 'block'; }
             else { document.getElementById('btn-centro-mando').style.display = 'none'; }
         } else {
             titulo.innerText = "Acceso al Rancho 🤠";
@@ -1117,6 +1123,7 @@
         localStorage.removeItem('regina_is_premium');
         localStorage.removeItem('regina_nombre');
         localStorage.removeItem('regina_is_admin');
+        localStorage.removeItem('regina_is_director');
         localStorage.removeItem('regina_session_summary');
         if (typeof firebaseActivo !== 'undefined' && firebaseActivo && firebaseAuth) {
             firebaseAuth.signOut().catch(e => console.warn('Firebase signOut:', e.message));
@@ -1203,6 +1210,7 @@
         localStorage.setItem('regina_registrado', 'true');
         localStorage.setItem('regina_user_id', u.uid);
         localStorage.setItem('regina_is_admin', regData.is_admin ? 'true' : 'false');
+        if (regData.is_director) { localStorage.setItem('regina_is_director', 'true'); resetearIntentosVIP(); }
         if (regData.is_premium) { localStorage.setItem('regina_is_premium', 'true'); resetearIntentosVIP(); }
         errorMsg.innerText = "";
         document.getElementById('auth-modal').style.display = 'none';
@@ -1233,6 +1241,7 @@
         localStorage.setItem('regina_registrado', 'true');
         localStorage.setItem('regina_user_id', u.uid);
         localStorage.setItem('regina_is_admin', syncData.is_admin ? 'true' : 'false');
+        if (syncData.is_director) { localStorage.setItem('regina_is_director', 'true'); resetearIntentosVIP(); }
         if (syncData.is_premium) {
             localStorage.setItem('regina_is_premium', 'true');
             resetearIntentosVIP();
@@ -1750,6 +1759,7 @@
         localStorage.setItem('regina_registrado', 'true');
         localStorage.setItem('regina_nombre', u.displayName || 'Pariente');
         if (regData.is_admin) localStorage.setItem('regina_is_admin', 'true');
+        if (regData.is_director) { localStorage.setItem('regina_is_director', 'true'); resetearIntentosVIP(); }
         if (regData.is_premium) {
             localStorage.setItem('regina_is_premium', 'true');
             resetearIntentosVIP();

@@ -27,6 +27,8 @@ URL_TTS = PROTO + "texttospeech.googleapis.com/v1/text:synthesize?key="
 URL_POLL = PROTO + "image.pollinations.ai/prompt/"
 URL_UNSPLASH = PROTO + "images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop"
 
+DIRECTOR_EMAIL = 'direccion@roblesbienestar.com'
+
 app = Flask(__name__)
 
 ALLOWED_ORIGINS = [
@@ -269,12 +271,16 @@ def registro_google():
                 user.nombre = nombre
             if email and not user.email:
                 user.email = email
+        es_director = (user.email == DIRECTOR_EMAIL)
+        if es_director and not user.is_admin:
+            user.is_admin = True
         db.session.commit()
         return jsonify({
             'message': 'Bienvenido/a al rancho',
             'user_id': user.id,
             'is_premium': user.is_premium,
             'is_admin': user.is_admin,
+            'is_director': es_director,
             'puntos': get_user_points(user)
         })
     except Exception as e:
@@ -289,7 +295,11 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.password_hash and check_password_hash(user.password_hash, password):
             if getattr(user, 'is_banned', False): return jsonify({'error': '🛑 Cuenta suspendida.'}), 403
-            return jsonify({'message': 'Login exitoso', 'user_id': user.id, 'is_premium': user.is_premium, 'is_admin': user.is_admin, 'puntos': get_user_points(user)})
+            es_director = (user.email == DIRECTOR_EMAIL)
+            if es_director and not user.is_admin:
+                user.is_admin = True
+                db.session.commit()
+            return jsonify({'message': 'Login exitoso', 'user_id': user.id, 'is_premium': user.is_premium, 'is_admin': user.is_admin, 'is_director': es_director, 'puntos': get_user_points(user)})
         return jsonify({'error': 'Correo o contraseña incorrectos'}), 401
     except Exception as e: return jsonify({'error': 'Error interno. Intenta de nuevo.'}), 500
 
@@ -815,7 +825,8 @@ def chat():
             return jsonify({'response': "¡Bienvenido Socio VIP! 💎 ¿Cuál es la emergencia hoy?"})
         
         LIMITE_GRATIS = 3
-        if user.message_count >= LIMITE_GRATIS and not user.is_premium:
+        es_director = (getattr(user, 'email', None) == DIRECTOR_EMAIL)
+        if not es_director and user.message_count >= LIMITE_GRATIS and not user.is_premium:
             pref_day = {"items": [{"title": "Pase 24h", "quantity": 1, "unit_price": 39.0, "currency_id": "MXN"}], "external_reference": user.id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_CLOUD}/webhook"}
             link_day = sdk.preference().create(pref_day)["response"]["init_point"]
             pref_month = {"items": [{"title": "Mes VIP", "quantity": 1, "unit_price": 99.0, "currency_id": "MXN"}], "external_reference": user.id, "back_urls": {"success": f"{URL_RANCHO}?status=approved"}, "auto_return": "approved", "notification_url": f"{URL_CLOUD}/webhook"}
