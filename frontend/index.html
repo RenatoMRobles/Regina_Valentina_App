@@ -379,10 +379,87 @@
         }
 
         .side-menu-ftr {
-            padding: 13px 16px; font-size: 0.77rem; color: var(--text-main);
-            opacity: 0.4; text-align: center;
+            padding: 12px 14px 10px;
             border-top: 1px solid rgba(194,24,91,0.1);
             background: rgba(0,0,0,0.25); position: relative; z-index: 1;
+        }
+        .side-menu-ftr-copy {
+            font-size: 0.77rem; color: var(--text-main);
+            opacity: 0.4; text-align: center; padding-top: 8px;
+        }
+
+        /* ── Sidebar Profile Button ── */
+        .sidebar-profile-btn {
+            display: flex; align-items: center; gap: 12px;
+            width: 100%; padding: 11px 13px; border-radius: 13px;
+            border: 1px solid rgba(194,24,91,0.22);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-main); font-family: inherit;
+            font-size: 0.96rem; font-weight: 600; cursor: pointer;
+            text-align: left;
+            box-shadow: 3px 3px 9px rgba(0,0,0,0.45), -1px -1px 5px rgba(142,36,170,0.05);
+            transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .sidebar-profile-btn:hover {
+            background: linear-gradient(135deg, rgba(142,36,170,0.24), rgba(194,24,91,0.17));
+            border-color: rgba(194,24,91,0.42); color: #fff;
+            transform: translateX(4px);
+            box-shadow: 0 6px 22px rgba(194,24,91,0.18), 5px 5px 15px rgba(0,0,0,0.5);
+        }
+        .sidebar-profile-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            object-fit: cover; border: 2px solid rgba(194,24,91,0.35);
+            flex-shrink: 0; transition: border-color 0.3s ease;
+        }
+
+        /* ── Academia Premium Button ── */
+        .academia-btn {
+            background: linear-gradient(135deg, rgba(106,27,154,0.32) 0%, rgba(194,24,91,0.22) 100%) !important;
+            border: 1px solid rgba(194,24,91,0.42) !important;
+            box-shadow: 0 4px 18px rgba(194,24,91,0.2), 3px 3px 9px rgba(0,0,0,0.5),
+                        inset 0 1px 0 rgba(255,255,255,0.07) !important;
+            margin-bottom: 6px;
+        }
+        .academia-btn:hover {
+            background: linear-gradient(135deg, rgba(106,27,154,0.52) 0%, rgba(194,24,91,0.4) 100%) !important;
+            border-color: rgba(255,202,40,0.55) !important;
+            box-shadow: 0 6px 28px rgba(194,24,91,0.35), 0 0 16px rgba(255,202,40,0.15),
+                        5px 5px 15px rgba(0,0,0,0.5) !important;
+        }
+        .academia-icon {
+            background: linear-gradient(135deg, #8e24aa, #c2185b) !important;
+            color: #fff !important;
+            border-color: rgba(255,202,40,0.28) !important;
+            box-shadow: 0 4px 14px rgba(194,24,91,0.48) !important;
+        }
+        .academia-label { flex: 1; font-weight: 700; }
+        .academia-ext { font-size: 0.68rem; opacity: 0.7; }
+
+        /* ── Contacto Accordion ── */
+        .contacto-accordion { border: none; background: none; margin: 0; padding: 0; }
+        .contacto-accordion > summary { list-style: none; }
+        .contacto-accordion > summary::-webkit-details-marker { display: none; }
+        .contacto-chevron {
+            color: rgba(194,24,91,0.4); font-size: 0.72rem;
+            transition: transform 0.3s ease, color 0.28s ease;
+        }
+        .contacto-accordion[open] .contacto-chevron {
+            transform: rotate(180deg); color: rgba(194,24,91,0.85);
+        }
+        .contacto-panel {
+            padding-left: 12px; margin-top: 4px;
+            display: flex; flex-direction: column; gap: 4px;
+            animation: contactoSlide 0.22s ease;
+        }
+        @keyframes contactoSlide {
+            from { opacity: 0; transform: translateY(-5px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .menu-item-sub {
+            font-size: 0.91rem !important;
+            padding: 10px 11px !important;
+            background: rgba(255,255,255,0.015) !important;
+            border-color: rgba(194,24,91,0.07) !important;
         }
 
         /* ══════════════════════════════════════
@@ -642,6 +719,14 @@
     </div>
     <div class="side-menu-body">
 
+        <!-- ── FASE 4: Academia Premium Cross-Link ── -->
+        <a href="https://academia.roblesbienestar.com" target="_blank"
+           onclick="vibrar(60); cerrarMenuLateral()" class="menu-item academia-btn">
+            <i class="fas fa-graduation-cap menu-icon academia-icon"></i>
+            <span class="academia-label">Academia Robles Bienestar</span>
+            <i class="fas fa-arrow-up-right-from-square academia-ext"></i>
+        </a>
+
         <div class="menu-section-label">Explorar</div>
 
         <a href="https://regina-valentina-938250627989.us-central1.run.app/blog" target="_blank"
@@ -665,20 +750,27 @@
             <i class="fas fa-chevron-right menu-item-arrow"></i>
         </button>
 
-        <button onclick="vibrar(60); cerrarMenuLateral(); setTimeout(()=>document.getElementById('feedback-modal').style.display='flex',200)" class="menu-item">
-            <i class="fas fa-inbox menu-icon"></i>
-            <span class="menu-item-label">Buzón del Rancho</span>
-            <i class="fas fa-chevron-right menu-item-arrow"></i>
-        </button>
-
-        <div class="menu-section-label">Soporte</div>
-
-        <a href="mailto:soporte@reginavalentina.com?subject=Ayuda%20con%20Regina%20Valentina"
-           onclick="vibrar(60); cerrarMenuLateral()" class="menu-item">
-            <i class="fas fa-headset menu-icon"></i>
-            <span class="menu-item-label">Soporte Técnico</span>
-            <i class="fas fa-chevron-right menu-item-arrow"></i>
-        </a>
+        <!-- ── FASE 1: Acordeón Contacto ── -->
+        <details class="contacto-accordion">
+            <summary onclick="vibrar(30)" class="menu-item" style="cursor:pointer; user-select:none;">
+                <i class="fas fa-address-book menu-icon"></i>
+                <span class="menu-item-label">Contacto</span>
+                <i class="fas fa-chevron-down contacto-chevron"></i>
+            </summary>
+            <div class="contacto-panel">
+                <a href="mailto:soporte@reginavalentina.com?subject=Ayuda%20con%20Regina%20Valentina"
+                   onclick="vibrar(60); cerrarMenuLateral()" class="menu-item menu-item-sub">
+                    <i class="fas fa-headset menu-icon"></i>
+                    <span class="menu-item-label">Soporte Técnico</span>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </a>
+                <button onclick="vibrar(60); cerrarMenuLateral(); setTimeout(()=>document.getElementById('feedback-modal').style.display='flex',200)" class="menu-item menu-item-sub">
+                    <i class="fas fa-inbox menu-icon"></i>
+                    <span class="menu-item-label">Buzón del Rancho</span>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </button>
+            </div>
+        </details>
 
         <a href="terminos.html" target="_blank" onclick="cerrarMenuLateral()" class="menu-item">
             <i class="fas fa-file-contract menu-icon"></i>
@@ -687,9 +779,17 @@
         </a>
 
     </div>
+    <!-- ── FASE 2: Mi Perfil en footer del sidebar ── -->
     <div class="side-menu-ftr">
-        <i class="fas fa-paw" style="color:rgba(194,24,91,0.5); margin-right:5px;"></i>
-        © 2026 Robles Bienestar. Todos los derechos reservados.
+        <button onclick="vibrar(40); cerrarMenuLateral(); setTimeout(abrirMiCuenta, 200)" class="sidebar-profile-btn">
+            <img id="sidebar-user-avatar" src="ReginaValentinaRostro.png?v=2" alt="Perfil" class="sidebar-profile-avatar">
+            <span id="sidebar-user-name" style="flex:1;">Mi Perfil / Cuenta</span>
+            <i class="fas fa-chevron-right" style="color:rgba(194,24,91,0.4); font-size:0.72rem;"></i>
+        </button>
+        <div class="side-menu-ftr-copy">
+            <i class="fas fa-paw" style="color:rgba(194,24,91,0.5); margin-right:5px;"></i>
+            © 2026 Robles Bienestar. Todos los derechos reservados.
+        </div>
     </div>
 </nav>
 
@@ -1635,14 +1735,19 @@
 
     function actualizarPerfilUI(nombre, foto) {
         const n = nombre || localStorage.getItem('regina_nombre') || '';
+        const f = foto || localStorage.getItem('regina_foto_url') || '';
         if (!n) return;
         const sideTitle = document.querySelector('.side-menu-title');
         if (sideTitle) {
             sideTitle.innerHTML = `${n}<br><small style="opacity:0.8; font-weight:normal; font-size:0.85em;">Miembro del Rancho 🤠</small>`;
         }
-        if (foto) {
+        const sidebarName = document.getElementById('sidebar-user-name');
+        if (sidebarName) sidebarName.textContent = n;
+        if (f) {
             const sideAvatar = document.querySelector('.side-menu-avatar');
-            if (sideAvatar) { sideAvatar.src = foto; sideAvatar.style.border = '3px solid #ffca28'; }
+            if (sideAvatar) { sideAvatar.src = f; sideAvatar.style.border = '3px solid #ffca28'; }
+            const sidebarAvatar = document.getElementById('sidebar-user-avatar');
+            if (sidebarAvatar) { sidebarAvatar.src = f; sidebarAvatar.style.borderColor = '#ffca28'; }
         }
     }
 
@@ -2122,9 +2227,6 @@
         <p style="color:var(--text-main); opacity:0.8; font-size:1em; margin-bottom:15px;">Tu experiencia personalizada.</p>
 
         <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
-            <button onclick="vibrar(40); document.getElementById('settings-modal').style.display='none'; abrirMiCuenta();" class="config-btn" style="font-size:1.15rem; padding:15px;">
-                <span style="font-size:1.8em;">👤</span> Mi Perfil / Cuenta
-            </button>
             <!-- ── Collapsible: Ergonomía Visual (aspecto) ── -->
             <details class="ergo-details">
                 <summary>🎨 Ergonomía Visual (aspecto)</summary>
@@ -2220,6 +2322,14 @@
         firebaseAuth = firebase.auth();
         firestore = firebase.firestore();
         firebaseActivo = true;
+
+        firebaseAuth.onAuthStateChanged(user => {
+            if (user) {
+                if (user.photoURL) localStorage.setItem('regina_foto_url', user.photoURL);
+                if (user.displayName) localStorage.setItem('regina_nombre', user.displayName);
+                actualizarPerfilUI(user.displayName, user.photoURL);
+            }
+        });
     }
 
     async function signInWithGoogle() {
@@ -2249,6 +2359,7 @@
         localStorage.setItem('regina_user_id', u.uid);
         localStorage.setItem('regina_registrado', 'true');
         localStorage.setItem('regina_nombre', u.displayName || 'Pariente');
+        if (u.photoURL) localStorage.setItem('regina_foto_url', u.photoURL);
         if (regData.is_admin) localStorage.setItem('regina_is_admin', 'true');
         if (regData.is_director) { localStorage.setItem('regina_is_director', 'true'); resetearIntentosVIP(); }
         if (regData.is_premium) {
