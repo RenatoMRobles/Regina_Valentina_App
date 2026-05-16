@@ -733,6 +733,7 @@
     <button class="hamburger-btn" onclick="abrirMenuLateral()" title="Menú">☰</button>
     <span class="app-header-title"></span>
     <div class="header-actions">
+        <a href="./rescate.html" class="bar-btn" title="Red de Rescate CDMX" style="text-decoration:none;font-size:0.72rem;font-weight:700;letter-spacing:0.03em;display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:linear-gradient(135deg,rgba(194,24,91,0.18),rgba(233,30,140,0.1));border:1px solid rgba(194,24,91,0.35);color:inherit;white-space:nowrap;">🐾 Rescate</a>
         <button class="bar-btn" id="btn-racha" onclick="vibrar(40); verRacha()" title="Tu racha diaria">
             🔥 <span class="badge-num" id="streak-count">0</span>
         </button>
@@ -972,6 +973,9 @@
         <div class="chips-container" id="chips-bienvenida">
             <button class="chip" onclick="sendChip('🧐 ¡Analízame Regina!')">🧐 Analízame</button>
             <button class="chip" onclick="sendChip('🤠 ¿Cómo educar a un perro latoso?')">🤠 Educar perro latoso</button>
+            <button class="chip" onclick="sendChip('Mi perro se mea en los invitados')">💦 Se mea en invitados</button>
+            <button class="chip" onclick="sendChip('Mi perro ladra mucho')">🔊 Ladra mucho</button>
+            <button class="chip" onclick="sendChip('Mi perro se extravió')">🆘 Se extravió</button>
         </div>
     </div>
     <div class="loading" id="loading">Regina está escribiendo...</div>
@@ -2133,6 +2137,23 @@
         input.value = '';
         chatBox.scrollTop = chatBox.scrollHeight;
         loading.style.display = 'block';
+
+        // Intercepción compasiva: flujo local para perro extraviado
+        if (message.trim() === 'Mi perro se extravió') {
+            loading.style.display = 'none';
+            const rescateMsg = document.createElement('div');
+            rescateMsg.className = 'message bot-message';
+            rescateMsg.innerHTML = `
+                <p>🐾 <strong>¡Ay, pariente!</strong> Siento muchísimo que tu peludito esté perdido. Pero no estás solo — vamos a encontrarlo juntos.</p>
+                <p>Lo más importante ahorita es difundir su ficha lo más rápido posible. Publica su información en nuestra <strong>Red de Rescate de la CDMX</strong> y llega a cientos de ojos solidarios de inmediato:</p>
+                <a href="./rescate.html" style="display:inline-block;margin-top:12px;padding:14px 28px;background:linear-gradient(135deg,#c2185b,#e91e8c);color:#fff;font-weight:700;font-size:1rem;border-radius:50px;text-decoration:none;box-shadow:0 6px 24px rgba(194,24,91,0.45);transition:transform .2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    🆘 Publicar en la Red de Rescate
+                </a>
+                <p style="margin-top:10px;font-size:0.85em;opacity:0.75;">Mientras tanto, cuéntame más detalles: ¿cuándo fue? ¿zona de la CDMX? Puedo ayudarte a redactar el aviso.</p>`;
+            chatBox.appendChild(rescateMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return;
+        }
 
         const motorVoz = (document.getElementById('sel-motor-voz') || {value:'journey'}).value;
         const premiumVoiceFlag = motorVoz === 'journey' || motorVoz === 'neural2';
