@@ -598,7 +598,7 @@
         .pdf-btn { display: block; margin-top: 10px; background: #e91e63; color: white; text-align: center; padding: 8px 12px; border-radius: 5px; font-size: 1rem; text-decoration: none; cursor: pointer; width: fit-content; }
         .loading { font-style: italic; color: #888; font-size: 1rem; margin-left: 20px; margin-bottom: 10px; display: none; }
 
-        .chips-container { display: flex; gap: 10px; padding: 12px 15px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; background: var(--bg-chat); }
+        .chips-container { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 10px; padding: 12px 15px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; background: var(--bg-chat); }
         .chip {
             background: rgba(142,36,170,0.12);
             border: 1.5px solid rgba(194,24,91,0.4);
@@ -720,7 +720,88 @@
             .header { padding: 14px 16px; }
             .regina-avatar { width: 62px !important; height: 62px !important; min-width: 62px !important; min-height: 62px !important; }
             .message { font-size: 1.15rem; }
+            .chips-container { flex-direction: column; flex-wrap: nowrap; overflow-x: hidden; white-space: normal; align-items: stretch; }
+            .chips-container .chip { white-space: normal; text-align: left; }
         }
+
+        /* ── Tooltip elegante de confirmación de adjunto ── */
+        .attach-tooltip {
+            position: fixed;
+            background: linear-gradient(135deg, rgba(18,8,36,0.96) 0%, rgba(30,10,52,0.93) 100%);
+            border: 1px solid rgba(194,24,91,0.5);
+            color: #f3e5f5;
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-size: 0.91rem;
+            font-weight: 600;
+            line-height: 1.45;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(142,36,170,0.38), 0 0 0 1px rgba(255,255,255,0.04);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            z-index: 9999;
+            pointer-events: none;
+            max-width: 210px;
+            animation: tooltipFadeIn 0.25s ease forwards;
+        }
+        .attach-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 7px solid rgba(194,24,91,0.5);
+        }
+        @keyframes tooltipFadeIn  { from { opacity:0; transform:translateY(-7px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes tooltipFadeOut { from { opacity:1; transform:translateY(0); }   to { opacity:0; transform:translateY(-5px); } }
+
+        /* ── Miniatura de previsualización estilo Gemini ── */
+        #preview-adjunto {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(142,36,170,0.09);
+            border: 1px solid rgba(194,24,91,0.28);
+            border-radius: 18px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: fadeInMsg 0.3s ease forwards;
+        }
+        #preview-adjunto img {
+            width: 58px; height: 58px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(194,24,91,0.4);
+            box-shadow: 0 4px 14px rgba(142,36,170,0.32);
+            flex-shrink: 0;
+        }
+        #preview-adjunto .prev-info {
+            flex: 1;
+            font-size: 0.86rem;
+            color: var(--text-main);
+            opacity: 0.88;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        #preview-adjunto .prev-del {
+            background: rgba(194,24,91,0.13);
+            border: 1px solid rgba(194,24,91,0.42);
+            color: #e91e63;
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s, transform 0.15s;
+            padding: 0;
+        }
+        #preview-adjunto .prev-del:hover { background: rgba(194,24,91,0.32); transform: scale(1.1); }
 
         /* ══════════════════════════════════════
            GAMIFICACION — CONFETTI & RACHA
@@ -985,7 +1066,7 @@
         <img src="ReginaValentinaRostro.png?v=2" alt="Regina Valentina" class="regina-avatar">
         <div>
             <h1>Regina Valentina 🤠🐾</h1>
-            <p>Experta en Comportamiento</p>
+            <p>Comportamiento Animal</p>
         </div>
     </div>
 
@@ -1004,6 +1085,7 @@
     <div class="loading" id="loading">Regina está escribiendo...</div>
 
     <div class="input-area">
+        <div id="preview-adjunto"></div>
         <input type="text" id="user-input" placeholder="Escribe tu consulta aquí...">
         <div class="input-controls">
             <div class="input-icons">
@@ -2201,11 +2283,15 @@
             loading.style.display = 'none';
             imagenChatBase64 = null;
             document.getElementById('input-foto-chat').value = '';
+            const prevErr = document.getElementById('preview-adjunto');
+            if (prevErr) { prevErr.style.display = 'none'; prevErr.innerHTML = ''; }
             return;
         }
 
         imagenChatBase64 = null;
         document.getElementById('input-foto-chat').value = '';
+        const prevOk = document.getElementById('preview-adjunto');
+        if (prevOk) { prevOk.style.display = 'none'; prevOk.innerHTML = ''; }
         loading.style.display = 'none';
 
         if (data.status === 'quota_exceeded') {
@@ -2278,15 +2364,55 @@
     });
 
     let imagenChatBase64 = null;
+
+    function mostrarGloboAdjunto() {
+        const btn = document.getElementById('btn-camara');
+        const existing = document.getElementById('attach-tooltip-el');
+        if (existing) existing.remove();
+        const tip = document.createElement('div');
+        tip.id = 'attach-tooltip-el';
+        tip.className = 'attach-tooltip';
+        tip.innerHTML = '📸 ¡Foto lista!<br><span style="font-weight:400;font-size:0.82rem;opacity:0.82;">Describe y presiona Enviar</span>';
+        document.body.appendChild(tip);
+        const rect = btn.getBoundingClientRect();
+        const tipW = tip.offsetWidth || 200;
+        const left = Math.max(8, Math.min(rect.left + rect.width / 2 - tipW / 2, window.innerWidth - tipW - 8));
+        const top = Math.max(8, rect.top - tip.offsetHeight - 12);
+        tip.style.left = left + 'px';
+        tip.style.top = top + 'px';
+        setTimeout(() => {
+            tip.style.animation = 'tooltipFadeOut 0.3s ease forwards';
+            setTimeout(() => tip.remove(), 320);
+        }, 3500);
+    }
+
+    function eliminarAdjunto() {
+        imagenChatBase64 = null;
+        document.getElementById('input-foto-chat').value = '';
+        const prev = document.getElementById('preview-adjunto');
+        prev.style.display = 'none';
+        prev.innerHTML = '';
+        vibrar(30);
+    }
+
     function previsualizarFotoChat() {
         const file = document.getElementById('input-foto-chat').files[0];
-        if(file) {
+        if (file) {
             const reader = new FileReader();
             reader.onloadend = function() {
                 imagenChatBase64 = reader.result;
                 vibrar([50, 100, 50]);
-                mostrarNotificacion("📸 ¡Foto adjuntada exitosamente!<br>Agrega una descripción y dale a Enviar.", "#4caf50", 4500);
-            }
+                mostrarGloboAdjunto();
+                const nombre = file.name.length > 24 ? file.name.substring(0, 22) + '…' : file.name;
+                const kb = (file.size / 1024).toFixed(0);
+                const prev = document.getElementById('preview-adjunto');
+                prev.innerHTML = `
+                    <img src="${reader.result}" alt="Vista previa">
+                    <div class="prev-info"><strong>${nombre}</strong><br>${kb} KB</div>
+                    <button class="prev-del" onclick="eliminarAdjunto()" title="Quitar imagen">✕</button>
+                `;
+                prev.style.display = 'flex';
+            };
             reader.readAsDataURL(file);
         }
     }
