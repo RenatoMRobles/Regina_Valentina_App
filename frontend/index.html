@@ -271,6 +271,34 @@
             flex-shrink: 0; position: relative; z-index: 1;
             box-shadow: 0 8px 28px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.05);
             overflow: hidden;
+            cursor: pointer;
+            transition: background 0.28s ease, box-shadow 0.28s ease;
+        }
+        .side-menu-hdr:hover {
+            background: linear-gradient(135deg, #5d1290 0%, #9e1447 100%);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6), 0 0 22px rgba(194,24,91,0.28), inset 0 -1px 0 rgba(255,255,255,0.08);
+        }
+
+        /* ── Membership Badge ── */
+        .membership-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 11px 20px; border-radius: 50px;
+            font-weight: 700; font-size: 0.97rem;
+            width: 100%; box-sizing: border-box; margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+        .membership-badge.vip {
+            background: linear-gradient(135deg, rgba(28,20,5,0.95), rgba(48,35,5,0.92));
+            color: #ffca28;
+            border: 1px solid rgba(255,202,40,0.5);
+            box-shadow: 0 0 28px rgba(255,202,40,0.15), var(--nm-btn);
+            text-shadow: 0 0 12px rgba(255,202,40,0.4);
+        }
+        .membership-badge.freemium {
+            background: rgba(142,36,170,0.1);
+            color: var(--text-main);
+            border: 1px solid rgba(142,36,170,0.3);
+            box-shadow: var(--nm-inset);
         }
         .side-menu-hdr::before {
             content: '';
@@ -750,13 +778,13 @@
 ══════════════════════════════════════ -->
 <div id="menu-overlay" onclick="cerrarMenuLateral()"></div>
 <nav id="side-menu">
-    <div class="side-menu-hdr">
+    <div class="side-menu-hdr" onclick="vibrar(40); cerrarMenuLateral(); setTimeout(abrirMiCuenta, 200)" title="Ver mi perfil y cuenta">
         <img src="ReginaValentinaRostro.png?v=2" alt="Regina" class="side-menu-avatar">
         <div class="side-menu-title">
             Regina Valentina<br>
             <small>Experta en Mascotas</small>
         </div>
-        <button class="close-side-menu" onclick="cerrarMenuLateral()" title="Cerrar menú">
+        <button class="close-side-menu" onclick="cerrarMenuLateral(); event.stopPropagation();" title="Cerrar menú">
             <i class="fas fa-xmark"></i>
         </button>
     </div>
@@ -822,13 +850,7 @@
         </a>
 
     </div>
-    <!-- ── FASE 2: Mi Perfil en footer del sidebar ── -->
     <div class="side-menu-ftr">
-        <button onclick="vibrar(40); cerrarMenuLateral(); setTimeout(abrirMiCuenta, 200)" class="sidebar-profile-btn">
-            <img id="sidebar-user-avatar" src="ReginaValentinaRostro.png?v=2" alt="Perfil" class="sidebar-profile-avatar">
-            <span id="sidebar-user-name" style="flex:1;">Mi Perfil / Cuenta</span>
-            <i class="fas fa-chevron-right" style="color:rgba(194,24,91,0.4); font-size:0.72rem;"></i>
-        </button>
         <div class="side-menu-ftr-copy">
             <i class="fas fa-paw" style="color:rgba(194,24,91,0.5); margin-right:5px;"></i>
             © 2026 Robles Bienestar. Todos los derechos reservados.
@@ -881,6 +903,7 @@
         </div>
 
         <div id="logged-in-view" style="display:none; text-align:center;">
+            <div id="membership-badge-container"></div>
             <p style="color:var(--text-main); opacity:0.8; font-size:1.05em; margin-bottom:20px; line-height:1.5;">Usted ya es parte del rancho. ¡Su acceso está asegurado!</p>
             <button id="btn-centro-mando" onclick="vibrar(40); window.open('https://regina-valentina-938250627989.us-central1.run.app/panel-robles?admin_id=' + getUserId(), '_blank')" style="display:none; width:100%; padding:15px; background:linear-gradient(135deg, rgba(25,18,5,0.95), rgba(45,32,5,0.9)); color:#ffca28; border:1px solid rgba(255,202,40,0.45); border-radius:14px; font-weight:bold; cursor:pointer; margin:0 auto 15px auto; font-size:1.1rem; box-shadow:0 0 24px rgba(255,202,40,0.12), var(--nm-btn); letter-spacing:0.02em; font-family:inherit;">🦅 Centro de Mando</button>
             <button onclick="vibrar(40); cerrarSesion();" style="width:100%; padding:15px; background:linear-gradient(135deg, #b71c1c, #d32f2f); color:white; border:none; border-radius:14px; font-weight:bold; cursor:pointer; margin:0 auto; font-size:1.1rem; box-shadow:var(--nm-btn), 0 4px 14px rgba(244,67,54,0.2); font-family:inherit;">Cerrar Sesión 🚪</button>
@@ -1813,8 +1836,19 @@
             titulo.innerText = "Mi Cuenta VIP 💎";
             document.getElementById('auth-inputs').style.display = 'none';
             document.getElementById('logged-in-view').style.display = 'block';
-            if (localStorage.getItem('regina_is_admin') === 'true' || localStorage.getItem('regina_is_director') === 'true') { document.getElementById('btn-centro-mando').style.display = 'block'; }
+            const isAdmin    = localStorage.getItem('regina_is_admin')    === 'true';
+            const isDirector = localStorage.getItem('regina_is_director') === 'true';
+            const isPremium  = localStorage.getItem('regina_is_premium')  === 'true';
+            if (isAdmin || isDirector) { document.getElementById('btn-centro-mando').style.display = 'block'; }
             else { document.getElementById('btn-centro-mando').style.display = 'none'; }
+            const badgeEl = document.getElementById('membership-badge-container');
+            if (badgeEl) {
+                if (isAdmin || isDirector || isPremium) {
+                    badgeEl.innerHTML = '<div class="membership-badge vip">💎 Membresía: VIP Premium ✨</div>';
+                } else {
+                    badgeEl.innerHTML = '<div class="membership-badge freemium">🐾 Membresía: Freemium &nbsp;<span style="font-size:0.85em;opacity:0.7;">— <a onclick="vibrar(30); document.getElementById(\'auth-modal\').style.display=\'none\'; setTimeout(abrirPaywallVoluntario, 150);" style="color:var(--accent-pink);cursor:pointer;text-decoration:underline;">¡Hazte VIP!</a></span></div>';
+                }
+            }
         } else {
             titulo.innerText = "Acceso al Rancho 🤠";
             document.getElementById('auth-inputs').style.display = 'block';
@@ -1857,13 +1891,9 @@
         if (sideTitle) {
             sideTitle.innerHTML = `${n}<br><small style="opacity:0.8; font-weight:normal; font-size:0.85em;">Miembro del Rancho 🤠</small>`;
         }
-        const sidebarName = document.getElementById('sidebar-user-name');
-        if (sidebarName) sidebarName.textContent = n;
         if (f) {
             const sideAvatar = document.querySelector('.side-menu-avatar');
             if (sideAvatar) { sideAvatar.src = f; sideAvatar.style.border = '3px solid #ffca28'; }
-            const sidebarAvatar = document.getElementById('sidebar-user-avatar');
-            if (sidebarAvatar) { sidebarAvatar.src = f; sidebarAvatar.style.borderColor = '#ffca28'; }
         }
     }
 
