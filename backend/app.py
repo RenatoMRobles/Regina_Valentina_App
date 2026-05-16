@@ -1034,5 +1034,63 @@ Responde ÚNICAMENTE en JSON sin markdown:
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/moderate', methods=['POST'])
+def moderate_content():
+    """AI moderation pipeline for rescue network posts — Trust & Safety v1."""
+    try:
+        data = request.json or {}
+        text = (data.get('text') or '').strip()
+
+        if not text:
+            return jsonify({'approved': True, 'motivo_ia': None, 'estado_moderacion': 'publicado'})
+
+        if not anthropic_client:
+            print("[MODERATE] anthropic_client no disponible — aprobando por defecto.")
+            return jsonify({'approved': True, 'motivo_ia': None, 'estado_moderacion': 'publicado'})
+
+        system_prompt = (
+            "Eres el moderador de contenido de una red comunitaria de rescate de mascotas en México. "
+            "Analiza el texto de un reporte de mascota perdida/encontrada y determina si es seguro publicarlo.\n\n"
+            "BLOQUEAR si detectas:\n"
+            "1. VENTA: precios, cobros, transacciones económicas por el animal.\n"
+            "2. EXTORSIÓN: dinero a cambio de devolver la mascota, chantaje, amenazas.\n"
+            "3. ODIO: insultos, discriminación, amenazas contra personas o grupos.\n"
+            "4. SPAM: publicidad irrelevante, links sospechosos, texto repetitivo masivo.\n"
+            "5. FRAUDE: contenido claramente falso que busca engañar a la comunidad.\n\n"
+            "APROBAR:\n"
+            "- Reportes genuinos de mascotas perdidas o encontradas.\n"
+            "- Descripción del animal (color, raza, tamaño, señas particulares).\n"
+            "- Datos de contacto legítimos (nombre, teléfono, correo) para facilitar el rescate.\n"
+            "- Recompensas modestas y voluntarias.\n"
+            "- Expresiones de urgencia o preocupación genuinas.\n\n"
+            "Responde ÚNICAMENTE con JSON válido, sin markdown, sin texto adicional:\n"
+            "{\"aprobado\": true/false, \"motivo\": \"explicación breve si fue bloqueado, null si fue aprobado\"}"
+        )
+
+        response = anthropic_client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            system=system_prompt,
+            messages=[{"role": "user", "content": f"Analiza este texto de reporte:\n\n{text[:1500]}"}]
+        )
+
+        raw = response.content[0].text.strip().replace('```json', '').replace('```', '').strip()
+        result = json.loads(raw)
+        aprobado = bool(result.get('aprobado', True))
+        motivo = result.get('motivo') if not aprobado else None
+
+        return jsonify({
+            'approved': aprobado,
+            'motivo_ia': motivo,
+            'estado_moderacion': 'publicado' if aprobado else 'cuarentena'
+        })
+
+    except json.JSONDecodeError:
+        return jsonify({'approved': True, 'motivo_ia': None, 'estado_moderacion': 'publicado'})
+    except Exception as e:
+        print(f"[MODERATE ERROR] {type(e).__name__}: {e}")
+        return jsonify({'approved': True, 'motivo_ia': None, 'estado_moderacion': 'publicado'})
+
+
 if __name__ == '__main__':
     app.run(debug=True)
