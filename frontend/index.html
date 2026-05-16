@@ -618,6 +618,10 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 14px rgba(194,24,91,0.3);
         }
+        @media (min-width: 481px) {
+            .chips-container { flex-wrap: wrap; overflow-x: hidden; white-space: normal; }
+            .chips-container .chip { flex: 0 0 calc(50% - 5px); white-space: normal; text-align: center; }
+        }
 
         .modal-card {
             background: linear-gradient(160deg, rgba(21,16,42,0.97) 0%, rgba(15,15,34,0.95) 100%);
