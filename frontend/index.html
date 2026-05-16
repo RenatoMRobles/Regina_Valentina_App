@@ -694,6 +694,20 @@
             .message { font-size: 1.15rem; }
         }
 
+        /* ══════════════════════════════════════
+           GAMIFICACION — CONFETTI & RACHA
+        ══════════════════════════════════════ */
+        @keyframes confetti-caida {
+            0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            80%  { opacity: 0.85; }
+            100% { transform: translateY(110vh) rotate(620deg) scale(0.4); opacity: 0; }
+        }
+        @keyframes racha-pulso {
+            0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(255,87,34,0); }
+            50%       { transform: scale(1.18); box-shadow: 0 0 0 10px rgba(255,87,34,0.28); }
+        }
+        .streak-celebracion { animation: racha-pulso 0.45s ease-in-out 7 !important; }
+
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .app-header, .app-footer, #side-menu, #menu-overlay, .header, .input-area, .chips-container, button, .pdf-btn, .loading, #caja-aviso-legal { display: none !important; }
@@ -1089,6 +1103,7 @@
         const ayer = new Date(Date.now() - 86400000).toDateString();
         let racha = parseInt(localStorage.getItem('regina_streak') || 0);
         const ultimaFecha = localStorage.getItem('regina_last_interaction');
+        let rachaSubio = false;
 
         if (!ultimaFecha) {
             racha = 1;
@@ -1096,6 +1111,7 @@
             // sin cambio: racha ya contada hoy
         } else if (ultimaFecha === ayer) {
             racha += 1;
+            rachaSubio = true;
         } else {
             racha = 1;
         }
@@ -1108,12 +1124,58 @@
 
         const btn = document.getElementById('btn-racha');
         if (btn && racha >= 2) btn.classList.add('streak-activa');
+
+        if (rachaSubio && racha >= 2) {
+            setTimeout(() => celebrarRacha(racha), 900);
+        }
     }
 
     function verRacha() {
         const racha = parseInt(localStorage.getItem('regina_streak') || 0);
         const color = racha >= 7 ? '#ff5722' : racha >= 3 ? '#ff9800' : '#6a1b9a';
         mostrarNotificacion(`🔥 ¡Llevas <strong>${racha}</strong> día(s) seguidos con Regina! ¡Sigue así!`, color, 4000);
+    }
+
+    function celebrarRacha(rachaNum) {
+        vibrar([50, 80, 50, 80, 50, 150, 100, 350]);
+
+        // +5 pts al trofeo "Socio Supremo" por la dedicación diaria
+        const ptsActuales = parseInt(localStorage.getItem('regina_pts_socio') || 0);
+        const ptsNuevos = Math.min(ptsActuales + 5, 100);
+        localStorage.setItem('regina_pts_socio', ptsNuevos);
+
+        // Detectar si se ganó una insignia nueva
+        const insigniasAntes = parseInt(localStorage.getItem('regina_total_insignias') || 0);
+        const insigniasAhora = contarInsignias();
+        localStorage.setItem('regina_total_insignias', insigniasAhora);
+        if (insigniasAhora > insigniasAntes) { celebrarInsigniaNueva(); }
+
+        mostrarNotificacion(`🔥 ¡<strong>${rachaNum}</strong> días seguidos! +5 pts en Vitrina 🏆`, '#ff5722', 5000);
+
+        const btn = document.getElementById('btn-racha');
+        if (btn) {
+            btn.classList.remove('streak-celebracion');
+            void btn.offsetWidth;
+            btn.classList.add('streak-celebracion');
+            setTimeout(() => btn.classList.remove('streak-celebracion'), 3500);
+        }
+
+        dispararConfetti();
+    }
+
+    function dispararConfetti() {
+        const colores = ['#ffca28','#d81b60','#4caf50','#2196f3','#ff5722','#9c27b0','#00bcd4','#ffffff'];
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            const esCirculo = Math.random() > 0.45;
+            const delay = (Math.random() * 0.7).toFixed(2);
+            const duracion = (1.6 + Math.random() * 1.8).toFixed(2);
+            const color = colores[Math.floor(Math.random() * colores.length)];
+            const tam = (6 + Math.random() * 10).toFixed(1);
+            p.style.cssText = `position:fixed;width:${tam}px;height:${tam}px;background:${color};border-radius:${esCirculo?'50%':'3px'};left:${(Math.random()*100).toFixed(1)}vw;top:-14px;z-index:99999;pointer-events:none;animation:confetti-caida ${duracion}s ease-in ${delay}s forwards;`;
+            document.body.appendChild(p);
+            setTimeout(() => { if (p.parentNode) p.remove(); }, (parseFloat(duracion) + parseFloat(delay) + 0.5) * 1000);
+        }
     }
 
     // ══════════════════════════════════════
@@ -1192,13 +1254,24 @@
             });
             const data = await res.json();
             const modalHtml = `
-            <div id="modal-premium" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
-                <div class="modal-card" style="padding:30px; border-radius:20px; max-width:90%; width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid #d81b60;">
-                    <h2 style="color:#d81b60; margin-top:0;">💎 Hazte Socio VIP 🤠</h2>
-                    <p style="font-size:1.1em; font-weight:bold;">Acceso ilimitado a Regina Valentina.</p>
-                    <a href="${data.payment_link_day}" style="display:block; background:#ffca28; color:#333; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:12px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">🤠 Pase 24 Horas - $39 MXN</a>
-                    <a href="${data.payment_link_month}" style="display:block; background:#d81b60; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:20px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">💎 Mes VIP Ilimitado - $99 MXN</a>
-                    <button onclick="document.getElementById('modal-premium').remove()" style="background:none; border:none; color:var(--text-main); opacity:0.6; text-decoration:underline; cursor:pointer; font-size:1em;">Cerrar por ahora</button>
+            <div id="modal-premium" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;display:flex;justify-content:center;align-items:center;">
+                <div style="padding:38px 30px 28px;border-radius:30px;max-width:92%;width:430px;text-align:center;background:linear-gradient(145deg,rgba(22,8,42,0.97),rgba(10,3,22,0.99));border:1px solid rgba(194,24,91,0.3);box-shadow:0 30px 70px rgba(0,0,0,0.75),0 0 90px rgba(194,24,91,0.12),inset 0 1px 0 rgba(255,255,255,0.07);position:relative;overflow:hidden;">
+                    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6a1b9a,#d81b60,#ff8f00,#d81b60,#6a1b9a);border-radius:30px 30px 0 0;"></div>
+                    <div style="position:absolute;top:-80px;right:-80px;width:220px;height:220px;background:radial-gradient(circle,rgba(194,24,91,0.07),transparent 70%);pointer-events:none;"></div>
+                    <div style="position:absolute;bottom:-80px;left:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(106,27,154,0.07),transparent 70%);pointer-events:none;"></div>
+                    <div style="font-size:3.8em;margin-bottom:6px;filter:drop-shadow(0 0 22px rgba(255,202,40,0.55));">💎</div>
+                    <h2 style="color:#fff;margin:0 0 5px 0;font-size:1.55em;font-weight:900;letter-spacing:-0.5px;">Hazte Socio VIP 🤠</h2>
+                    <p style="color:rgba(255,255,255,0.5);margin:0 0 24px 0;font-size:0.88em;">Desbloquea a Regina Valentina sin límites</p>
+                    <a href="${data.payment_link_day}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(255,202,40,0.12),rgba(255,143,0,0.08));color:#ffca28;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:12px;font-size:1em;border:1px solid rgba(255,202,40,0.3);box-shadow:0 4px 22px rgba(255,202,40,0.08),inset 0 1px 0 rgba(255,202,40,0.12);">
+                        <span>🤠 Pase 24 Horas</span>
+                        <span style="background:rgba(255,202,40,0.18);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(255,202,40,0.28);">$39 MXN</span>
+                    </a>
+                    <a href="${data.payment_link_month}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(216,27,96,0.22),rgba(106,27,154,0.12));color:#fff;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:22px;font-size:1em;border:1px solid rgba(216,27,96,0.38);box-shadow:0 4px 22px rgba(216,27,96,0.12),inset 0 1px 0 rgba(255,255,255,0.05);">
+                        <span>💎 Mes VIP Ilimitado</span>
+                        <span style="background:rgba(216,27,96,0.28);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(216,27,96,0.38);">$99 MXN</span>
+                    </a>
+                    <p style="margin:0 0 18px 0;color:rgba(255,255,255,0.35);font-size:0.76em;line-height:1.5;">✅ Pago seguro MercadoPago &nbsp;·&nbsp; ✅ Acceso inmediato &nbsp;·&nbsp; ✅ Sin suscripción forzada</p>
+                    <button onclick="document.getElementById('modal-premium').remove()" style="background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;font-size:0.82em;font-family:inherit;padding:6px 10px;border-radius:8px;">Cerrar por ahora</button>
                 </div>
             </div>`;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -2081,13 +2154,24 @@
                 document.getElementById('auth-modal').style.display = 'flex';
             } else {
                 const modalHtml = `
-                <div id="modal-premium" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
-                    <div class="modal-card" style="padding:30px; border-radius:20px; max-width:90%; width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid #d81b60;">
-                        <h2 style="color:#d81b60; margin-top:0;">¡Tiempo Fuera, Pariente! 🛑</h2>
-                        <p style="font-size:1.1em; font-weight:bold;">Se nos acabaron los mensajes de prueba.</p>
-                        <a href="${data.payment_link_day}" style="display:block; background:#ffca28; color:#333; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:12px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">🤠 Pase 24 Horas - $39 MXN</a>
-                        <a href="${data.payment_link_month}" style="display:block; background:#d81b60; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:20px; font-size:1.1em; box-shadow:0 4px 6px rgba(0,0,0,0.1);">💎 Mes VIP Ilimitado - $99 MXN</a>
-                        <button onclick="document.getElementById('modal-premium').remove()" style="background:none; border:none; color:var(--text-main); opacity:0.6; text-decoration:underline; cursor:pointer; font-size:1em;">Cerrar por ahora</button>
+                <div id="modal-premium" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;display:flex;justify-content:center;align-items:center;">
+                    <div style="padding:38px 30px 28px;border-radius:30px;max-width:92%;width:430px;text-align:center;background:linear-gradient(145deg,rgba(22,8,42,0.97),rgba(10,3,22,0.99));border:1px solid rgba(194,24,91,0.3);box-shadow:0 30px 70px rgba(0,0,0,0.75),0 0 90px rgba(194,24,91,0.12),inset 0 1px 0 rgba(255,255,255,0.07);position:relative;overflow:hidden;">
+                        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6a1b9a,#d81b60,#ff8f00,#d81b60,#6a1b9a);border-radius:30px 30px 0 0;"></div>
+                        <div style="position:absolute;top:-80px;right:-80px;width:220px;height:220px;background:radial-gradient(circle,rgba(194,24,91,0.07),transparent 70%);pointer-events:none;"></div>
+                        <div style="position:absolute;bottom:-80px;left:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(106,27,154,0.07),transparent 70%);pointer-events:none;"></div>
+                        <div style="font-size:3.4em;margin-bottom:6px;filter:drop-shadow(0 0 20px rgba(255,87,34,0.5));">🛑</div>
+                        <h2 style="color:#fff;margin:0 0 5px 0;font-size:1.45em;font-weight:900;letter-spacing:-0.5px;">¡Tiempo Fuera, Pariente!</h2>
+                        <p style="color:rgba(255,255,255,0.5);margin:0 0 24px 0;font-size:0.88em;">Se agotaron los mensajes de prueba. Únete al rancho VIP.</p>
+                        <a href="${data.payment_link_day}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(255,202,40,0.12),rgba(255,143,0,0.08));color:#ffca28;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:12px;font-size:1em;border:1px solid rgba(255,202,40,0.3);box-shadow:0 4px 22px rgba(255,202,40,0.08),inset 0 1px 0 rgba(255,202,40,0.12);">
+                            <span>🤠 Pase 24 Horas</span>
+                            <span style="background:rgba(255,202,40,0.18);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(255,202,40,0.28);">$39 MXN</span>
+                        </a>
+                        <a href="${data.payment_link_month}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(216,27,96,0.22),rgba(106,27,154,0.12));color:#fff;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:22px;font-size:1em;border:1px solid rgba(216,27,96,0.38);box-shadow:0 4px 22px rgba(216,27,96,0.12),inset 0 1px 0 rgba(255,255,255,0.05);">
+                            <span>💎 Mes VIP Ilimitado</span>
+                            <span style="background:rgba(216,27,96,0.28);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(216,27,96,0.38);">$99 MXN</span>
+                        </a>
+                        <p style="margin:0 0 18px 0;color:rgba(255,255,255,0.35);font-size:0.76em;line-height:1.5;">✅ Pago seguro MercadoPago &nbsp;·&nbsp; ✅ Acceso inmediato &nbsp;·&nbsp; ✅ Sin suscripción forzada</p>
+                        <button onclick="document.getElementById('modal-premium').remove()" style="background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;font-size:0.82em;font-family:inherit;padding:6px 10px;border-radius:8px;">Cerrar por ahora</button>
                     </div>
                 </div>`;
                 document.body.insertAdjacentHTML('beforeend', modalHtml);

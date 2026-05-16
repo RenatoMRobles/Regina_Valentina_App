@@ -4,51 +4,459 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Términos y Condiciones | Regina Valentina</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
     <style>
-        body { font-family: sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; }
-        h1 { color: #6a1b9a; border-bottom: 2px solid #6a1b9a; padding-bottom: 10px; }
-        h2 { color: #4a148c; margin-top: 30px; }
-        .warning { background: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; margin: 20px 0; font-weight: bold; }
-        footer { margin-top: 50px; font-size: 0.8em; color: #777; text-align: center; }
+        :root {
+            --bg: #0d0818;
+            --bg-card: rgba(255,255,255,0.03);
+            --border: rgba(194,24,91,0.22);
+            --accent-purple: #8e24aa;
+            --accent-pink: #d81b60;
+            --accent-gold: #ffca28;
+            --text-main: #e8e0f0;
+            --text-muted: rgba(232,224,240,0.55);
+            --nm-btn: 4px 4px 10px rgba(0,0,0,0.55), -2px -2px 8px rgba(255,255,255,0.03);
+            --nm-inset: inset 3px 3px 8px rgba(0,0,0,0.5), inset -2px -2px 6px rgba(255,255,255,0.02);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Fondo decorativo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -200px; right: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(142,36,170,0.08), transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -200px; left: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(216,27,96,0.07), transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        .page-wrap {
+            position: relative; z-index: 1;
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: linear-gradient(145deg, rgba(22,8,42,0.9), rgba(10,3,22,0.95));
+            border-radius: 24px;
+            border: 1px solid rgba(194,24,91,0.25);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 60px rgba(194,24,91,0.06), var(--nm-btn);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #6a1b9a, #d81b60, #ff8f00, #d81b60, #6a1b9a);
+        }
+        .page-header .brand-icon { font-size: 3.5em; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 20px rgba(255,202,40,0.4)); }
+        .page-header h1 { font-size: 2em; font-weight: 900; letter-spacing: -0.5px; color: #fff; margin-bottom: 8px; }
+        .page-header .subtitle { color: var(--text-muted); font-size: 0.9em; }
+        .page-header .update-badge {
+            display: inline-block;
+            margin-top: 14px;
+            background: rgba(255,202,40,0.1);
+            border: 1px solid rgba(255,202,40,0.28);
+            color: var(--accent-gold);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Banner de aviso crítico */
+        .critical-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(216,27,96,0.12), rgba(106,27,154,0.08));
+            border: 1px solid rgba(216,27,96,0.35);
+            border-left: 4px solid var(--accent-pink);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--nm-btn);
+        }
+        .critical-banner .icon { font-size: 1.6em; flex-shrink: 0; margin-top: 2px; }
+        .critical-banner p { color: var(--text-main); font-weight: 600; font-size: 0.95em; }
+
+        /* Acordeón */
+        .accordion-section {
+            margin-bottom: 12px;
+        }
+
+        details.clause {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--nm-btn);
+            transition: border-color 0.25s;
+        }
+        details.clause[open] {
+            border-color: rgba(194,24,91,0.45);
+            box-shadow: var(--nm-btn), 0 0 30px rgba(194,24,91,0.06);
+        }
+
+        details.clause summary {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 22px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        details.clause summary::-webkit-details-marker { display: none; }
+        details.clause summary:hover { background: rgba(142,36,170,0.07); }
+
+        .clause-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+
+        .clause-title {
+            flex: 1;
+            font-weight: 700;
+            font-size: 1.02em;
+            color: var(--text-main);
+        }
+
+        .clause-chevron {
+            color: var(--accent-pink);
+            font-size: 0.9em;
+            transition: transform 0.25s;
+            flex-shrink: 0;
+        }
+        details.clause[open] .clause-chevron {
+            transform: rotate(180deg);
+        }
+
+        .clause-body {
+            padding: 6px 22px 22px 22px;
+            border-top: 1px solid rgba(194,24,91,0.1);
+            background: rgba(0,0,0,0.2);
+            box-shadow: var(--nm-inset);
+        }
+        .clause-body p {
+            color: rgba(232,224,240,0.82);
+            font-size: 0.94em;
+            margin-top: 14px;
+            line-height: 1.75;
+        }
+        .clause-body ul {
+            list-style: none;
+            margin-top: 12px;
+            padding: 0;
+        }
+        .clause-body ul li {
+            color: rgba(232,224,240,0.78);
+            font-size: 0.92em;
+            padding: 6px 0 6px 20px;
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            line-height: 1.6;
+        }
+        .clause-body ul li:last-child { border-bottom: none; }
+        .clause-body ul li::before {
+            content: '▸';
+            position: absolute; left: 0;
+            color: var(--accent-pink);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255,202,40,0.07), rgba(255,143,0,0.04));
+            border: 1px solid rgba(255,202,40,0.22);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
+        .highlight-box p {
+            color: rgba(255,202,40,0.9) !important;
+            font-weight: 600;
+            font-size: 0.9em !important;
+            margin-top: 0 !important;
+        }
+
+        .danger-box {
+            background: linear-gradient(135deg, rgba(216,27,96,0.09), rgba(106,27,154,0.05));
+            border: 1px solid rgba(216,27,96,0.28);
+            border-left: 3px solid var(--accent-pink);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
+        .danger-box p {
+            color: rgba(255,200,220,0.9) !important;
+            font-size: 0.9em !important;
+            margin-top: 0 !important;
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            margin-top: 42px;
+            padding: 28px 20px;
+            background: linear-gradient(145deg, rgba(22,8,42,0.7), rgba(10,3,22,0.8));
+            border-radius: 18px;
+            border: 1px solid rgba(194,24,91,0.18);
+        }
+        .page-footer a { color: var(--accent-pink); text-decoration: none; font-weight: 600; }
+        .page-footer a:hover { text-decoration: underline; }
+        .page-footer p { color: var(--text-muted); font-size: 0.82em; line-height: 1.8; }
+
+        /* Colores de insignia por cláusula */
+        .badge-purple { background: rgba(142,36,170,0.2); color: #ce93d8; border: 1px solid rgba(142,36,170,0.3); }
+        .badge-pink   { background: rgba(216,27,96,0.2);  color: #f48fb1; border: 1px solid rgba(216,27,96,0.3); }
+        .badge-blue   { background: rgba(33,150,243,0.2); color: #90caf9; border: 1px solid rgba(33,150,243,0.3); }
+        .badge-gold   { background: rgba(255,202,40,0.15);color: #ffe082; border: 1px solid rgba(255,202,40,0.28); }
+        .badge-red    { background: rgba(244,67,54,0.2);  color: #ef9a9a; border: 1px solid rgba(244,67,54,0.3); }
+        .badge-green  { background: rgba(76,175,80,0.2);  color: #a5d6a7; border: 1px solid rgba(76,175,80,0.3); }
+        .badge-orange { background: rgba(255,152,0,0.2);  color: #ffcc80; border: 1px solid rgba(255,152,0,0.3); }
+        .badge-teal   { background: rgba(0,188,212,0.2);  color: #80deea; border: 1px solid rgba(0,188,212,0.3); }
+        .badge-grey   { background: rgba(255,255,255,0.07);color: #b0bec5; border: 1px solid rgba(255,255,255,0.12); }
     </style>
 </head>
 <body>
-    <h1>Términos y Condiciones de Uso</h1>
-    <p>Última actualización: 11 de febrero de 2026</p>
+<div class="page-wrap">
 
-    <div class="warning">
-        IMPORTANTE: Regina Valentina es una Inteligencia Artificial con fines educativos y de entretenimiento. El uso de esta plataforma implica la aceptación total de estos términos.
+    <!-- HEADER -->
+    <div class="page-header">
+        <span class="brand-icon">🤠🐾</span>
+        <h1>Términos y Condiciones</h1>
+        <p class="subtitle">Plataforma Regina Valentina &nbsp;·&nbsp; Robles Bienestar</p>
+        <span class="update-badge"><i class="fas fa-calendar-check"></i> &nbsp;Última actualización: 15 de mayo de 2026</span>
     </div>
 
-    <h2>1. Exclusión de Responsabilidad Médica</h2>
-    <p>Regina Valentina <b>NO es un veterinario</b>, ni un médico, ni un profesional de la salud animal. La información proporcionada es estrictamente educativa y basada en pautas generales de comportamiento.</p>
-    <p>Bajo ninguna circunstancia se ofrecerán consejos sobre:</p>
-    <ul>
-        <li>Dosificación o administración de medicamentos.</li>
-        <li>Esquemas de vacunación.</li>
-        <li>Tratamientos de enfermedades críticas o cirugías.</li>
-    </ul>
+    <!-- BANNER CRÍTICO -->
+    <div class="critical-banner">
+        <span class="icon">⚠️</span>
+        <p>AVISO IMPORTANTE: Regina Valentina es una Inteligencia Artificial con fines exclusivamente educativos y de entretenimiento. El uso de esta plataforma implica la aceptación total, expresa e incondicional de todos los términos aquí descritos. Si no aceptas estos términos, debes abstenerte de usar el servicio.</p>
+    </div>
 
-    <h2>2. Enfoque Exclusivo en Mascotas (No Humanos)</h2>
-    <p>Este sistema está diseñado única y exclusivamente para la orientación en el comportamiento de perros y gatos. <b>Queda estrictamente prohibido</b> solicitar consejos relacionados con la salud, psicología o tratamiento de seres humanos.</p>
-    <p>Robles Bienestar y Renato Robles se deslindan de cualquier responsabilidad por el uso indebido de la plataforma para fines humanos o maltrato.</p>
+    <!-- CLÁUSULA 1 -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-red">1</span>
+                <span class="clause-title">🚫 Exclusión de Responsabilidad Médica y Veterinaria</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>Regina Valentina <strong>NO es un veterinario, ni un médico, ni un profesional certificado de la salud animal</strong>. Toda la información proporcionada es de carácter estrictamente educativo, basada en pautas generales de comportamiento animal.</p>
+                <p>Bajo ninguna circunstancia se ofrecerán consejos sobre:</p>
+                <ul>
+                    <li>Dosificación o administración de medicamentos o suplementos.</li>
+                    <li>Esquemas de vacunación o calendarios sanitarios.</li>
+                    <li>Diagnóstico, tratamiento de enfermedades críticas o procedimientos quirúrgicos.</li>
+                    <li>Urgencias veterinarias o situaciones de riesgo de vida del animal.</li>
+                </ul>
+                <div class="danger-box">
+                    <p>⚕️ Ante cualquier emergencia de salud animal, consulta inmediatamente a un <strong>Médico Veterinario Zootecnista (MVZ) certificado</strong>. Esta IA no sustituye esa atención.</p>
+                </div>
+            </div>
+        </details>
+    </div>
 
-    <h2>3. Límite de Responsabilidad Legal</h2>
-    <p>El usuario acepta que el uso de los consejos proporcionados por la IA es bajo su propio riesgo. Ni Robles Bienestar, ni sus desarrolladores, serán responsables de:</p>
-    <ul>
-        <li>Daños físicos o psicológicos a animales o personas resultantes de la aplicación de consejos.</li>
-        <li>Pérdidas económicas o incidentes domésticos.</li>
-        <li>Decisiones tomadas por el usuario basadas en las respuestas del chat.</li>
-    </ul>
+    <!-- CLÁUSULA 2 -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-purple">2</span>
+                <span class="clause-title">🐾 Enfoque Exclusivo en Mascotas — Prohibición Absoluta de Uso Humano</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>Este sistema está diseñado única y exclusivamente para orientación en el comportamiento de perros y gatos domésticos. <strong>Queda estrictamente prohibido</strong> solicitar consejos relacionados con la salud, psicología, tratamiento o bienestar de seres humanos.</p>
+                <p>Robles Bienestar y Renato Robles se deslindan de cualquier responsabilidad por uso indebido de la plataforma para fines humanos, prácticas de maltrato animal o usos contrarios al bienestar animal establecido en la legislación mexicana vigente.</p>
+            </div>
+        </details>
+    </div>
 
-    <h2>4. Naturaleza del Servicio y Ficción Narrativa</h2>
-    <p>El usuario reconoce y acepta explícitamente que "Regina Valentina" es un asistente virtual impulsado por Inteligencia Artificial y una figura de ficción narrativa (Persona). Las anécdotas, historias, ejemplos del "rancho" o afirmaciones de haber "visto a otros usuarios" enfrentar situaciones similares son recursos literarios, de diseño conversacional (Social Proof) y entretenimiento, utilizados exclusivamente para facilitar la comprensión educativa. No representan eventos históricos reales, ni clientes físicos verídicos, ni deben interpretarse como afirmaciones de hechos empíricos. Robles Bienestar se exime de cualquier responsabilidad derivada de la interpretación literal de estas narrativas.</p>
+    <!-- CLÁUSULA 3 -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-orange">3</span>
+                <span class="clause-title">⚖️ Límite de Responsabilidad Legal</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>El usuario acepta que el uso de los consejos proporcionados por la IA es bajo su propio riesgo y responsabilidad exclusiva. Ni Robles Bienestar, ni Renato Robles, ni sus desarrolladores, socios, colaboradores o proveedores tecnológicos serán responsables de:</p>
+                <ul>
+                    <li>Daños físicos, psicológicos o de cualquier índole causados a animales o personas como resultado de la aplicación de consejos de la IA.</li>
+                    <li>Pérdidas económicas, materiales o daños a terceros derivados del uso de la plataforma.</li>
+                    <li>Decisiones tomadas por el usuario basadas en las respuestas generadas por el sistema.</li>
+                    <li>Errores, omisiones, imprecisiones o alucinaciones del modelo de Inteligencia Artificial.</li>
+                    <li>Interrupciones del servicio por mantenimiento, fallas técnicas o causas de fuerza mayor.</li>
+                </ul>
+            </div>
+        </details>
+    </div>
 
-    <h2>5. Propiedad Intelectual</h2>
-    <p>El nombre "Regina Valentina" y la marca "Robles Bienestar" son propiedad intelectual de Renato Robles.</p>
+    <!-- CLÁUSULA 4 -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-blue">4</span>
+                <span class="clause-title">🎭 Naturaleza del Servicio — Ficción Narrativa e IA Generativa</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>El usuario reconoce y acepta explícitamente que <strong>"Regina Valentina" es un personaje de ficción</strong> (Persona) y un asistente virtual impulsado por Inteligencia Artificial Generativa. Las anécdotas, historias del "rancho", ejemplos y afirmaciones de haber "visto a otros usuarios" enfrentar situaciones similares son recursos literarios, de diseño conversacional (Social Proof) y entretenimiento, utilizados exclusivamente para facilitar la comprensión educativa.</p>
+                <p>Estas narrativas <strong>no representan eventos históricos reales, ni clientes físicos verídicos</strong>, ni deben interpretarse como afirmaciones de hechos empíricos. Robles Bienestar se exime de cualquier responsabilidad derivada de la interpretación literal de estas narrativas.</p>
+                <div class="danger-box">
+                    <p>🤖 <strong>Aviso inquebrantable:</strong> Los modelos de IA Generativa pueden producir respuestas incorrectas, desactualizadas o inventadas ("alucinaciones"). Siempre contrasta la información con fuentes profesionales certificadas. Regina Valentina <strong>JAMÁS</strong> sustituye la opinión de un Médico Veterinario.</p>
+                </div>
+            </div>
+        </details>
+    </div>
 
-    <footer>
-        © 2026 Robles Bienestar. Todos los derechos reservados.
-    </footer>
+    <!-- CLÁUSULA 5 -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-green">5</span>
+                <span class="clause-title">©️ Propiedad Intelectual</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>El nombre <strong>"Regina Valentina"</strong>, la marca <strong>"Robles Bienestar"</strong>, su diseño gráfico, identidad visual, código fuente, prompts, flujos conversacionales y todos los activos digitales asociados son propiedad intelectual exclusiva de <strong>Renato Robles</strong>. Queda prohibida su reproducción, modificación o uso comercial sin autorización expresa y por escrito del titular.</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- CLÁUSULA 6 — NUEVA: NO REEMBOLSOS -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-gold">6</span>
+                <span class="clause-title">💳 Política Estricta de NO Reembolsos — Servicio Digital Consumido</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>Por tratarse de un <strong>servicio digital de acceso inmediato e irrevocable</strong>, una vez completado el pago y activado el acceso premium, <strong>NO se concederán reembolsos bajo ninguna circunstancia</strong>. Esta política aplica sin excepción a:</p>
+                <ul>
+                    <li>Pases de 24 horas ($39 MXN) — acceso consumido desde el momento de la activación.</li>
+                    <li>Membresías mensuales ($99 MXN) — acceso activo durante el período contratado.</li>
+                    <li>Códigos promocionales canjeados — el beneficio se considera recibido en el momento del canje.</li>
+                </ul>
+                <div class="highlight-box">
+                    <p>♟️ Principio aplicable: <em>"Pieza tocada, pieza jugada."</em> Al confirmar el pago, el usuario declara conocer y aceptar las características del servicio. No se reconocerán contracargos (chargebacks) injustificados. En caso de disputas, Robles Bienestar proporcionará evidencia de la activación del servicio ante MercadoPago o la institución financiera correspondiente.</p>
+                </div>
+                <p>Excepción única: falla técnica demostrable imputable exclusivamente a Robles Bienestar que haya impedido totalmente el acceso durante el período contratado. Esta excepción deberá ser documentada y verificada por el equipo técnico.</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- CLÁUSULA 7 — NUEVA: DESLINDE NOMs Y PROTECCIÓN ANIMAL -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-teal">7</span>
+                <span class="clause-title">🐕 Deslinde Legal bajo Normativa Mexicana — NOMs y Protección Animal</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>Robles Bienestar reconoce y se adhiere al marco normativo mexicano en materia de bienestar animal, incluyendo, de manera enunciativa más no limitativa:</p>
+                <ul>
+                    <li><strong>NOM-033-SAG/ZOO-2014:</strong> Métodos para dar muerte a los animales domésticos y silvestres.</li>
+                    <li><strong>NOM-062-ZOO-1999:</strong> Especificaciones técnicas para la producción, cuidado y uso de animales de laboratorio.</li>
+                    <li>Leyes estatales y municipales de protección animal vigentes en la República Mexicana.</li>
+                    <li>Artículo 29 Bis de la Ley Federal de Sanidad Animal.</li>
+                </ul>
+                <p><strong>Deslinde absoluto:</strong> Si un usuario, al interpretar de manera incorrecta, parcial o malintencionada los consejos educativos proporcionados por la IA, causa daño, sufrimiento, lesión o muerte a un animal, <strong>la responsabilidad legal, civil y penal recae exclusiva e íntegramente sobre dicho usuario</strong>. Robles Bienestar, Renato Robles y sus colaboradores quedan exentos de toda responsabilidad en tales supuestos.</p>
+                <div class="danger-box">
+                    <p>🚨 El maltrato animal es un delito tipificado en la legislación mexicana. El uso de esta plataforma para obtener información con fines de maltrato está terminantemente prohibido y será reportado a las autoridades competentes.</p>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- CLÁUSULA 8 — NUEVA: ARBITRAJE Y RENUNCIA A DEMANDAS -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-pink">8</span>
+                <span class="clause-title">🤝 Acuerdo de Arbitraje — Renuncia a Litigios Judiciales</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>Al aceptar estos Términos y Condiciones, el usuario renuncia expresamente a su derecho de iniciar o participar en cualquier demanda judicial, acción colectiva o procedimiento litigioso en contra de Robles Bienestar, Renato Robles, sus representantes, empleados o agentes, en relación con el uso de la plataforma Regina Valentina.</p>
+                <p><strong>Mecanismo de resolución de conflictos:</strong> Toda controversia, disputa o reclamación derivada de o relacionada con el uso de la plataforma se resolverá de manera exclusiva y definitiva mediante <strong>arbitraje privado vinculante</strong>, de conformidad con las siguientes reglas:</p>
+                <ul>
+                    <li>El arbitraje se llevará a cabo en la Ciudad de México, México, en idioma español.</li>
+                    <li>El árbitro único será designado de común acuerdo por las partes o, en su defecto, por el Centro de Arbitraje de México (CAM).</li>
+                    <li>El laudo arbitral será definitivo, vinculante e inapelable para ambas partes.</li>
+                    <li>Los gastos del arbitraje serán cubiertos por la parte que resulte vencida.</li>
+                </ul>
+                <div class="highlight-box">
+                    <p>📋 Este acuerdo de arbitraje es una condición esencial del contrato de uso. Si el usuario no acepta este mecanismo, deberá abstenerse de utilizar la plataforma.</p>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- CLÁUSULA 9 — NUEVA: AVISO IA + ALUCINACIONES -->
+    <div class="accordion-section">
+        <details class="clause">
+            <summary>
+                <span class="clause-num badge-grey">9</span>
+                <span class="clause-title">🤖 Aviso Inquebrantable — Regina es una IA. No es Real. No es Veterinario.</span>
+                <i class="fas fa-chevron-down clause-chevron"></i>
+            </summary>
+            <div class="clause-body">
+                <p>El usuario declara haber leído, entendido y aceptado que:</p>
+                <ul>
+                    <li><strong>Regina Valentina es una Inteligencia Artificial.</strong> Es un programa de cómputo basado en modelos de lenguaje de gran escala (LLM). No es una persona, no tiene conciencia, no tiene experiencias propias y no puede asumir responsabilidad legal.</li>
+                    <li><strong>Regina Valentina es un personaje de ficción.</strong> Su nombre, personalidad, historia del "rancho" y características narrativas son elementos creativos con fines de entretenimiento educativo. Ningún aspecto de su "historia" es autobiográfico o verídico.</li>
+                    <li><strong>Los modelos de IA pueden alucinar.</strong> Esto significa que pueden generar información que parece plausible pero que es factualmente incorrecta, inventada o desactualizada. El usuario asume el riesgo de esta limitación inherente de la tecnología.</li>
+                    <li><strong>Regina Valentina JAMÁS sustituye a un Médico Veterinario Zootecnista (MVZ).</strong> Ante cualquier duda sobre la salud de tu mascota, consulta siempre a un profesional certificado y colegiado.</li>
+                    <li><strong>El servicio puede tener interrupciones.</strong> Robles Bienestar no garantiza disponibilidad ininterrumpida del 100% y no se hace responsable por interrupciones temporales del servicio.</li>
+                </ul>
+                <div class="danger-box">
+                    <p>⚠️ <strong>Declaración final del usuario:</strong> Al usar esta plataforma, el usuario confirma que tiene al menos 18 años de edad, o en su defecto, que cuenta con la autorización de su tutor legal, y que ha leído, comprendido y acepta en su totalidad estos Términos y Condiciones sin reservas.</p>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="page-footer">
+        <p>© 2026 <strong>Robles Bienestar</strong> · Todos los derechos reservados.</p>
+        <p style="margin-top:8px;">Propiedad de <strong>Renato Robles</strong> · Ciudad de México, México</p>
+        <p style="margin-top:10px;"><a href="index.html"><i class="fas fa-arrow-left"></i> Volver a la plataforma</a></p>
+    </div>
+
+</div>
 </body>
 </html>
