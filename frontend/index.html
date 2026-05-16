@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Regina Valentina | Experta en Mascotas</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
     <meta name="theme-color" content="#6a1b9a">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
     <meta name="description" content="Regina Valentina: La experta en comportamiento animal que pone orden en el rancho. ¡Tus primeros 3 consejos son GRATIS! 🤠🐾">
@@ -880,7 +881,7 @@
     <button class="hamburger-btn" onclick="abrirMenuLateral()" title="Menú">☰</button>
     <span class="app-header-title"></span>
     <div class="header-actions">
-        <a href="./rescate.html" class="bar-btn" title="Red de Rescate CDMX" style="text-decoration:none;font-size:0.72rem;font-weight:700;letter-spacing:0.03em;display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:linear-gradient(135deg,rgba(194,24,91,0.18),rgba(233,30,140,0.1));border:1px solid rgba(194,24,91,0.35);color:inherit;white-space:nowrap;">🐾 Red de Rescate</a>
+        <a href="./rescate.html" class="bar-btn" title="Red de Rescate CDMX" style="text-decoration:none;font-size:0.72rem;font-weight:700;letter-spacing:0.03em;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 12px;border-radius:16px;background:linear-gradient(135deg,rgba(194,24,91,0.22),rgba(233,30,99,0.14));border:1px solid rgba(194,24,91,0.45);color:inherit;white-space:normal;line-height:1.2;text-align:center;min-width:64px;">🐾 Red de<br>Rescate</a>
         <button class="bar-btn" id="btn-racha" onclick="vibrar(40); verRacha()" title="Tu racha diaria">
             🔥 <span class="badge-num" id="streak-count">0</span>
         </button>
@@ -1147,7 +1148,6 @@
      JAVASCRIPT PRINCIPAL
 ══════════════════════════════════════ -->
 <script>
-    console.log('Script cargado y listo');
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://127.0.0.1:5000'
         : 'https://regina-valentina-938250627989.us-central1.run.app';
@@ -2020,17 +2020,13 @@
     }
 
     function toggleAudioMensaje(msgId) {
-        console.log('BOCINA CLICKEADA — msgId:', msgId);
         if (ultimoMensajeLeido === msgId) { pararMensaje(); return; }
         reproducirMensaje(msgId);
     }
 
-    // Delegacion de eventos: captura clicks en botones de audio (fallback si onclick falla)
     document.addEventListener('click', function(e) {
-        console.log('[CLICK] target:', e.target.tagName, '| class:', e.target.className, '| id:', e.target.id);
         const btn = e.target.closest('.msg-audio-btn');
         if (!btn) return;
-        console.log('[BOCINA] delegacion — btn.id:', btn.id);
         const msgId = btn.id.replace('audio-btn-', '');
         if (msgId) toggleAudioMensaje(msgId);
     });
@@ -2044,7 +2040,6 @@
         const audioData = elemento ? elemento.getAttribute('data-audio') : null;
 
         if (audioData) {
-            console.log('[TTS] Reproduciendo audio almacenado para mensaje:', msgId, '| Longitud base64:', audioData.length);
             audioPremiumActual = new Audio('data:audio/mp3;base64,' + audioData);
             audioPremiumActual.play();
             ultimoMensajeLeido = msgId;
@@ -2643,7 +2638,6 @@
 
         const motorVoz = (document.getElementById('sel-motor-voz') || {value:'journey'}).value;
         const premiumVoiceFlag = motorVoz === 'journey' || motorVoz === 'neural2';
-        console.log('[TTS] Motor seleccionado:', motorVoz, '| premium_voice:', premiumVoiceFlag);
 
         let data;
         try {
