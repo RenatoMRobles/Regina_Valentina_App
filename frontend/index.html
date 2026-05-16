@@ -1543,7 +1543,7 @@
         vistaDetalle.style.display = 'block';
     }
 
-    function verLeyenda() {
+    async function verLeyenda() {
         document.getElementById('vista-principal-vitrina').style.display = 'none';
         const vistaDetalle = document.getElementById('vista-detalle-vitrina');
         vistaDetalle.innerHTML = `
@@ -1560,8 +1560,148 @@
             <p style="font-weight:bold; color:#4caf50; font-size:1.1em; margin-bottom:22px;">¡Completado al 100%! 🏔️</p>
 
             <button onclick="vibrar(60); generarReporteCientifico()" style="width:100%; background:linear-gradient(135deg, #6a1b9a, #8e24aa); color:white; border:none; padding:16px; border-radius:14px; font-weight:bold; font-size:1.1em; cursor:pointer; box-shadow:var(--nm-btn), 0 4px 18px rgba(106,27,154,0.4); font-family:inherit;">📄 Descargar Reporte</button>
+
+            <div id="gran-premio-section" style="margin-top:28px;">
+                <div style="text-align:center; padding:24px; opacity:0.55;">
+                    <span style="font-size:1.8em; display:block; margin-bottom:8px;">⭐</span>
+                    <p style="margin:0; font-size:0.88em;">Verificando tu Gran Premio...</p>
+                </div>
+            </div>
         `;
         vistaDetalle.style.display = 'block';
+
+        try {
+            const userId = getUserId();
+            if (!userId) {
+                document.getElementById('gran-premio-section').innerHTML =
+                    `<p style="color:rgba(255,255,255,0.4); font-size:0.85em; text-align:center;">Inicia sesión para reclamar tu premio.</p>`;
+                return;
+            }
+            const res = await fetch(`${API_URL}/generar_cupon_maestro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId })
+            });
+            const data = await res.json();
+            if (res.ok && data.cupon) {
+                mostrarGranPremio(data.cupon.codigo, data.cupon.expires_at);
+            } else {
+                document.getElementById('gran-premio-section').innerHTML =
+                    `<p style="color:#f44336; font-size:0.85em; text-align:center;">${data.error || 'Premio no disponible aún.'}</p>`;
+            }
+        } catch(e) {
+            document.getElementById('gran-premio-section').innerHTML =
+                `<p style="color:#f44336; font-size:0.85em; text-align:center;">Error al conectar con el servidor.</p>`;
+        }
+    }
+
+    function mostrarGranPremio(codigo, expiresAtISO) {
+        const section = document.getElementById('gran-premio-section');
+        if (!section) return;
+        section.innerHTML = `
+            <div id="gran-premio-card" style="
+                background: linear-gradient(145deg, #12062a, #1e0a47);
+                border: 1px solid rgba(255,215,0,0.3);
+                border-radius: 22px;
+                padding: 26px 20px 22px;
+                position: relative;
+                overflow: hidden;
+                box-shadow:
+                    0 0 0 1px rgba(138,43,226,0.2),
+                    0 8px 40px rgba(138,43,226,0.25),
+                    0 0 80px rgba(255,215,0,0.06),
+                    inset 0 1px 0 rgba(255,255,255,0.06);
+            ">
+                <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,215,0,0.13) 0%,transparent 70%);pointer-events:none;"></div>
+                <div style="position:absolute;bottom:-50px;left:-50px;width:160px;height:160px;background:radial-gradient(circle,rgba(138,43,226,0.18) 0%,transparent 70%);pointer-events:none;"></div>
+
+                <p style="margin:0 0 2px; font-size:0.7em; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,215,0,0.6); font-weight:700;">✨ Gran Premio ✨</p>
+                <h3 style="margin:0 0 4px; font-size:1.35em; color:#ffd700; text-shadow:0 0 18px rgba(255,215,0,0.5);">1 Mes VIP Gratis</h3>
+                <p style="margin:0 0 20px; font-size:0.78em; color:rgba(255,255,255,0.4);">Cupón de un solo uso · Recompensa máxima por 5 insignias</p>
+
+                <div onclick="copiarCodigoCupon('${codigo}')" style="
+                    background: rgba(255,215,0,0.07);
+                    border: 1.5px dashed rgba(255,215,0,0.5);
+                    border-radius: 14px;
+                    padding: 18px 14px;
+                    cursor: pointer;
+                    margin-bottom: 16px;
+                    transition: background 0.2s;
+                " onmouseover="this.style.background='rgba(255,215,0,0.13)'" onmouseout="this.style.background='rgba(255,215,0,0.07)'">
+                    <p style="margin:0 0 6px; font-size:0.7em; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.12em;">Tu código único</p>
+                    <p style="margin:0; font-size:1.7em; font-weight:900; letter-spacing:0.18em; color:#ffd700; text-shadow:0 0 22px rgba(255,215,0,0.65); font-family:monospace;">${codigo}</p>
+                    <p style="margin:8px 0 0; font-size:0.72em; color:rgba(255,215,0,0.55);">👆 Toca para copiar al portapapeles</p>
+                </div>
+
+                <div style="
+                    background: rgba(138,43,226,0.12);
+                    border: 1px solid rgba(138,43,226,0.3);
+                    border-radius: 14px;
+                    padding: 16px 14px;
+                    margin-bottom: 18px;
+                ">
+                    <p style="margin:0 0 10px; font-size:0.75em; color:rgba(255,255,255,0.45);">Tu cupón mágico expira en:</p>
+                    <div id="countdown-display" style="font-size:1.6em; font-weight:900; color:#bf7fff; font-family:monospace; letter-spacing:0.06em; text-shadow:0 0 18px rgba(160,80,255,0.65);">Calculando...</div>
+                </div>
+
+                <button onclick="vibrar(80); prepararCanjeCupon('${codigo}')" style="
+                    width:100%; padding:16px;
+                    background: linear-gradient(135deg, #ffd700, #ff8c00);
+                    color: #1a0800; border: none; border-radius: 14px;
+                    font-weight: 900; font-size: 1.05em; cursor: pointer;
+                    box-shadow: 0 4px 22px rgba(255,215,0,0.45), inset 0 1px 0 rgba(255,255,255,0.22);
+                    font-family: inherit; letter-spacing: 0.03em;
+                    transition: transform 0.15s, box-shadow 0.15s;
+                " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 7px 28px rgba(255,215,0,0.6), inset 0 1px 0 rgba(255,255,255,0.22)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 22px rgba(255,215,0,0.45), inset 0 1px 0 rgba(255,255,255,0.22)'">
+                    🎁 Activar Mi Mes VIP Ahora
+                </button>
+            </div>
+        `;
+        iniciarCronometro(expiresAtISO);
+    }
+
+    function iniciarCronometro(expiresAtISO) {
+        if (window._cuponCountdownInterval) clearInterval(window._cuponCountdownInterval);
+        const target = new Date(expiresAtISO).getTime();
+
+        function actualizar() {
+            const display = document.getElementById('countdown-display');
+            if (!display) { clearInterval(window._cuponCountdownInterval); return; }
+            const diff = target - Date.now();
+            if (diff <= 0) {
+                clearInterval(window._cuponCountdownInterval);
+                display.textContent = '¡EXPIRADO!';
+                display.style.color = '#f44336';
+                const card = document.getElementById('gran-premio-card');
+                if (card) { card.style.opacity = '0.35'; card.style.filter = 'grayscale(80%)'; }
+                return;
+            }
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            display.textContent =
+                `${String(d).padStart(2,'0')}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+        }
+        actualizar();
+        window._cuponCountdownInterval = setInterval(actualizar, 1000);
+    }
+
+    function copiarCodigoCupon(codigo) {
+        vibrar(60);
+        navigator.clipboard.writeText(codigo)
+            .then(() => mostrarNotificacion('📋 ¡Código copiado! Pégalo en el campo de canje.', '#ffd700', 3500))
+            .catch(() => mostrarNotificacion('Tu código: ' + codigo, '#ffd700', 6000));
+    }
+
+    function prepararCanjeCupon(codigo) {
+        vibrar(60);
+        document.getElementById('vitrina-modal').style.display = 'none';
+        abrirMiCuenta();
+        setTimeout(() => {
+            const input = document.getElementById('input-cupon');
+            if (input) { input.value = codigo; input.focus(); }
+        }, 300);
     }
 
     function generarReporteCientifico() {

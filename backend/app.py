@@ -6,6 +6,8 @@ import json
 import base64
 import requests
 import traceback
+import secrets
+import string
 import mercadopago
 import anthropic
 from flask import Flask, request, jsonify
@@ -97,9 +99,12 @@ class Feedback(db.Model):
 class PromoCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     codigo = db.Column(db.String(50), unique=True, nullable=False)
-    dias_regalo = db.Column(db.Integer, default=30) 
-    usos_restantes = db.Column(db.Integer, default=1) 
+    dias_regalo = db.Column(db.Integer, default=30)
+    usos_restantes = db.Column(db.Integer, default=1)
     activo = db.Column(db.Boolean, default=True)
+    tipo = db.Column(db.String(50), default='estandar')
+    owner_user_id = db.Column(db.String(50), nullable=True)
+    expires_at = db.Column(db.DateTime, nullable=True)
 
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -114,6 +119,18 @@ with app.app_context():
         print("[DB INIT] Tablas verificadas/creadas exitosamente.")
     except Exception as _db_err:
         print(f"[DB INIT] {_db_err} — tablas ya existen, continuando.")
+    from sqlalchemy import text
+    with db.engine.connect() as _conn:
+        for _col_sql in [
+            "ALTER TABLE promo_code ADD COLUMN tipo VARCHAR(50) DEFAULT 'estandar'",
+            "ALTER TABLE promo_code ADD COLUMN owner_user_id VARCHAR(50)",
+            "ALTER TABLE promo_code ADD COLUMN expires_at DATETIME",
+        ]:
+            try:
+                _conn.execute(text(_col_sql))
+                _conn.commit()
+            except Exception:
+                pass
 
 INSTRUCCIONES_REGINA = """
 System Prompt: La Encantadora de Animales (Versión 32.0 - Bienestar Animal, Cruelty-Free y RPG)
@@ -396,6 +413,10 @@ def canjear_codigo():
     cupon = PromoCode.query.filter_by(codigo=codigo_input, activo=True).first()
     if not user: return jsonify({'error': 'Usuario no encontrado.'}), 404
     if not cupon: return jsonify({'error': '🛑 Código inválido o expirado.'}), 404
+    if cupon.expires_at and cupon.expires_at < datetime.utcnow():
+        cupon.activo = False
+        db.session.commit()
+        return jsonify({'error': '🛑 Este código ha expirado.'}), 400
     if cupon.usos_restantes <= 0:
         cupon.activo = False
         db.session.commit()
@@ -426,6 +447,63 @@ def admin_crear_codigo():
     db.session.add(nuevo_cupon)
     db.session.commit()
     return jsonify({'message': f'🎟️ Creado exitosamente.'})
+
+@app.route('/generar_cupon_maestro', methods=['POST'])
+def generar_cupon_maestro():
+    data = request.json or {}
+    user_id = data.get('user_id', '').strip()
+    if not user_id:
+        return jsonify({'error': 'Sin identificación.'}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'Usuario no encontrado.'}), 404
+
+    # Anti-fraude: valida las 5 insignias desde la BD, nunca desde el frontend
+    if not (
+        (user.pts_lider or 0) >= 100 and
+        (user.pts_zen or 0) >= 100 and
+        (user.pts_autocontrol or 0) >= 100 and
+        (user.pts_atleta or 0) >= 100 and
+        (user.pts_socio or 0) >= 100
+    ):
+        return jsonify({'error': 'Aún no has completado las 5 insignias.'}), 403
+
+    # Si ya existe un cupón gran_premio activo y vigente, lo devuelve
+    existing = PromoCode.query.filter_by(
+        owner_user_id=user_id, tipo='gran_premio', activo=True
+    ).first()
+    if existing and (existing.expires_at is None or existing.expires_at > datetime.utcnow()):
+        return jsonify({
+            'cupon': {
+                'codigo': existing.codigo,
+                'expires_at': existing.expires_at.isoformat() + 'Z' if existing.expires_at else None
+            }
+        })
+
+    # Acuña el cupón único de 1 uso, tipo mes_vip, expira en 7 días
+    alphabet = string.ascii_uppercase + string.digits
+    code = 'MAESTRO-' + ''.join(secrets.choice(alphabet) for _ in range(8))
+    expires_at = datetime.utcnow() + timedelta(days=7)
+
+    nuevo = PromoCode(
+        codigo=code,
+        dias_regalo=30,
+        usos_restantes=1,
+        activo=True,
+        tipo='gran_premio',
+        owner_user_id=user_id,
+        expires_at=expires_at
+    )
+    db.session.add(nuevo)
+    db.session.commit()
+
+    return jsonify({
+        'cupon': {
+            'codigo': code,
+            'expires_at': expires_at.isoformat() + 'Z'
+        }
+    })
 
 @app.route('/admin/hacer_premium', methods=['POST'])
 def admin_hacer_premium():
