@@ -711,6 +711,40 @@
         @keyframes fadeInMsg { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .msg-fade-in { animation: fadeInMsg 0.35s ease forwards; }
 
+        /* ═══════════════════════════════════════════════
+           SISTEMA PREMIUM V1265 — DIAMANTES & TROFEO
+           ═══════════════════════════════════════════════ */
+        @keyframes goldCardGlow {
+            0%,100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.5), 0 0 18px rgba(255,215,0,0.28), 0 0 42px rgba(212,175,55,0.1), var(--nm-btn); }
+            50%     { box-shadow: 0 0 0 1px rgba(212,175,55,0.88), 0 0 28px rgba(255,215,0,0.48), 0 0 64px rgba(212,175,55,0.22), var(--nm-btn); }
+        }
+        @keyframes goldBarPulse {
+            0%,100% { box-shadow: 0 0 6px rgba(212,175,55,0.55), 0 0 14px rgba(255,215,0,0.28); }
+            50%     { box-shadow: 0 0 12px rgba(212,175,55,0.88), 0 0 26px rgba(255,215,0,0.52); }
+        }
+        @keyframes gemShimmer {
+            0%,100% { filter: brightness(1.08) saturate(1.4); }
+            50%     { filter: brightness(1.5) saturate(2.2); }
+        }
+        @keyframes diamondFloat {
+            0%,100% { transform: translateY(0) rotate(-1.5deg); }
+            50%     { transform: translateY(-8px) rotate(1.5deg); }
+        }
+        @keyframes masterEntrance {
+            0%  { opacity: 0; transform: scale(0.4) rotate(-14deg); }
+            65% { transform: scale(1.1) rotate(2.5deg); }
+            100%{ opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        .vitrina-item--gold {
+            border-color: rgba(212,175,55,0.62) !important;
+            animation: goldCardGlow 3s ease-in-out infinite;
+        }
+        .gem-active { animation: gemShimmer 2.8s ease-in-out infinite; }
+        .diamond-trophy-anim {
+            animation: masterEntrance 0.72s cubic-bezier(0.34,1.56,0.64,1) both,
+                       diamondFloat 4s 0.72s ease-in-out infinite;
+        }
+
         #membrete-pdf, #reporte-cientifico-pdf { display: none; }
 
         /* ══════════════════════════════════════
@@ -1440,11 +1474,11 @@
     // GAMIFICACION — TROFEOS
     // ══════════════════════════════════════
     const trofeosConfig = [
-        { id: 'lider', color: "🟢", icono:"🐺", hex: "#4caf50", nombre: "Líder de la Manada", max: 100, desc: "Dominas el liderazgo con puro respeto y calma. Tu mascota te ve como el guía." },
-        { id: 'zen', color: "🔵", icono:"🧘", hex: "#2196f3", nombre: "Maestro Zen", max: 100, desc: "Lograste un ambiente de paz. Se acabó el relajo y tu mascota respira tranquilidad pura." },
-        { id: 'autocontrol', color: "🔴", icono:"🛑", hex: "#f44336", nombre: "Autocontrol", max: 100, desc: "Tu mascota domina sus impulsos. Sabe esperar su turno sin volverse loco." },
-        { id: 'atleta', color: "🟠", icono:"🏃", hex: "#ff9800", nombre: "Atleta Perruno", max: 100, desc: "Energía bien canalizada. Actividad física al cien, cuerpo sano y mente equilibrada." },
-        { id: 'socio', color: "🌟", icono:"🤝", hex: "#ffeb3b", nombre: "Socio Supremo", max: 100, desc: "La conexión máxima. Ya ni ocupan palabras, con una mirada se entienden perfectamente." }
+        { id: 'lider',       icono:"🐺", hex: "#4caf50", gemColor: "#4caf50", gemGlow: "#69f0ae", gemDark: "#0a3512", nombre: "Líder de la Manada", max: 100, desc: "Dominas el liderazgo con puro respeto y calma. Tu mascota te ve como el guía." },
+        { id: 'zen',         icono:"🧘", hex: "#2196f3", gemColor: "#2196f3", gemGlow: "#82b1ff", gemDark: "#0a1f44", nombre: "Maestro Zen",         max: 100, desc: "Lograste un ambiente de paz. Se acabó el relajo y tu mascota respira tranquilidad pura." },
+        { id: 'autocontrol', icono:"🛑", hex: "#f44336", gemColor: "#f44336", gemGlow: "#ff8a80", gemDark: "#4a0808", nombre: "Autocontrol",         max: 100, desc: "Tu mascota domina sus impulsos. Sabe esperar su turno sin volverse loco." },
+        { id: 'atleta',      icono:"🏃", hex: "#ff9800", gemColor: "#9c27b0", gemGlow: "#ea80fc", gemDark: "#2a0845", nombre: "Atleta Perruno",      max: 100, desc: "Energía bien canalizada. Actividad física al cien, cuerpo sano y mente equilibrada." },
+        { id: 'socio',       icono:"🤝", hex: "#ffeb3b", gemColor: "#f9a825", gemGlow: "#fff59d", gemDark: "#3d2200", nombre: "Socio Supremo",       max: 100, desc: "La conexión máxima. Ya ni ocupan palabras, con una mirada se entienden perfectamente." }
     ];
 
     function calcularProgreso(puntos, max) {
@@ -1474,36 +1508,121 @@
         trofeosConfig.forEach((t, index) => {
             let ptsActuales = parseInt(localStorage.getItem('regina_pts_' + t.id) || 0);
             let progreso = calcularProgreso(ptsActuales, t.max);
+            let isComplete = progreso === 100;
 
-            let bloqueado = progreso === 0 ? "filter: grayscale(100%); opacity: 0.6;" : "box-shadow: 0 4px 6px rgba(0,0,0,0.1);";
-            let colorPorcentaje = progreso === 100 ? t.hex : "var(--text-main)";
+            let cardExtra = isComplete
+                ? `border-color:rgba(212,175,55,0.65);animation:goldCardGlow 3s ease-in-out infinite;`
+                : (progreso === 0 ? `opacity:0.52;filter:grayscale(38%);` : ``);
 
-            let badgeInsignia = progreso === 100 ? `<div style="background:#ffca28; color:#333; padding:2px 8px; border-radius:10px; font-size:0.7em; font-weight:bold; display:inline-block; margin-top:5px; border:1px solid #d8a000;">🌟 Insignia Obtenida</div>` : `<p class="vitrina-subtext" style="margin:3px 0 0 0; font-size:0.85em;">Nivel de Progreso:</p>`;
+            let iconGlow = isComplete ? `filter:drop-shadow(0 0 9px ${t.hex});` : ``;
+            let percentColor = isComplete ? `#ffd700` : t.hex;
+            let percentShadow = isComplete ? `text-shadow:0 0 12px rgba(255,215,0,0.7);` : ``;
 
-            html += `<div onclick="vibrar(30); verDetalleTrofeo(${index})" class="vitrina-item" style="display:flex; align-items:center; gap:15px; margin-bottom:12px; padding:15px; border-radius:12px; cursor:pointer; transition: 0.3s; ${bloqueado}">
-                <span style="font-size:2.2em;">${t.icono}</span>
-                <div style="text-align:left; flex:1;">
-                    <h4 style="margin:0; font-size:1.1em;">${t.nombre}</h4>
-                    ${badgeInsignia}
+            let badgeHTML = isComplete
+                ? `<span style="background:linear-gradient(135deg,#b8860b,#d4af37 40%,#ffd700 68%,#c8902a);color:#1a0800;padding:2px 9px;border-radius:10px;font-size:0.65em;font-weight:900;display:inline-block;margin-top:5px;letter-spacing:0.04em;box-shadow:0 2px 8px rgba(212,175,55,0.5),inset 0 1px 0 rgba(255,255,255,0.22);">✦ Insignia Obtenida</span>`
+                : `<p class="vitrina-subtext" style="margin:3px 0 0;font-size:0.8em;opacity:0.62;">${progreso > 0 ? `En progreso · ${progreso}%` : `Sin comenzar`}</p>`;
+
+            let barBg = isComplete
+                ? `linear-gradient(90deg,#7a5c0e,#d4af37 25%,#ffd700 50%,#d4af37 75%,#7a5c0e)`
+                : `linear-gradient(90deg,${t.hex}dd,${t.hex}66)`;
+            let barAnim = isComplete
+                ? `animation:goldBarPulse 2.8s ease-in-out infinite;`
+                : `box-shadow:0 0 5px ${t.hex}44;`;
+
+            html += `
+                <div onclick="vibrar(30); verDetalleTrofeo(${index})" class="vitrina-item"
+                     style="display:flex;align-items:center;gap:14px;padding:13px 15px;border-radius:14px 14px 0 0;cursor:pointer;transition:all 0.3s;margin-bottom:0;${cardExtra}">
+                    <span style="font-size:2.1em;line-height:1;${iconGlow}">${t.icono}</span>
+                    <div style="flex:1;min-width:0;text-align:left;">
+                        <h4 style="margin:0;font-size:1.05em;">${t.nombre}</h4>
+                        ${badgeHTML}
+                    </div>
+                    <div style="font-size:1.15em;color:${percentColor};font-weight:900;min-width:40px;text-align:right;${percentShadow}">${progreso}%</div>
                 </div>
-                <div style="font-size:1.2em; color:${colorPorcentaje}; font-weight:bold;">${progreso}%</div>
-            </div>`;
+                <div style="background:rgba(0,0,0,0.42);border-radius:0 0 14px 14px;margin-bottom:13px;overflow:hidden;height:4px;border:1px solid rgba(255,255,255,0.03);border-top:none;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);">
+                    <div style="background:${barBg};width:${progreso}%;height:100%;transition:width 1.3s cubic-bezier(0.25,1,0.5,1);${barAnim}"></div>
+                </div>`;
         });
         lista.innerHTML = html;
 
         const contenedorMaximo = document.getElementById('contenedor-maximo');
-        if(totalInsignias === 5) {
-            contenedorMaximo.innerHTML = `<div onclick="vibrar(80); verLeyenda()" style="background: linear-gradient(145deg, #ffd54f, #ff8f00); padding: 20px; border-radius: 15px; margin-top: 20px; color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 143, 0, 0.4); transition:0.3s;">
-                <h3 style="margin:0; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); font-size:1.3em;">👑 LA CIMA DE LA MONTAÑA</h3>
-                <p style="margin:5px 0 0 0; font-weight:bold; font-size:0.95em;">¡Desbloqueado! Toca para abrir tu recompensa.</p>
-            </div>`;
-        } else {
-            contenedorMaximo.innerHTML = `<div class="vitrina-item" style="padding: 20px; border-radius: 15px; margin-top: 20px; border-style: dashed;">
-                <h3 class="vitrina-text" style="margin:0; font-size:1.2em;">⛰️ Cima de la Montaña</h3>
-                <p class="vitrina-subtext" style="margin:5px 0 0 0; font-size:0.9em;">Consigue las 5 Insignias para ver el premio final.</p>
-            </div>`;
-        }
+        contenedorMaximo.innerHTML = renderGemBadges() + renderDiamondTrophyZone(totalInsignias);
         document.getElementById('vitrina-modal').style.display = 'flex';
+    }
+
+    function renderGemBadges() {
+        const gemOrder   = [2, 0, 1, 3, 4];
+        const gemLabels  = ['Rojo', 'Verde', 'Azul', 'Morado', 'Amarillo'];
+
+        let html = `<div style="margin:22px 0 4px;text-align:center;">
+            <p style="margin:0 0 13px;font-size:0.67em;color:rgba(255,255,255,0.3);letter-spacing:0.22em;text-transform:uppercase;font-weight:700;">✦ Insignias de Gema ✦</p>
+            <div style="display:flex;justify-content:center;align-items:flex-end;gap:9px;flex-wrap:wrap;">`;
+
+        gemOrder.forEach((idx, pos) => {
+            const t = trofeosConfig[idx];
+            const label = gemLabels[pos];
+            let pts = parseInt(localStorage.getItem('regina_pts_' + t.id) || 0);
+            let progreso = calcularProgreso(pts, t.max);
+            let isComplete = progreso === 100;
+
+            if (isComplete) {
+                html += `
+                    <div title="${t.nombre}" style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+                        <div class="gem-active" style="
+                            width:44px;height:50px;
+                            clip-path:polygon(50% 0%,100% 28%,85% 100%,15% 100%,0% 28%);
+                            background:linear-gradient(158deg,rgba(255,255,255,0.55) 0%,${t.gemColor}ee 28%,${t.gemColor} 58%,${t.gemDark} 100%);
+                            filter:drop-shadow(0 0 9px ${t.gemColor}) drop-shadow(0 0 20px ${t.gemGlow}66);
+                            position:relative;">
+                        </div>
+                        <span style="font-size:0.48em;font-weight:800;color:${t.gemColor};letter-spacing:0.04em;text-transform:uppercase;text-shadow:0 0 7px ${t.gemGlow};">${label}</span>
+                    </div>`;
+            } else {
+                html += `
+                    <div title="${t.nombre} · ${progreso}% completado" style="display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0.36;">
+                        <div style="
+                            width:44px;height:50px;
+                            clip-path:polygon(50% 0%,100% 28%,85% 100%,15% 100%,0% 28%);
+                            background:linear-gradient(158deg,rgba(255,255,255,0.05) 0%,rgba(55,55,75,0.5) 50%,rgba(12,12,22,0.9) 100%);">
+                        </div>
+                        <span style="font-size:0.48em;font-weight:700;color:rgba(255,255,255,0.2);letter-spacing:0.04em;text-transform:uppercase;">${label}</span>
+                    </div>`;
+            }
+        });
+
+        html += `</div></div>`;
+        return html;
+    }
+
+    function renderDiamondTrophyZone(totalInsignias) {
+        if (totalInsignias === 5) {
+            return `
+                <div onclick="vibrar(80); verLeyenda()" style="
+                    background:linear-gradient(145deg,#06011a,#0e0428,#06011a);
+                    border:1px solid rgba(185,242,255,0.22);border-radius:22px;margin-top:18px;
+                    cursor:pointer;padding:26px 18px 22px;text-align:center;position:relative;overflow:hidden;
+                    box-shadow:0 0 0 1px rgba(144,202,249,0.1),0 0 36px rgba(144,202,249,0.15),0 0 72px rgba(100,181,246,0.06),inset 0 1px 0 rgba(255,255,255,0.05);
+                    transition:transform 0.22s,box-shadow 0.22s;"
+                    onmouseover="this.style.transform='scale(1.025)';this.style.boxShadow='0 0 0 1px rgba(144,202,249,0.28),0 0 52px rgba(144,202,249,0.28),0 0 96px rgba(100,181,246,0.13),inset 0 1px 0 rgba(255,255,255,0.05)'"
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 0 0 1px rgba(144,202,249,0.1),0 0 36px rgba(144,202,249,0.15),0 0 72px rgba(100,181,246,0.06),inset 0 1px 0 rgba(255,255,255,0.05)'">
+                    <div style="position:absolute;top:-35px;right:-35px;width:120px;height:120px;background:radial-gradient(circle,rgba(185,242,255,0.09) 0%,transparent 70%);pointer-events:none;"></div>
+                    <div style="position:absolute;bottom:-45px;left:-35px;width:140px;height:140px;background:radial-gradient(circle,rgba(100,181,246,0.1) 0%,transparent 70%);pointer-events:none;"></div>
+                    <div class="diamond-trophy-anim" style="font-size:3.8em;line-height:1;display:inline-block;">💎</div>
+                    <h3 style="margin:10px 0 3px;font-size:1.18em;color:#b9f2ff;letter-spacing:0.06em;text-shadow:0 0 16px rgba(185,242,255,0.62);">TROFEO DIAMANTE</h3>
+                    <p style="margin:0 0 10px;font-size:0.7em;color:rgba(185,242,255,0.42);letter-spacing:0.2em;text-transform:uppercase;">Maestría Suprema · Las 5 Gemas</p>
+                    <p style="margin:0;font-size:0.84em;font-weight:bold;color:rgba(255,255,255,0.58);">Toca para reclamar tu Gran Premio ✦</p>
+                </div>`;
+        }
+        let remaining = 5 - totalInsignias;
+        return `
+            <div style="
+                background:rgba(185,242,255,0.012);border:1px dashed rgba(185,242,255,0.09);
+                border-radius:22px;padding:22px 16px;margin-top:16px;text-align:center;
+                box-shadow:inset 0 0 24px rgba(0,0,0,0.22);">
+                <div style="font-size:2.8em;opacity:0.14;filter:grayscale(100%) blur(1px);">💎</div>
+                <h3 style="margin:8px 0 4px;font-size:1.02em;color:rgba(185,242,255,0.22);letter-spacing:0.05em;">Trofeo Diamante</h3>
+                <p style="margin:0;font-size:0.78em;color:rgba(255,255,255,0.24);">Faltan <b style="color:rgba(185,242,255,0.4);">${remaining}</b> gema${remaining !== 1 ? 's' : ''} por conquistar.</p>
+            </div>`;
     }
 
     function verDetalleTrofeo(index) {
@@ -1546,25 +1665,36 @@
     async function verLeyenda() {
         document.getElementById('vista-principal-vitrina').style.display = 'none';
         const vistaDetalle = document.getElementById('vista-detalle-vitrina');
+
+        const gemStrip = trofeosConfig.map(t =>
+            `<div style="flex:1;height:4px;border-radius:3px;background:linear-gradient(90deg,${t.gemColor},${t.gemGlow});box-shadow:0 0 8px ${t.gemColor}88;"></div>`
+        ).join('');
+
         vistaDetalle.innerHTML = `
-            <div style="text-align:left; margin-bottom:15px;">
-                <button onclick="vibrar(30); abrirVitrina()" style="background:none; border:none; color:var(--text-main); opacity:0.8; font-weight:bold; font-size:1.1em; cursor:pointer;">⬅ Volver</button>
+            <div style="text-align:left;margin-bottom:12px;">
+                <button onclick="vibrar(30); abrirVitrina()" style="background:none;border:none;color:var(--text-main);opacity:0.7;font-weight:bold;font-size:1.05em;cursor:pointer;">⬅ Volver</button>
             </div>
-            <span style="font-size:5.5em; filter:drop-shadow(0 0 25px #ffca28);">👑</span>
-            <h2 style="color:#ff8f00; margin:10px 0; font-size:1.8em;">Leyenda del Rancho</h2>
 
-            <div class="vitrina-item" style="margin:20px 0; border:1px solid rgba(255,202,40,0.4); text-align:left; box-shadow:0 0 24px rgba(255,202,40,0.08), var(--nm-btn);">
-                <p class="vitrina-text" style="margin:0; font-style:italic; font-size:1.15em;">"¡Mis respetos, pariente! Has obtenido las 5 Insignias de Habilidad. Tú y tu mascota son la dupla perfecta del rancho."</p>
-                <p style="margin:10px 0 0 0; font-weight:bold; color:#d81b60; text-align:right;">- Regina Valentina 🤠</p>
+            <div style="text-align:center;margin-bottom:16px;">
+                <div class="diamond-trophy-anim" style="font-size:5em;line-height:1;display:inline-block;">💎</div>
+                <p style="margin:6px 0 0;font-size:0.65em;letter-spacing:0.24em;text-transform:uppercase;color:rgba(185,242,255,0.45);font-weight:700;">TROFEO DIAMANTE</p>
+                <h2 style="margin:6px 0 0;font-size:1.5em;color:#b9f2ff;text-shadow:0 0 22px rgba(185,242,255,0.62);">Maestría Suprema</h2>
             </div>
-            <p style="font-weight:bold; color:#4caf50; font-size:1.1em; margin-bottom:22px;">¡Completado al 100%! 🏔️</p>
 
-            <button onclick="vibrar(60); generarReporteCientifico()" style="width:100%; background:linear-gradient(135deg, #6a1b9a, #8e24aa); color:white; border:none; padding:16px; border-radius:14px; font-weight:bold; font-size:1.1em; cursor:pointer; box-shadow:var(--nm-btn), 0 4px 18px rgba(106,27,154,0.4); font-family:inherit;">📄 Descargar Reporte</button>
+            <div class="vitrina-item" style="margin:0 0 14px;border:1px solid rgba(185,242,255,0.18);text-align:left;box-shadow:0 0 24px rgba(185,242,255,0.06),var(--nm-btn);">
+                <p class="vitrina-subtext" style="margin:0;font-style:italic;font-size:1.05em;">"¡Mis respetos, pariente! Has obtenido las 5 Gemas de Habilidad. Tú y tu mascota son la dupla legendaria del rancho."</p>
+                <p style="margin:10px 0 0;font-weight:bold;color:#d81b60;text-align:right;">- Regina Valentina 🤠</p>
+            </div>
 
-            <div id="gran-premio-section" style="margin-top:28px;">
-                <div style="text-align:center; padding:24px; opacity:0.55;">
-                    <span style="font-size:1.8em; display:block; margin-bottom:8px;">⭐</span>
-                    <p style="margin:0; font-size:0.88em;">Verificando tu Gran Premio...</p>
+            <div style="display:flex;gap:6px;margin-bottom:10px;">${gemStrip}</div>
+            <p style="font-weight:bold;color:#4caf50;font-size:0.92em;margin:0 0 18px;text-align:center;">5 / 5 Gemas Conquistadas ✦</p>
+
+            <button onclick="vibrar(60); generarReporteCientifico()" style="width:100%;background:linear-gradient(135deg,#4a0e7a,#7b1fa2);color:white;border:none;padding:15px;border-radius:14px;font-weight:bold;font-size:1em;cursor:pointer;box-shadow:var(--nm-btn),0 4px 18px rgba(106,27,154,0.35);font-family:inherit;margin-bottom:22px;">📄 Descargar Certificado</button>
+
+            <div id="gran-premio-section">
+                <div style="text-align:center;padding:22px;opacity:0.5;">
+                    <div style="font-size:1.7em;margin-bottom:8px;display:inline-block;animation:diamondFloat 2s ease-in-out infinite;">💎</div>
+                    <p style="margin:0;font-size:0.86em;">Verificando tu Gran Premio...</p>
                 </div>
             </div>
         `;
@@ -1574,7 +1704,7 @@
             const userId = getUserId();
             if (!userId) {
                 document.getElementById('gran-premio-section').innerHTML =
-                    `<p style="color:rgba(255,255,255,0.4); font-size:0.85em; text-align:center;">Inicia sesión para reclamar tu premio.</p>`;
+                    `<p style="color:rgba(255,255,255,0.4);font-size:0.85em;text-align:center;padding:16px;">Inicia sesión para reclamar tu premio.</p>`;
                 return;
             }
             const res = await fetch(`${API_URL}/generar_cupon_maestro`, {
@@ -1587,11 +1717,11 @@
                 mostrarGranPremio(data.cupon.codigo, data.cupon.expires_at);
             } else {
                 document.getElementById('gran-premio-section').innerHTML =
-                    `<p style="color:#f44336; font-size:0.85em; text-align:center;">${data.error || 'Premio no disponible aún.'}</p>`;
+                    `<p style="color:#f44336;font-size:0.85em;text-align:center;padding:16px;">${data.error || 'Premio no disponible aún.'}</p>`;
             }
         } catch(e) {
             document.getElementById('gran-premio-section').innerHTML =
-                `<p style="color:#f44336; font-size:0.85em; text-align:center;">Error al conectar con el servidor.</p>`;
+                `<p style="color:#f44336;font-size:0.85em;text-align:center;padding:16px;">Error al conectar con el servidor.</p>`;
         }
     }
 
