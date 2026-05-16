@@ -518,7 +518,25 @@ def blog_post(slug):
 def panel_robles():
     admin_id = request.args.get('admin_id')
     admin_user = User.query.get(admin_id)
-    if not admin_user or not admin_user.is_admin: return "<h1 style='color:red;'>🛑 Denegado</h1>", 403
+
+    # Auto-heal: director email always gets is_admin
+    if admin_user and admin_user.email == DIRECTOR_EMAIL and not admin_user.is_admin:
+        admin_user.is_admin = True
+        db.session.commit()
+
+    # Fallback: if UID not in DB (ephemeral SQLite after restart), search by DIRECTOR_EMAIL
+    if not admin_user:
+        admin_user = User.query.filter_by(email=DIRECTOR_EMAIL).first()
+        if admin_user:
+            if not admin_user.is_admin:
+                admin_user.is_admin = True
+                db.session.commit()
+
+    if not admin_user or not admin_user.is_admin:
+        return "<h1 style='color:red;'>🛑 Denegado</h1>", 403
+
+    # Resolve admin_id to the actual DB record (important if fallback was used)
+    admin_id = admin_user.id
     usuarios = User.query.all()
     feedbacks = Feedback.query.order_by(Feedback.fecha.desc()).limit(20).all()
     cupones = PromoCode.query.order_by(PromoCode.id.desc()).all()
