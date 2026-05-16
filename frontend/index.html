@@ -985,9 +985,8 @@
 
         <div id="logged-in-view" style="display:none; text-align:center;">
             <div id="membership-badge-container"></div>
-            <p style="color:var(--text-main); opacity:0.8; font-size:1.05em; margin-bottom:20px; line-height:1.5;">Usted ya es parte del rancho. ¡Su acceso está asegurado!</p>
+            <p id="vip-text-hacienda" style="color:var(--text-main); opacity:0.8; font-size:1.05em; margin-bottom:20px; line-height:1.5;">Usted ya es miembro VIP de esta honorable hacienda</p>
             <button id="btn-centro-mando" onclick="vibrar(40); window.open('https://regina-valentina-938250627989.us-central1.run.app/panel-robles?admin_id=' + getUserId(), '_blank')" style="display:none; width:100%; padding:15px; background:linear-gradient(135deg, rgba(25,18,5,0.95), rgba(45,32,5,0.9)); color:#ffca28; border:1px solid rgba(255,202,40,0.45); border-radius:14px; font-weight:bold; cursor:pointer; margin:0 auto 15px auto; font-size:1.1rem; box-shadow:0 0 24px rgba(255,202,40,0.12), var(--nm-btn); letter-spacing:0.02em; font-family:inherit;">🦅 Centro de Mando</button>
-            <button onclick="vibrar(40); cerrarSesion();" style="width:100%; padding:15px; background:linear-gradient(135deg, #b71c1c, #d32f2f); color:white; border:none; border-radius:14px; font-weight:bold; cursor:pointer; margin:0 auto; font-size:1.1rem; box-shadow:var(--nm-btn), 0 4px 14px rgba(244,67,54,0.2); font-family:inherit;">Cerrar Sesión 🚪</button>
 
             <div style="background:rgba(142,36,170,0.08); padding:22px 18px; border-radius:18px; margin-bottom:20px; border:1px solid rgba(142,36,170,0.3); margin-top:20px; box-shadow:var(--nm-inset);">
                 <p style="margin-top:0; font-size:1em; color:var(--text-main); font-weight:bold;">🎟️ ¿Tienes un código promocional?</p>
@@ -996,6 +995,7 @@
                     <button onclick="vibrar(40); canjearCupon();" style="width:100%; background:var(--grad-primary); color:white; border:none; padding:13px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1rem; box-shadow:var(--nm-btn); font-family:inherit;">Canjear Cupón</button>
                 </div>
             </div>
+            <button onclick="vibrar(40); cerrarSesion();" style="width:100%; padding:15px; background:linear-gradient(135deg, #b71c1c, #d32f2f); color:white; border:none; border-radius:14px; font-weight:bold; cursor:pointer; margin:0 auto; font-size:1.1rem; box-shadow:var(--nm-btn), 0 4px 14px rgba(244,67,54,0.2); font-family:inherit;">Cerrar Sesión 🚪</button>
         </div>
         <p id="auth-error" style="color:#f44336; font-size:1rem; margin-top:15px; min-height:20px;"></p>
     </div>
@@ -1382,15 +1382,27 @@
                     <div style="font-size:3.8em;margin-bottom:6px;filter:drop-shadow(0 0 22px rgba(255,202,40,0.55));">💎</div>
                     <h2 style="color:#fff;margin:0 0 5px 0;font-size:1.55em;font-weight:900;letter-spacing:-0.5px;">Hazte Socio VIP 🤠</h2>
                     <p style="color:rgba(255,255,255,0.5);margin:0 0 24px 0;font-size:0.88em;">Desbloquea a Regina Valentina sin límites</p>
-                    <a href="${data.payment_link_day}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(255,202,40,0.12),rgba(255,143,0,0.08));color:#ffca28;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:12px;font-size:1em;border:1px solid rgba(255,202,40,0.3);box-shadow:0 4px 22px rgba(255,202,40,0.08),inset 0 1px 0 rgba(255,202,40,0.12);">
-                        <span>🤠 Pase 24 Horas</span>
-                        <span style="background:rgba(255,202,40,0.18);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(255,202,40,0.28);">$39 MXN</span>
-                    </a>
-                    <a href="${data.payment_link_month}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(216,27,96,0.22),rgba(106,27,154,0.12));color:#fff;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:22px;font-size:1em;border:1px solid rgba(216,27,96,0.38);box-shadow:0 4px 22px rgba(216,27,96,0.12),inset 0 1px 0 rgba(255,255,255,0.05);">
-                        <span>💎 Mes VIP Ilimitado</span>
-                        <span style="background:rgba(216,27,96,0.28);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(216,27,96,0.38);">$99 MXN</span>
-                    </a>
-                    <p style="margin:0 0 18px 0;color:rgba(255,255,255,0.35);font-size:0.76em;line-height:1.5;">✅ Pago seguro MercadoPago &nbsp;·&nbsp; ✅ Acceso inmediato &nbsp;·&nbsp; ✅ Sin suscripción forzada</p>
+                    <div style="background:linear-gradient(135deg,rgba(255,202,40,0.10),rgba(255,143,0,0.06));border:1px solid rgba(255,202,40,0.28);border-radius:18px;padding:16px 18px;margin-bottom:12px;box-shadow:0 4px 22px rgba(255,202,40,0.06);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                            <span style="color:#ffca28;font-weight:bold;font-size:1em;">🤠 Pase 24 Horas</span>
+                            <span style="background:rgba(255,202,40,0.18);color:#ffca28;padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(255,202,40,0.28);font-weight:bold;">$39 MXN</span>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="pagarConMercadoPago('day', '${data.payment_link_day}')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,#009ee3,#007db8);color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;box-shadow:0 4px 14px rgba(0,158,227,0.3);">💳 Mercado Pago</button>
+                            <button onclick="pagarConStripe('day')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,rgba(99,91,255,0.25),rgba(99,91,255,0.12));color:rgba(255,255,255,0.55);border:1px solid rgba(99,91,255,0.3);border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;">💳 Tarjeta (Stripe)</button>
+                        </div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,rgba(216,27,96,0.18),rgba(106,27,154,0.10));border:1px solid rgba(216,27,96,0.35);border-radius:18px;padding:16px 18px;margin-bottom:22px;box-shadow:0 4px 22px rgba(216,27,96,0.08);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                            <span style="color:#fff;font-weight:bold;font-size:1em;">💎 Mes VIP Ilimitado</span>
+                            <span style="background:rgba(216,27,96,0.28);color:#fff;padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(216,27,96,0.38);font-weight:bold;">$99 MXN</span>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="pagarConMercadoPago('month', '${data.payment_link_month}')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,#009ee3,#007db8);color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;box-shadow:0 4px 14px rgba(0,158,227,0.3);">💳 Mercado Pago</button>
+                            <button onclick="pagarConStripe('month')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,rgba(99,91,255,0.25),rgba(99,91,255,0.12));color:rgba(255,255,255,0.55);border:1px solid rgba(99,91,255,0.3);border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;">💳 Tarjeta (Stripe)</button>
+                        </div>
+                    </div>
+                    <p style="margin:0 0 18px 0;color:rgba(255,255,255,0.35);font-size:0.76em;line-height:1.5;">✅ Pago seguro &nbsp;·&nbsp; ✅ Acceso inmediato &nbsp;·&nbsp; ✅ Sin suscripción forzada</p>
                     <button onclick="document.getElementById('modal-premium').remove()" style="background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;font-size:0.82em;font-family:inherit;padding:6px 10px;border-radius:8px;">Cerrar por ahora</button>
                 </div>
             </div>`;
@@ -1398,6 +1410,20 @@
         } catch(e) {
             mostrarNotificacion("🌐 Error al cargar opciones. ¡Intenta de nuevo!", '#f44336', 3000);
         }
+    }
+
+    function pagarConMercadoPago(plan, link) {
+        vibrar(40);
+        window.open(link, '_blank');
+    }
+
+    function pagarConStripe(plan) {
+        vibrar(40);
+        // STRIPE — PENDIENTE DE INTEGRACIÓN BACKEND
+        // Cuando el backend exponga el endpoint de Stripe, llamar:
+        // fetch(`${API_URL}/stripe/create_checkout`, { method:'POST', body: JSON.stringify({ plan, user_id: getUserId() }) })
+        //   .then(r => r.json()).then(d => window.open(d.checkout_url, '_blank'));
+        mostrarNotificacion("🔒 Pago con tarjeta próximamente. ¡Usa Mercado Pago por ahora!", '#7c4dff', 4000);
     }
 
     // ══════════════════════════════════════
@@ -1915,7 +1941,7 @@
         const titulo = document.getElementById('auth-title');
         document.getElementById('auth-error').innerText = "";
         if (localStorage.getItem('regina_registrado') === 'true') {
-            titulo.innerText = "Mi Cuenta VIP 💎";
+            titulo.innerText = "Mi Cuenta";
             document.getElementById('auth-inputs').style.display = 'none';
             document.getElementById('logged-in-view').style.display = 'block';
             const isAdmin    = localStorage.getItem('regina_is_admin')    === 'true';
@@ -1930,6 +1956,10 @@
                 } else {
                     badgeEl.innerHTML = '<div class="membership-badge freemium">🐾 Membresía: Freemium &nbsp;<span style="font-size:0.85em;opacity:0.7;">— <a onclick="vibrar(30); document.getElementById(\'auth-modal\').style.display=\'none\'; setTimeout(abrirPaywallVoluntario, 150);" style="color:var(--accent-pink);cursor:pointer;text-decoration:underline;">¡Hazte VIP!</a></span></div>';
                 }
+            }
+            const vipTextEl = document.getElementById('vip-text-hacienda');
+            if (vipTextEl) {
+                vipTextEl.style.display = (isAdmin || isDirector || isPremium) ? '' : 'none';
             }
         } else {
             titulo.innerText = "Acceso al Rancho 🤠";
@@ -2310,15 +2340,27 @@
                         <div style="font-size:3.4em;margin-bottom:6px;filter:drop-shadow(0 0 20px rgba(255,87,34,0.5));">🛑</div>
                         <h2 style="color:#fff;margin:0 0 5px 0;font-size:1.45em;font-weight:900;letter-spacing:-0.5px;">¡Tiempo Fuera, Pariente!</h2>
                         <p style="color:rgba(255,255,255,0.5);margin:0 0 24px 0;font-size:0.88em;">Se agotaron los mensajes de prueba. Únete al rancho VIP.</p>
-                        <a href="${data.payment_link_day}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(255,202,40,0.12),rgba(255,143,0,0.08));color:#ffca28;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:12px;font-size:1em;border:1px solid rgba(255,202,40,0.3);box-shadow:0 4px 22px rgba(255,202,40,0.08),inset 0 1px 0 rgba(255,202,40,0.12);">
-                            <span>🤠 Pase 24 Horas</span>
-                            <span style="background:rgba(255,202,40,0.18);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(255,202,40,0.28);">$39 MXN</span>
-                        </a>
-                        <a href="${data.payment_link_month}" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(216,27,96,0.22),rgba(106,27,154,0.12));color:#fff;text-decoration:none;padding:16px 20px;border-radius:18px;font-weight:bold;margin-bottom:22px;font-size:1em;border:1px solid rgba(216,27,96,0.38);box-shadow:0 4px 22px rgba(216,27,96,0.12),inset 0 1px 0 rgba(255,255,255,0.05);">
-                            <span>💎 Mes VIP Ilimitado</span>
-                            <span style="background:rgba(216,27,96,0.28);padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(216,27,96,0.38);">$99 MXN</span>
-                        </a>
-                        <p style="margin:0 0 18px 0;color:rgba(255,255,255,0.35);font-size:0.76em;line-height:1.5;">✅ Pago seguro MercadoPago &nbsp;·&nbsp; ✅ Acceso inmediato &nbsp;·&nbsp; ✅ Sin suscripción forzada</p>
+                        <div style="background:linear-gradient(135deg,rgba(255,202,40,0.10),rgba(255,143,0,0.06));border:1px solid rgba(255,202,40,0.28);border-radius:18px;padding:16px 18px;margin-bottom:12px;box-shadow:0 4px 22px rgba(255,202,40,0.06);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                                <span style="color:#ffca28;font-weight:bold;font-size:1em;">🤠 Pase 24 Horas</span>
+                                <span style="background:rgba(255,202,40,0.18);color:#ffca28;padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(255,202,40,0.28);font-weight:bold;">$39 MXN</span>
+                            </div>
+                            <div style="display:flex;gap:8px;">
+                                <button onclick="pagarConMercadoPago('day', '${data.payment_link_day}')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,#009ee3,#007db8);color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;box-shadow:0 4px 14px rgba(0,158,227,0.3);">💳 Mercado Pago</button>
+                                <button onclick="pagarConStripe('day')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,rgba(99,91,255,0.25),rgba(99,91,255,0.12));color:rgba(255,255,255,0.55);border:1px solid rgba(99,91,255,0.3);border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;">💳 Tarjeta (Stripe)</button>
+                            </div>
+                        </div>
+                        <div style="background:linear-gradient(135deg,rgba(216,27,96,0.18),rgba(106,27,154,0.10));border:1px solid rgba(216,27,96,0.35);border-radius:18px;padding:16px 18px;margin-bottom:22px;box-shadow:0 4px 22px rgba(216,27,96,0.08);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                                <span style="color:#fff;font-weight:bold;font-size:1em;">💎 Mes VIP Ilimitado</span>
+                                <span style="background:rgba(216,27,96,0.28);color:#fff;padding:5px 12px;border-radius:20px;font-size:0.92em;border:1px solid rgba(216,27,96,0.38);font-weight:bold;">$99 MXN</span>
+                            </div>
+                            <div style="display:flex;gap:8px;">
+                                <button onclick="pagarConMercadoPago('month', '${data.payment_link_month}')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,#009ee3,#007db8);color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;box-shadow:0 4px 14px rgba(0,158,227,0.3);">💳 Mercado Pago</button>
+                                <button onclick="pagarConStripe('month')" style="flex:1;padding:10px 6px;background:linear-gradient(135deg,rgba(99,91,255,0.25),rgba(99,91,255,0.12));color:rgba(255,255,255,0.55);border:1px solid rgba(99,91,255,0.3);border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.8em;font-family:inherit;">💳 Tarjeta (Stripe)</button>
+                            </div>
+                        </div>
+                        <p style="margin:0 0 18px 0;color:rgba(255,255,255,0.35);font-size:0.76em;line-height:1.5;">✅ Pago seguro &nbsp;·&nbsp; ✅ Acceso inmediato &nbsp;·&nbsp; ✅ Sin suscripción forzada</p>
                         <button onclick="document.getElementById('modal-premium').remove()" style="background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;font-size:0.82em;font-family:inherit;padding:6px 10px;border-radius:8px;">Cerrar por ahora</button>
                     </div>
                 </div>`;
