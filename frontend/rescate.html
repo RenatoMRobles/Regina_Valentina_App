@@ -1390,6 +1390,256 @@
             .creator-body { padding: 16px 16px 20px; }
             .header-subtitle { display: none; }
         }
+
+
+        /* ═══════════════════════════════════════════════════════════════
+           GATEKEEPER MODAL — Disclaimer & Community Oath
+           Auto-shown on first visit. Only closeable via explicit accept.
+           localStorage key: rescate_juramento_aceptado = '1'
+        ═══════════════════════════════════════════════════════════════ */
+
+        #gatekeeper-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(2, 1, 14, 0.93);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            z-index: 9500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        #gatekeeper-overlay.open { display: flex; }
+
+        #gatekeeper-card {
+            background: linear-gradient(162deg,
+                rgba(10, 8, 30, 0.99)  0%,
+                rgba(7,  5, 20, 0.98) 50%,
+                rgba(5,  3, 16, 0.97) 100%);
+            border: 1px solid rgba(65, 105, 225, 0.38);
+            border-radius: 28px;
+            max-width: 560px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                22px 22px 64px rgba(0, 0, 0, 0.92),
+                -10px -10px 32px rgba(65, 105, 225, 0.05),
+                0 0 100px rgba(41, 121, 255, 0.04);
+            animation: gkSlideIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes gkSlideIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+
+        .gk-top-bar {
+            height: 4px;
+            background: linear-gradient(90deg,
+                #1a237e 0%, #4a148c 25%, #2979ff 50%, #7b1fa2 75%, #1a237e 100%);
+            background-size: 300% 100%;
+            animation: gkBarFlow 4s ease infinite;
+        }
+        @keyframes gkBarFlow {
+            0%   { background-position:   0% 0; }
+            50%  { background-position: 100% 0; }
+            100% { background-position:   0% 0; }
+        }
+
+        .gk-body {
+            padding: 32px 34px 30px;
+        }
+
+        /* ─── Header section ─── */
+        .gk-icon-wrap {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .gk-icon {
+            font-size: 3.6rem;
+            display: inline-block;
+            filter: drop-shadow(0 0 30px rgba(65, 105, 225, 0.7));
+            animation: gkIconFloat 3.2s ease-in-out infinite;
+        }
+        @keyframes gkIconFloat {
+            0%,100% { transform: translateY(0)   scale(1);    }
+            50%      { transform: translateY(-7px) scale(1.07); }
+        }
+
+        .gk-badge-wrap {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+        .gk-badge {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(65, 105, 225, 0.1);
+            border: 1px solid rgba(65, 105, 225, 0.3);
+            border-radius: 50px;
+            padding: 5px 16px;
+            font-size: 0.72rem; font-weight: 700;
+            color: var(--blue-light);
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .gk-badge-dot {
+            width: 5px; height: 5px;
+            background: #4caf50; border-radius: 50%;
+            box-shadow: 0 0 6px #4caf50;
+            animation: livePulse 1.2s ease-in-out infinite;
+        }
+
+        .gk-title {
+            font-size: 1.5rem; font-weight: 900;
+            background: linear-gradient(135deg, #e8d5f5 0%, #82b1ff 48%, #ce93d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            line-height: 1.22;
+            margin-bottom: 10px;
+        }
+
+        .gk-subtitle {
+            text-align: center;
+            font-size: 0.875rem;
+            color: rgba(130, 177, 255, 0.48);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* ─── Visual divider ─── */
+        .gk-divider {
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(65, 105, 225, 0.3) 30%,
+                rgba(106, 27, 154, 0.3) 70%,
+                transparent 100%);
+            margin: 0 -34px 24px;
+        }
+
+        /* ─── Oath intro ─── */
+        .gk-oath-intro {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: rgba(232, 224, 240, 0.62);
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 16px;
+            letter-spacing: 0.01em;
+        }
+
+        /* ─── Commitment list ─── */
+        .gk-commitments {
+            list-style: none;
+            padding: 0; margin: 0 0 22px;
+            display: flex; flex-direction: column; gap: 9px;
+        }
+
+        .gk-commitment {
+            display: flex; align-items: flex-start; gap: 13px;
+            padding: 13px 16px;
+            background: rgba(65, 105, 225, 0.05);
+            border: 1px solid rgba(65, 105, 225, 0.12);
+            border-radius: 14px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .gk-commitment:hover {
+            background: rgba(65, 105, 225, 0.09);
+            border-color: rgba(65, 105, 225, 0.22);
+        }
+
+        .gk-commit-icon {
+            font-size: 1.3rem; flex-shrink: 0; margin-top: 1px;
+            filter: drop-shadow(0 0 7px rgba(65, 105, 225, 0.45));
+        }
+
+        .gk-commit-text {
+            font-size: 0.875rem;
+            color: rgba(232, 224, 240, 0.8);
+            line-height: 1.58;
+        }
+        .gk-commit-text strong {
+            display: block;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        /* ─── Legal notice ─── */
+        .gk-legal-notice {
+            background: rgba(255, 193, 7, 0.05);
+            border: 1px solid rgba(255, 193, 7, 0.16);
+            border-left: 3px solid rgba(255, 193, 7, 0.48);
+            border-radius: 12px;
+            padding: 13px 16px;
+            margin-bottom: 22px;
+            font-size: 0.76rem;
+            color: rgba(255, 213, 79, 0.62);
+            line-height: 1.6;
+        }
+        .gk-legal-notice a {
+            color: rgba(255, 193, 7, 0.78);
+            text-decoration: underline;
+        }
+
+        /* ─── Accept button — the only exit ─── */
+        .gk-accept-btn {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(135deg, #1a237e 0%, #4a148c 45%, #1565c0 100%);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.02rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 8px 30px rgba(26, 35, 126, 0.58),
+                0 0 50px rgba(41, 121, 255, 0.08);
+            letter-spacing: 0.015em;
+            position: relative; overflow: hidden;
+        }
+        .gk-accept-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.14), transparent 55%);
+            opacity: 0; transition: opacity 0.22s;
+        }
+        .gk-accept-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 42px rgba(41, 121, 255, 0.48),
+                0 0 70px rgba(41, 121, 255, 0.1);
+        }
+        .gk-accept-btn:hover::before { opacity: 1; }
+        .gk-accept-btn:active { transform: translateY(1px); }
+
+        /* ─── Footer note ─── */
+        .gk-footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(130, 177, 255, 0.26);
+            margin-top: 14px;
+            line-height: 1.6;
+        }
+        .gk-footer-note a {
+            color: rgba(130, 177, 255, 0.38);
+            text-decoration: underline;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 480px) {
+            .gk-body    { padding: 24px 22px 22px; }
+            .gk-title   { font-size: 1.25rem; }
+            .gk-divider { margin: 0 -22px 20px; }
+            #gatekeeper-card { border-radius: 22px; }
+        }
     </style>
 </head>
 <body>
@@ -1864,6 +2114,150 @@
      TOAST CONTAINER
 ═══════════════════════════════════════════════════════════════ -->
 <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GATEKEEPER MODAL — Disclaimer & Community Oath
+     Appears automatically on first visit to Red de Rescate.
+     Cannot be closed with the X, Escape, or backdrop click.
+     User MUST click "Acepto y me comprometo" to proceed.
+     Acceptance persisted in localStorage: rescate_juramento_aceptado
+═══════════════════════════════════════════════════════════════ -->
+<div id="gatekeeper-overlay"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="gatekeeper-title"
+     aria-describedby="gatekeeper-desc">
+    <div id="gatekeeper-card">
+        <div class="gk-top-bar" aria-hidden="true"></div>
+        <div class="gk-body">
+
+            <!-- Icon -->
+            <div class="gk-icon-wrap">
+                <span class="gk-icon" aria-hidden="true">🐾</span>
+            </div>
+
+            <!-- Badge -->
+            <div class="gk-badge-wrap">
+                <span class="gk-badge">
+                    <span class="gk-badge-dot" aria-hidden="true"></span>
+                    Red Comunitaria · CDMX
+                </span>
+            </div>
+
+            <!-- Title & subtitle -->
+            <h2 class="gk-title" id="gatekeeper-title">
+                Juramento de la<br>Comunidad Rescatista
+            </h2>
+            <p class="gk-subtitle" id="gatekeeper-desc">
+                Antes de ingresar a la Red de Rescate necesitamos que hagas
+                un compromiso solemne con nuestra comunidad y con sus mascotas.
+            </p>
+
+            <!-- Divider -->
+            <div class="gk-divider" aria-hidden="true"></div>
+
+            <!-- Oath preamble -->
+            <p class="gk-oath-intro">
+                "Como miembro de la Red de Rescate CDMX, me comprometo a:"
+            </p>
+
+            <!-- Commitment list -->
+            <ul class="gk-commitments" role="list">
+
+                <li class="gk-commitment">
+                    <span class="gk-commit-icon" aria-hidden="true">✅</span>
+                    <div class="gk-commit-text">
+                        <strong>Publicar únicamente información verdadera</strong>
+                        Cada reporte que publique será verídico, actualizado y de buena fe,
+                        sin datos falsos, fotografías ajenas ni descripciones engañosas
+                        que puedan confundir a la comunidad.
+                    </div>
+                </li>
+
+                <li class="gk-commitment">
+                    <span class="gk-commit-icon" aria-hidden="true">💙</span>
+                    <div class="gk-commit-text">
+                        <strong>Actuar con empatía profunda y compasión genuina</strong>
+                        Reconozco el dolor desgarrador de quien ha perdido a un compañero
+                        de cuatro patas. Trataré a todas las personas con calidez humana,
+                        respeto incondicional y sensibilidad ante su angustia.
+                    </div>
+                </li>
+
+                <li class="gk-commitment">
+                    <span class="gk-commit-icon" aria-hidden="true">🛡️</span>
+                    <div class="gk-commit-text">
+                        <strong>Cero fraudes · Cero extorsiones · Cero condicionar devoluciones</strong>
+                        Jamás usaré esta plataforma para estafar, extorsionar, condicionar
+                        la entrega de una mascota a un pago, ni para obtener beneficio
+                        económico ilícito de las familias en angustia. Estas conductas son
+                        delitos que reportaré de inmediato a las autoridades.
+                    </div>
+                </li>
+
+                <li class="gk-commitment">
+                    <span class="gk-commit-icon" aria-hidden="true">🤝</span>
+                    <div class="gk-commit-text">
+                        <strong>Respetar a toda la comunidad con ética y decoro</strong>
+                        Me conduciré con ética, moral, respeto y decoro hacia todos
+                        los miembros de la red. Evitaré lenguaje ofensivo, discriminatorio,
+                        intimidatorio o que atente contra la dignidad de las personas.
+                    </div>
+                </li>
+
+                <li class="gk-commitment">
+                    <span class="gk-commit-icon" aria-hidden="true">🔍</span>
+                    <div class="gk-commit-text">
+                        <strong>Verificar antes de publicar o compartir</strong>
+                        Seré responsable de la información que difunda. No propagaré
+                        reportes falsos, rumores sin confirmar ni datos desactualizados
+                        que puedan causar confusión, alarma injustificada o daño a
+                        personas que buscan desesperadamente a sus mascotas.
+                    </div>
+                </li>
+
+                <li class="gk-commitment">
+                    <span class="gk-commit-icon" aria-hidden="true">🚨</span>
+                    <div class="gk-commit-text">
+                        <strong>Denunciar comportamientos sospechosos</strong>
+                        Si identifico fraudes, extorsiones, suplantación de identidad
+                        o cualquier uso malintencionado de la plataforma, lo reportaré
+                        de inmediato al equipo de Academia Robles y a las autoridades
+                        competentes de la Ciudad de México.
+                    </div>
+                </li>
+
+            </ul>
+
+            <!-- Legal notice -->
+            <div class="gk-legal-notice" role="note" aria-label="Aviso legal">
+                <strong>⚖️ Aviso Legal:</strong> El uso de esta Red implica la aceptación total de nuestros
+                <a href="./terminos.html" target="_blank" rel="noopener noreferrer">Términos y Condiciones</a>
+                (ver Cláusula 10 — Red de Rescate). Robles Bienestar actúa exclusivamente como tablero
+                informativo. Los usuarios asumen el 100% del riesgo al interactuar con terceros.
+                Fraudes y extorsiones son responsabilidad exclusiva de quien los comete.
+            </div>
+
+            <!-- Accept button — the ONLY exit from this modal -->
+            <button
+                class="gk-accept-btn"
+                id="gatekeeper-accept-btn"
+                onclick="acceptDisclaimer()"
+                aria-label="Acepto el juramento comunitario e ingreso a la Red de Rescate CDMX">
+                <span aria-hidden="true">🤝</span>
+                Acepto y me comprometo — Ingresar a la Red
+            </button>
+
+            <p class="gk-footer-note">
+                Este juramento se registra de forma local en tu dispositivo.<br>
+                Solo se mostrará una vez por dispositivo y navegador.
+                <a href="./terminos.html" target="_blank" rel="noopener noreferrer">Leer Términos completos</a>
+            </p>
+
+        </div>
+    </div>
+</div>
 
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -2518,10 +2912,53 @@ function escapeHtml(s) {
 function escapeAttr(s) { return escapeHtml(String(s ?? '')); }
 
 /* ─────────────────────────────────────────────────────────────────
+   GATEKEEPER — Community Oath Modal
+   Shows automatically on first visit to Red de Rescate CDMX.
+   The user MUST click "Acepto y me comprometo" to proceed.
+   Rules enforced by design:
+     · No X button on the modal — none exists in the DOM.
+     · Backdrop click is ignored — the overlay has no click handler.
+     · Escape key is excluded — see keydown handler below.
+   Acceptance is persisted in localStorage so it only shows once
+   per device + browser combination.
+───────────────────────────────────────────────────────────────── */
+const GATEKEEPER_LS_KEY = 'rescate_juramento_aceptado';
+
+function initGatekeeper() {
+    if (localStorage.getItem(GATEKEEPER_LS_KEY) !== '1') {
+        const overlay = document.getElementById('gatekeeper-overlay');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // Delay focus to after animation completes for accessibility
+        setTimeout(() => {
+            const btn = document.getElementById('gatekeeper-accept-btn');
+            if (btn) btn.focus();
+        }, 580);
+    }
+}
+
+function acceptDisclaimer() {
+    localStorage.setItem(GATEKEEPER_LS_KEY, '1');
+    const overlay = document.getElementById('gatekeeper-overlay');
+    // Smooth fade-out before removing from view
+    overlay.style.transition = 'opacity 0.45s ease';
+    overlay.style.opacity    = '0';
+    setTimeout(() => {
+        overlay.classList.remove('open');
+        overlay.style.opacity    = '';
+        overlay.style.transition = '';
+        document.body.style.overflow = '';
+    }, 460);
+}
+
+/* ─────────────────────────────────────────────────────────────────
    KEYBOARD ACCESSIBILITY
+   Escape closes sidebar and contact modal, but NOT the gatekeeper.
+   The gatekeeper can only be dismissed by explicit user acceptance.
 ───────────────────────────────────────────────────────────────── */
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { closeSideMenu(); closeContactModal(); }
+    // Intentionally no gatekeeper dismiss on Escape — acceptance is mandatory.
 });
 
 /* ─────────────────────────────────────────────────────────────────
@@ -2529,6 +2966,7 @@ document.addEventListener('keydown', (e) => {
 ───────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
     syncUserFromStorage();
+    initGatekeeper();     // Show disclaimer on first visit, skip on return
     startFeedListener();
 });
 </script>
